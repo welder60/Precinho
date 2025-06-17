@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/themes/app_theme.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/utils/validators.dart';
+import '../../../core/logging/firebase_logger.dart';
 
 class AddPricePage extends StatefulWidget {
   const AddPricePage({super.key});
@@ -30,12 +31,15 @@ class _AddPricePageState extends State<AddPricePage> {
       final priceValue = Formatters.parsePrice(_priceController.text.trim());
 
       try {
-        await FirebaseFirestore.instance.collection('prices').add({
+        final data = {
           'product': _productController.text.trim(),
           'store': _storeController.text.trim(),
           'price': priceValue,
           'created_at': Timestamp.now(),
-        });
+        };
+        FirebaseLogger.log('Adding price', data);
+        await FirebaseFirestore.instance.collection('prices').add(data);
+        FirebaseLogger.log('Price added', {'product': data['product']});
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Preço salvo')),
@@ -43,6 +47,7 @@ class _AddPricePageState extends State<AddPricePage> {
           Navigator.pop(context);
         }
       } catch (e) {
+        FirebaseLogger.log('Add price error', {'error': e.toString()});
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
