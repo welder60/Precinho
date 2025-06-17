@@ -138,9 +138,11 @@ flutter pub get
 
 3. **Configure o Firebase:**
    - Crie um projeto no [Firebase Console](https://console.firebase.google.com)
-   - Adicione os arquivos de configuração:
+   - Baixe os arquivos de configuração e **adicione-os localmente** (eles não fazem parte do repositório):
      - `android/app/google-services.json` (Android)
      - `ios/Runner/GoogleService-Info.plist` (iOS)
+   - Execute `flutterfire configure` para gerar o arquivo `lib/firebase_options.dart`
+   - Para a versão web, substitua os valores de exemplo em `web/index.html` pelas configurações do seu projeto
 
 4. **Configure as APIs:**
    - Google Maps API Key
