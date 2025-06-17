@@ -87,6 +87,8 @@ class _RegisterPageWebState extends ConsumerState<RegisterPageWeb> {
             backgroundColor: AppTheme.successColor,
           ),
         );
+        // Voltar para a página inicial após o cadastro
+        Navigator.of(context).popUntil((route) => route.isFirst);
       }
     });
 
