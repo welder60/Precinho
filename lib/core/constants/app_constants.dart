@@ -24,7 +24,10 @@ class AppConstants {
   static const int pointsForReview = 2;
 
   // Contas de administrador
-  static const List<String> adminEmails = ['admin@precinho.com'];
+  static const List<String> adminEmails = [
+    'welder60@gmail.com',
+    'admin@precinho.com',
+  ];
   
   // Configurações de validação
   static const int minPasswordLength = 6;

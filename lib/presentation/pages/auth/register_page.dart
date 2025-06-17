@@ -68,7 +68,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authNotifierProvider);
 
-    // Mostrar erro se houver
+    // Mostrar feedback de erro ou sucesso
     ref.listen<AuthState>(authNotifierProvider, (previous, next) {
       if (next.hasError) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -78,6 +78,15 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
           ),
         );
         ref.read(authNotifierProvider.notifier).clearError();
+      } else if (previous?.loadingState == LoadingState.loading &&
+          next.loadingState == LoadingState.success &&
+          next.user != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Conta criada com sucesso!'),
+            backgroundColor: AppTheme.successColor,
+          ),
+        );
       }
     });
 

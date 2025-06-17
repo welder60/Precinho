@@ -77,6 +77,15 @@ class _RegisterPageWebState extends ConsumerState<RegisterPageWeb> {
           ),
         );
         ref.read(authNotifierProvider.notifier).clearError();
+      } else if (previous?.loadingState == LoadingState.loading &&
+          next.loadingState == LoadingState.success &&
+          next.userId != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Conta criada com sucesso!'),
+            backgroundColor: AppTheme.successColor,
+          ),
+        );
       }
     });
 
