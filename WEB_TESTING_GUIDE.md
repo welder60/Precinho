@@ -34,20 +34,17 @@ flutter devices
 4. Registre o app com nome "Precinho Web"
 5. Copie a configuração Firebase
 
-#### 2.2. Atualizar Configuração:
-Edite o arquivo `lib/main.dart` e substitua as configurações Firebase:
+#### 2.2. Gerar `firebase_options.dart`:
+Utilize o FlutterFire CLI para criar automaticamente o arquivo com as chaves do seu projeto:
 
-```dart
-const FirebaseOptions firebaseOptionsWeb = FirebaseOptions(
-  apiKey: 'SUA_API_KEY_AQUI',
-  authDomain: 'seu-projeto.firebaseapp.com',
-  projectId: 'seu-projeto-id',
-  storageBucket: 'seu-projeto.appspot.com',
-  messagingSenderId: '123456789012',
-  appId: '1:123456789012:web:abcdef123456789',
-  measurementId: 'G-ABCDEFGHIJ',
-);
+```bash
+flutterfire configure
 ```
+
+O comando acima gera `lib/firebase_options.dart` e você poderá inicializar o Firebase com `DefaultFirebaseOptions.currentPlatform`.
+
+#### 2.3. Atualizar `web/index.html`:
+Se preferir configurar manualmente, substitua os valores de exemplo presentes em `web/index.html` (API key, authDomain, etc.) pelos dados copiados do Firebase Console.
 
 ### 3. Executar a Aplicação
 
