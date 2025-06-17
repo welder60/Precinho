@@ -7,6 +7,7 @@ import '../map/map_page.dart';
 import '../search/search_page.dart';
 import '../shopping_list/shopping_lists_page.dart';
 import '../profile/profile_page.dart';
+import '../price/add_price_page.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -183,8 +184,11 @@ class AddPriceBottomSheet extends StatelessWidget {
             subtitle: const Text('Digite o preço manualmente'),
             onTap: () {
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Funcionalidade em desenvolvimento')),
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const AddPricePage(),
+                ),
               );
             },
           ),
