@@ -1,0 +1,55 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'core/themes/app_theme.dart';
+import 'core/constants/enums.dart';
+import 'presentation/pages/splash_page.dart';
+import 'presentation/pages/auth/login_page_web.dart';
+import 'presentation/pages/home/home_page_web.dart';
+import 'presentation/providers/auth_provider_web.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  runApp(
+    const ProviderScope(
+      child: PrecinhApp(),
+    ),
+  );
+}
+
+class PrecinhApp extends ConsumerWidget {
+  const PrecinhApp({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return MaterialApp(
+      title: 'Precinho',
+      theme: AppTheme.lightTheme,
+      debugShowCheckedModeBanner: false,
+      home: const AuthWrapper(),
+    );
+  }
+}
+
+class AuthWrapper extends ConsumerWidget {
+  const AuthWrapper({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authNotifierProvider);
+
+    // Mostrar splash enquanto carrega
+    if (authState.loadingState == LoadingState.loading) {
+      return const SplashPage();
+    }
+
+    // Navegar para home se autenticado, senão para login
+    if (authState.isAuthenticated) {
+      return const HomePageWeb();
+    } else {
+      return const LoginPageWeb();
+    }
+  }
+}
+

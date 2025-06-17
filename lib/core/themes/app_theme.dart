@@ -1,0 +1,337 @@
+import 'package:flutter/material.dart';
+
+class AppTheme {
+  // Cores principais
+  static const Color primaryColor = Color(0xFF2E7D32); // Verde escuro
+  static const Color primaryLightColor = Color(0xFF4CAF50); // Verde claro
+  static const Color primaryDarkColor = Color(0xFF1B5E20); // Verde muito escuro
+  static const Color secondaryColor = Color(0xFFFF9800); // Laranja
+  static const Color secondaryLightColor = Color(0xFFFFB74D); // Laranja claro
+  static const Color secondaryDarkColor = Color(0xFFE65100); // Laranja escuro
+
+  // Cores de status
+  static const Color successColor = Color(0xFF4CAF50);
+  static const Color warningColor = Color(0xFFFF9800);
+  static const Color errorColor = Color(0xFFF44336);
+  static const Color infoColor = Color(0xFF2196F3);
+
+  // Cores neutras
+  static const Color backgroundColor = Color(0xFFF5F5F5);
+  static const Color surfaceColor = Color(0xFFFFFFFF);
+  static const Color cardColor = Color(0xFFFFFFFF);
+  static const Color dividerColor = Color(0xFFE0E0E0);
+
+  // Cores de texto
+  static const Color textPrimaryColor = Color(0xFF212121);
+  static const Color textSecondaryColor = Color(0xFF757575);
+  static const Color textDisabledColor = Color(0xFFBDBDBD);
+  static const Color textOnPrimaryColor = Color(0xFFFFFFFF);
+
+  // Tema claro
+  static ThemeData get lightTheme {
+    return ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.light,
+      colorScheme: const ColorScheme.light(
+        primary: primaryColor,
+        primaryContainer: primaryLightColor,
+        secondary: secondaryColor,
+        secondaryContainer: secondaryLightColor,
+        surface: surfaceColor,
+        background: backgroundColor,
+        error: errorColor,
+        onPrimary: textOnPrimaryColor,
+        onSecondary: textOnPrimaryColor,
+        onSurface: textPrimaryColor,
+        onBackground: textPrimaryColor,
+        onError: textOnPrimaryColor,
+      ),
+      
+      // AppBar
+      appBarTheme: const AppBarTheme(
+        backgroundColor: primaryColor,
+        foregroundColor: textOnPrimaryColor,
+        elevation: 2,
+        centerTitle: true,
+        titleTextStyle: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+          color: textOnPrimaryColor,
+        ),
+      ),
+
+      // Botões
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: primaryColor,
+          foregroundColor: textOnPrimaryColor,
+          elevation: 2,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          textStyle: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: primaryColor,
+          side: const BorderSide(color: primaryColor),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          textStyle: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: primaryColor,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          textStyle: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+
+      // FloatingActionButton
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        backgroundColor: secondaryColor,
+        foregroundColor: textOnPrimaryColor,
+        elevation: 4,
+      ),
+
+      // Cards
+      cardTheme: CardTheme(
+        color: cardColor,
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        margin: const EdgeInsets.all(8),
+      ),
+
+      // Campos de texto
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: surfaceColor,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: dividerColor),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: dividerColor),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: primaryColor, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: errorColor),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        labelStyle: const TextStyle(color: textSecondaryColor),
+        hintStyle: const TextStyle(color: textDisabledColor),
+      ),
+
+      // Chips
+      chipTheme: ChipThemeData(
+        backgroundColor: backgroundColor,
+        selectedColor: primaryLightColor,
+        labelStyle: const TextStyle(color: textPrimaryColor),
+        secondaryLabelStyle: const TextStyle(color: textOnPrimaryColor),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+      ),
+
+      // BottomNavigationBar
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: surfaceColor,
+        selectedItemColor: primaryColor,
+        unselectedItemColor: textSecondaryColor,
+        type: BottomNavigationBarType.fixed,
+        elevation: 8,
+      ),
+
+      // Divider
+      dividerTheme: const DividerThemeData(
+        color: dividerColor,
+        thickness: 1,
+        space: 1,
+      ),
+
+      // ListTile
+      listTileTheme: const ListTileThemeData(
+        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        titleTextStyle: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          color: textPrimaryColor,
+        ),
+        subtitleTextStyle: TextStyle(
+          fontSize: 14,
+          color: textSecondaryColor,
+        ),
+      ),
+
+      // Tipografia
+      textTheme: const TextTheme(
+        displayLarge: TextStyle(
+          fontSize: 32,
+          fontWeight: FontWeight.bold,
+          color: textPrimaryColor,
+        ),
+        displayMedium: TextStyle(
+          fontSize: 28,
+          fontWeight: FontWeight.bold,
+          color: textPrimaryColor,
+        ),
+        displaySmall: TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+          color: textPrimaryColor,
+        ),
+        headlineLarge: TextStyle(
+          fontSize: 22,
+          fontWeight: FontWeight.w600,
+          color: textPrimaryColor,
+        ),
+        headlineMedium: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+          color: textPrimaryColor,
+        ),
+        headlineSmall: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          color: textPrimaryColor,
+        ),
+        titleLarge: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          color: textPrimaryColor,
+        ),
+        titleMedium: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: textPrimaryColor,
+        ),
+        titleSmall: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+          color: textPrimaryColor,
+        ),
+        bodyLarge: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.normal,
+          color: textPrimaryColor,
+        ),
+        bodyMedium: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.normal,
+          color: textPrimaryColor,
+        ),
+        bodySmall: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.normal,
+          color: textSecondaryColor,
+        ),
+        labelLarge: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: textPrimaryColor,
+        ),
+        labelMedium: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+          color: textPrimaryColor,
+        ),
+        labelSmall: TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.w500,
+          color: textSecondaryColor,
+        ),
+      ),
+    );
+  }
+
+  // Tema escuro (para futuras implementações)
+  static ThemeData get darkTheme {
+    return ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.dark,
+      // Implementar tema escuro se necessário
+    );
+  }
+
+  // Estilos personalizados
+  static const TextStyle priceTextStyle = TextStyle(
+    fontSize: 18,
+    fontWeight: FontWeight.bold,
+    color: primaryColor,
+  );
+
+  static const TextStyle discountTextStyle = TextStyle(
+    fontSize: 14,
+    fontWeight: FontWeight.w500,
+    color: errorColor,
+  );
+
+  static const TextStyle ratingTextStyle = TextStyle(
+    fontSize: 14,
+    fontWeight: FontWeight.w500,
+    color: warningColor,
+  );
+
+  static const TextStyle distanceTextStyle = TextStyle(
+    fontSize: 12,
+    fontWeight: FontWeight.normal,
+    color: textSecondaryColor,
+  );
+
+  // Decorações personalizadas
+  static BoxDecoration cardDecoration = BoxDecoration(
+    color: cardColor,
+    borderRadius: BorderRadius.circular(12),
+    boxShadow: [
+      BoxShadow(
+        color: Colors.black.withOpacity(0.1),
+        blurRadius: 4,
+        offset: const Offset(0, 2),
+      ),
+    ],
+  );
+
+  static BoxDecoration primaryGradientDecoration = const BoxDecoration(
+    gradient: LinearGradient(
+      colors: [primaryColor, primaryLightColor],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    ),
+  );
+
+  // Espaçamentos padrão
+  static const double paddingSmall = 8.0;
+  static const double paddingMedium = 16.0;
+  static const double paddingLarge = 24.0;
+  static const double paddingXLarge = 32.0;
+
+  static const double radiusSmall = 4.0;
+  static const double radiusMedium = 8.0;
+  static const double radiusLarge = 12.0;
+  static const double radiusXLarge = 16.0;
+}
+
