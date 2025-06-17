@@ -3,33 +3,59 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/themes/app_theme.dart';
 import '../../../core/utils/validators.dart';
 import '../../providers/auth_provider_web.dart';
-import 'register_page_web.dart';
 
-class LoginPageWeb extends ConsumerStatefulWidget {
-  const LoginPageWeb({super.key});
+class RegisterPageWeb extends ConsumerStatefulWidget {
+  const RegisterPageWeb({super.key});
 
   @override
-  ConsumerState<LoginPageWeb> createState() => _LoginPageWebState();
+  ConsumerState<RegisterPageWeb> createState() => _RegisterPageWebState();
 }
 
-class _LoginPageWebState extends ConsumerState<LoginPageWeb> {
+class _RegisterPageWebState extends ConsumerState<RegisterPageWeb> {
   final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
+  bool _acceptTerms = false;
 
   @override
   void dispose() {
+    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
-  void _signIn() {
+  String? _validateConfirmPassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Confirma\u00e7\u00e3o de senha \u00e9 obrigat\u00f3ria';
+    }
+    if (value != _passwordController.text) {
+      return 'Senhas n\u00e3o coincidem';
+    }
+    return null;
+  }
+
+  void _signUp() {
     if (_formKey.currentState!.validate()) {
-      ref.read(authNotifierProvider.notifier).signInWithEmail(
+      if (!_acceptTerms) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Voc\u00ea deve aceitar os termos de uso'),
+            backgroundColor: AppTheme.errorColor,
+          ),
+        );
+        return;
+      }
+
+      ref.read(authNotifierProvider.notifier).signUpWithEmail(
             _emailController.text.trim(),
             _passwordController.text,
+            _nameController.text.trim(),
           );
     }
   }
@@ -38,17 +64,10 @@ class _LoginPageWebState extends ConsumerState<LoginPageWeb> {
     ref.read(authNotifierProvider.notifier).signInWithGoogle();
   }
 
-  void _navigateToRegister() {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const RegisterPageWeb()),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authNotifierProvider);
 
-    // Mostrar erro se houver
     ref.listen<AuthState>(authNotifierProvider, (previous, next) {
       if (next.hasError) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -62,6 +81,12 @@ class _LoginPageWebState extends ConsumerState<LoginPageWeb> {
     });
 
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Criar Conta'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
+      extendBodyBehindAppBar: true,
       body: Container(
         decoration: AppTheme.primaryGradientDecoration,
         child: SafeArea(
@@ -82,54 +107,45 @@ class _LoginPageWebState extends ConsumerState<LoginPageWeb> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          // Logo e título
-                          const Icon(
-                            Icons.shopping_cart,
-                            size: 64,
-                            color: AppTheme.primaryColor,
-                          ),
-                          const SizedBox(height: AppTheme.paddingMedium),
                           Text(
-                            'Bem-vindo ao Precinho',
+                            'Criar Nova Conta',
                             style: Theme.of(context).textTheme.headlineMedium,
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: AppTheme.paddingSmall),
                           Text(
-                            'Versão Web - Demonstração',
+                            'Vers\u00e3o Web - Demonstra\u00e7\u00e3o',
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                   color: AppTheme.textSecondaryColor,
                                 ),
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: AppTheme.paddingLarge),
-
-                          // Campo de email
+                          TextFormField(
+                            controller: _nameController,
+                            decoration: const InputDecoration(
+                              labelText: 'Nome completo',
+                              prefixIcon: Icon(Icons.person),
+                            ),
+                            validator: Validators.validateName,
+                          ),
+                          const SizedBox(height: AppTheme.paddingMedium),
                           TextFormField(
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
                             decoration: const InputDecoration(
                               labelText: 'Email',
                               prefixIcon: Icon(Icons.email),
-                              hintText: 'demo@precinho.com',
                             ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Email é obrigatório';
-                              }
-                              return null;
-                            },
+                            validator: Validators.validateEmail,
                           ),
                           const SizedBox(height: AppTheme.paddingMedium),
-
-                          // Campo de senha
                           TextFormField(
                             controller: _passwordController,
                             obscureText: _obscurePassword,
                             decoration: InputDecoration(
                               labelText: 'Senha',
                               prefixIcon: const Icon(Icons.lock),
-                              hintText: '123456',
                               suffixIcon: IconButton(
                                 icon: Icon(
                                   _obscurePassword
@@ -143,20 +159,61 @@ class _LoginPageWebState extends ConsumerState<LoginPageWeb> {
                                 },
                               ),
                             ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Senha é obrigatória';
-                              }
-                              return null;
-                            },
+                            validator: Validators.validatePassword,
+                          ),
+                          const SizedBox(height: AppTheme.paddingMedium),
+                          TextFormField(
+                            controller: _confirmPasswordController,
+                            obscureText: _obscureConfirmPassword,
+                            decoration: InputDecoration(
+                              labelText: 'Confirmar senha',
+                              prefixIcon: const Icon(Icons.lock_outline),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscureConfirmPassword
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _obscureConfirmPassword = !_obscureConfirmPassword;
+                                  });
+                                },
+                              ),
+                            ),
+                            validator: _validateConfirmPassword,
+                          ),
+                          const SizedBox(height: AppTheme.paddingMedium),
+                          Row(
+                            children: [
+                              Checkbox(
+                                value: _acceptTerms,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _acceptTerms = value ?? false;
+                                  });
+                                },
+                              ),
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      _acceptTerms = !_acceptTerms;
+                                    });
+                                  },
+                                  child: Text(
+                                    'Aceito os termos de uso e pol\u00edtica de privacidade',
+                                    style: Theme.of(context).textTheme.bodySmall,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                           const SizedBox(height: AppTheme.paddingLarge),
-
-                          // Botão de login
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
-                              onPressed: authState.isLoading ? null : _signIn,
+                              onPressed: authState.isLoading ? null : _signUp,
                               child: authState.isLoading
                                   ? const SizedBox(
                                       height: 20,
@@ -168,12 +225,10 @@ class _LoginPageWebState extends ConsumerState<LoginPageWeb> {
                                         ),
                                       ),
                                     )
-                                  : const Text('Entrar'),
+                                  : const Text('Criar Conta'),
                             ),
                           ),
                           const SizedBox(height: AppTheme.paddingMedium),
-
-                          // Divisor
                           Row(
                             children: [
                               const Expanded(child: Divider()),
@@ -190,59 +245,12 @@ class _LoginPageWebState extends ConsumerState<LoginPageWeb> {
                             ],
                           ),
                           const SizedBox(height: AppTheme.paddingMedium),
-
-                          // Botão do Google
                           SizedBox(
                             width: double.infinity,
                             child: OutlinedButton.icon(
                               onPressed: authState.isLoading ? null : _signInWithGoogle,
                               icon: const Icon(Icons.g_mobiledata, size: 24),
                               label: const Text('Continuar com Google'),
-                            ),
-                          ),
-                          const SizedBox(height: AppTheme.paddingLarge),
-
-                          // Link para cadastro
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'Não tem uma conta? ',
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              ),
-                              TextButton(
-                                onPressed: _navigateToRegister,
-                                child: const Text('Cadastre-se'),
-                              ),
-                            ],
-                          ),
-
-                          // Informações de demonstração
-                          const SizedBox(height: AppTheme.paddingMedium),
-                          Container(
-                            padding: const EdgeInsets.all(AppTheme.paddingMedium),
-                            decoration: BoxDecoration(
-                              color: AppTheme.infoColor.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-                            ),
-                            child: Column(
-                              children: [
-                                Text(
-                                  'Demonstração',
-                                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                        color: AppTheme.infoColor,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                ),
-                                const SizedBox(height: AppTheme.paddingSmall),
-                                Text(
-                                  'Use qualquer email/senha para testar',
-                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                        color: AppTheme.infoColor,
-                                      ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
                             ),
                           ),
                         ],
@@ -258,4 +266,3 @@ class _LoginPageWebState extends ConsumerState<LoginPageWeb> {
     );
   }
 }
-

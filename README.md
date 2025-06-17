@@ -240,6 +240,9 @@ class Price {
 - [x] Gerenciamento de estado com Riverpod
 - [x] Tema e design system
 - [x] Validações e formatadores
+- [x] Página de administração com gestão de produtos via Firestore
+- [x] Tela de cadastro dedicada para a versão web
+- [x] Envio de preços para o Firestore com mensagens de sucesso ou erro
 
 ### 🚧 Em Desenvolvimento
 - [ ] Integração com Google Maps

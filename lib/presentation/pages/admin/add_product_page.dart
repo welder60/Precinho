@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../../../core/themes/app_theme.dart';
 import '../../../core/constants/enums.dart';
@@ -25,12 +26,32 @@ class _AddProductPageState extends State<AddProductPage> {
     super.dispose();
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     if (_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Produto cadastrado (apenas interface)')),
-      );
-      Navigator.pop(context);
+      try {
+        await FirebaseFirestore.instance.collection('products').add({
+          'name': _nameController.text.trim(),
+          'brand': _brandController.text.trim(),
+          'description': _descriptionController.text.trim(),
+          'category': _category?.value,
+          'created_at': Timestamp.now(),
+        });
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Produto cadastrado')),
+          );
+          Navigator.pop(context);
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erro ao cadastrar produto: ${e.toString()}'),
+              backgroundColor: AppTheme.errorColor,
+            ),
+          );
+        }
+      }
     }
   }
 

@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../../../core/themes/app_theme.dart';
+import '../../../core/utils/formatters.dart';
 import '../../../core/utils/validators.dart';
 
 class AddPricePage extends StatefulWidget {
@@ -23,12 +25,33 @@ class _AddPricePageState extends State<AddPricePage> {
     super.dispose();
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     if (_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Preço salvo (apenas interface)')),
-      );
-      Navigator.pop(context);
+      final priceValue = Formatters.parsePrice(_priceController.text.trim());
+
+      try {
+        await FirebaseFirestore.instance.collection('prices').add({
+          'product': _productController.text.trim(),
+          'store': _storeController.text.trim(),
+          'price': priceValue,
+          'created_at': Timestamp.now(),
+        });
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Preço salvo')),
+          );
+          Navigator.pop(context);
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erro ao salvar preço: ${e.toString()}'),
+              backgroundColor: AppTheme.errorColor,
+            ),
+          );
+        }
+      }
     }
   }
 
