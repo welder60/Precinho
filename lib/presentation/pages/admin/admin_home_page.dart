@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/themes/app_theme.dart';
 import 'add_product_page.dart';
+import 'manage_products_page.dart';
 import 'validate_prices_page.dart';
 
 class AdminHomePage extends StatelessWidget {
@@ -28,6 +29,19 @@ class AdminHomePage extends StatelessWidget {
               },
               icon: const Icon(Icons.add),
               label: const Text('Adicionar Produto'),
+            ),
+            const SizedBox(height: AppTheme.paddingMedium),
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const ManageProductsPage(),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.list),
+              label: const Text('Gerenciar Produtos'),
             ),
             const SizedBox(height: AppTheme.paddingMedium),
             ElevatedButton.icon(
