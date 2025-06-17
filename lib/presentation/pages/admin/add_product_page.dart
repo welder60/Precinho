@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/themes/app_theme.dart';
 import '../../../core/constants/enums.dart';
 import '../../../core/utils/validators.dart';
+import '../../../core/logging/firebase_logger.dart';
 
 class AddProductPage extends StatefulWidget {
   const AddProductPage({super.key});
@@ -29,13 +30,16 @@ class _AddProductPageState extends State<AddProductPage> {
   Future<void> _submit() async {
     if (_formKey.currentState!.validate()) {
       try {
-        await FirebaseFirestore.instance.collection('products').add({
+        final data = {
           'name': _nameController.text.trim(),
           'brand': _brandController.text.trim(),
           'description': _descriptionController.text.trim(),
           'category': _category?.value,
           'created_at': Timestamp.now(),
-        });
+        };
+        FirebaseLogger.log('Adding product', data);
+        await FirebaseFirestore.instance.collection('products').add(data);
+        FirebaseLogger.log('Product added', {'name': data['name']});
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Produto cadastrado')),
@@ -43,6 +47,7 @@ class _AddProductPageState extends State<AddProductPage> {
           Navigator.pop(context);
         }
       } catch (e) {
+        FirebaseLogger.log('Add product error', {'error': e.toString()});
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

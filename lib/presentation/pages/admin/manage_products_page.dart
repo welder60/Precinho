@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../../../core/themes/app_theme.dart';
 import 'add_product_page.dart';
+import '../../../core/logging/firebase_logger.dart';
 
 class ManageProductsPage extends StatelessWidget {
   const ManageProductsPage({super.key});
@@ -25,7 +26,9 @@ class ManageProductsPage extends StatelessWidget {
       ),
     );
     if (confirm == true) {
+      FirebaseLogger.log('Deleting product', {'path': doc.path});
       await doc.delete();
+      FirebaseLogger.log('Product deleted', {'path': doc.path});
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Produto exclu\u00eddo')),
       );
@@ -46,6 +49,10 @@ class ManageProductsPage extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasData) {
+            FirebaseLogger.log('Products snapshot',
+                {'count': snapshot.data!.docs.length});
           }
           if (snapshot.hasError) {
             return const Center(child: Text('Erro ao carregar produtos'));

@@ -4,6 +4,7 @@ import '../models/user_model.dart';
 import '../../core/errors/failures.dart';
 import '../../core/constants/enums.dart';
 import '../../core/constants/app_constants.dart';
+import '../../core/logging/firebase_logger.dart';
 
 abstract class AuthService {
   Future<UserModel?> getCurrentUser();
@@ -29,11 +30,14 @@ class FirebaseAuthService implements AuthService {
   @override
   Future<UserModel?> getCurrentUser() async {
     try {
+      FirebaseLogger.log('Get current user');
       final firebaseUser = _firebaseAuth.currentUser;
       if (firebaseUser == null) return null;
 
+      FirebaseLogger.log('Current user', {'uid': firebaseUser.uid});
       return _mapFirebaseUserToUserModel(firebaseUser);
     } catch (e) {
+      FirebaseLogger.log('Get current user error', {'error': e.toString()});
       throw AuthenticationFailure(message: 'Erro ao obter usuário atual: $e');
     }
   }
@@ -41,6 +45,7 @@ class FirebaseAuthService implements AuthService {
   @override
   Future<UserModel> signInWithEmail(String email, String password) async {
     try {
+      FirebaseLogger.log('Sign in with email', {'email': email});
       final credential = await _firebaseAuth.signInWithEmailAndPassword(
         email: email,
         password: password,
@@ -50,13 +55,16 @@ class FirebaseAuthService implements AuthService {
         throw const AuthenticationFailure(message: 'Falha na autenticação');
       }
 
+      FirebaseLogger.log('Sign in success', {'uid': credential.user!.uid});
       return _mapFirebaseUserToUserModel(credential.user!);
     } on firebase_auth.FirebaseAuthException catch (e) {
+      FirebaseLogger.log('Sign in firebase error', {'code': e.code});
       throw AuthenticationFailure(
         message: _getAuthErrorMessage(e.code),
         code: e.hashCode,
       );
     } catch (e) {
+      FirebaseLogger.log('Sign in error', {'error': e.toString()});
       throw AuthenticationFailure(message: 'Erro inesperado: $e');
     }
   }
@@ -64,6 +72,7 @@ class FirebaseAuthService implements AuthService {
   @override
   Future<UserModel> signUpWithEmail(String email, String password, String name) async {
     try {
+      FirebaseLogger.log('Sign up with email', {'email': email});
       final credential = await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
         password: password,
@@ -77,13 +86,16 @@ class FirebaseAuthService implements AuthService {
       await credential.user!.updateDisplayName(name);
       await credential.user!.reload();
 
+      FirebaseLogger.log('Sign up success', {'uid': credential.user!.uid});
       return _mapFirebaseUserToUserModel(credential.user!);
     } on firebase_auth.FirebaseAuthException catch (e) {
+      FirebaseLogger.log('Sign up firebase error', {'code': e.code});
       throw AuthenticationFailure(
         message: _getAuthErrorMessage(e.code),
         code: e.hashCode,
       );
     } catch (e) {
+      FirebaseLogger.log('Sign up error', {'error': e.toString()});
       throw AuthenticationFailure(message: 'Erro inesperado: $e');
     }
   }
@@ -91,6 +103,7 @@ class FirebaseAuthService implements AuthService {
   @override
   Future<UserModel> signInWithGoogle() async {
     try {
+      FirebaseLogger.log('Sign in with Google');
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) {
         throw const AuthenticationFailure(message: 'Login cancelado pelo usuário');
@@ -108,10 +121,11 @@ class FirebaseAuthService implements AuthService {
       if (userCredential.user == null) {
         throw const AuthenticationFailure(message: 'Falha na autenticação com Google');
       }
-
+      FirebaseLogger.log('Google sign in success', {'uid': userCredential.user!.uid});
       return _mapFirebaseUserToUserModel(userCredential.user!);
     } catch (e) {
       if (e is AuthenticationFailure) rethrow;
+      FirebaseLogger.log('Google sign in error', {'error': e.toString()});
       throw AuthenticationFailure(message: 'Erro no login com Google: $e');
     }
   }
@@ -119,11 +133,14 @@ class FirebaseAuthService implements AuthService {
   @override
   Future<void> signOut() async {
     try {
+      FirebaseLogger.log('Sign out');
       await Future.wait([
         _firebaseAuth.signOut(),
         _googleSignIn.signOut(),
       ]);
+      FirebaseLogger.log('Sign out success');
     } catch (e) {
+      FirebaseLogger.log('Sign out error', {'error': e.toString()});
       throw AuthenticationFailure(message: 'Erro ao fazer logout: $e');
     }
   }
@@ -131,13 +148,17 @@ class FirebaseAuthService implements AuthService {
   @override
   Future<void> resetPassword(String email) async {
     try {
+      FirebaseLogger.log('Reset password', {'email': email});
       await _firebaseAuth.sendPasswordResetEmail(email: email);
+      FirebaseLogger.log('Reset password email sent');
     } on firebase_auth.FirebaseAuthException catch (e) {
+      FirebaseLogger.log('Reset password firebase error', {'code': e.code});
       throw AuthenticationFailure(
         message: _getAuthErrorMessage(e.code),
         code: e.hashCode,
       );
     } catch (e) {
+      FirebaseLogger.log('Reset password error', {'error': e.toString()});
       throw AuthenticationFailure(message: 'Erro ao enviar email de recuperação: $e');
     }
   }
@@ -145,6 +166,7 @@ class FirebaseAuthService implements AuthService {
   @override
   Future<void> updateProfile(String name, String? photoUrl) async {
     try {
+      FirebaseLogger.log('Update profile', {'name': name, 'photo': photoUrl});
       final user = _firebaseAuth.currentUser;
       if (user == null) {
         throw const AuthenticationFailure(message: 'Usuário não autenticado');
@@ -155,7 +177,9 @@ class FirebaseAuthService implements AuthService {
         await user.updatePhotoURL(photoUrl);
       }
       await user.reload();
+      FirebaseLogger.log('Profile updated', {'uid': user.uid});
     } catch (e) {
+      FirebaseLogger.log('Update profile error', {'error': e.toString()});
       throw AuthenticationFailure(message: 'Erro ao atualizar perfil: $e');
     }
   }
@@ -163,6 +187,7 @@ class FirebaseAuthService implements AuthService {
   @override
   Stream<UserModel?> get authStateChanges {
     return _firebaseAuth.authStateChanges().map((firebaseUser) {
+      FirebaseLogger.log('Auth state change', {'uid': firebaseUser?.uid});
       if (firebaseUser == null) return null;
       return _mapFirebaseUserToUserModel(firebaseUser);
     });
