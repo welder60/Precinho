@@ -1,16 +1,22 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'core/themes/app_theme.dart';
 import 'core/constants/enums.dart';
 import 'presentation/pages/splash_page.dart';
 import 'presentation/pages/auth/login_page_web.dart';
 import 'presentation/pages/home/home_page_web.dart';
 import 'presentation/providers/auth_provider_web.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   runApp(
     const ProviderScope(
       child: PrecinhApp(),
