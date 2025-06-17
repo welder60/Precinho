@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/themes/app_theme.dart';
 import '../../../core/utils/validators.dart';
+import '../../../core/constants/enums.dart';
 import '../../providers/auth_provider.dart';
 
 class RegisterPage extends ConsumerStatefulWidget {
