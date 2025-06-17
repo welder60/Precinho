@@ -64,6 +64,9 @@ class User extends Equatable {
     );
   }
 
+  bool get isAdmin => role == UserRole.admin;
+  bool get isModerator => role == UserRole.moderator;
+
   @override
   List<Object?> get props => [
         id,

@@ -22,6 +22,9 @@ class AppConstants {
   static const int pointsForStoreSubmission = 15;
   static const int pointsForProductSubmission = 5;
   static const int pointsForReview = 2;
+
+  // Contas de administrador
+  static const List<String> adminEmails = ['admin@precinho.com'];
   
   // Configurações de validação
   static const int minPasswordLength = 6;
