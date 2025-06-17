@@ -217,6 +217,12 @@ final currentUserProvider = Provider<UserModel?>((ref) {
   return authState.user;
 });
 
+// Provider para verificar se o usuário é administrador
+final isAdminProvider = Provider<bool>((ref) {
+  final user = ref.watch(currentUserProvider);
+  return user?.role == UserRole.admin;
+});
+
 // Provider para verificar se está carregando
 final isLoadingProvider = Provider<bool>((ref) {
   final authState = ref.watch(authNotifierProvider);

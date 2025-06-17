@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/themes/app_theme.dart';
 import '../../../core/utils/formatters.dart';
 import '../../providers/auth_provider.dart';
+import '../admin/admin_home_page.dart';
 
 class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
@@ -256,6 +257,23 @@ class ProfilePage extends ConsumerWidget {
             // TODO: Navegar para ranking
           },
         ),
+
+        // Painel administrativo (apenas para admins)
+        if (ref.watch(isAdminProvider))
+          _buildMenuItem(
+            context,
+            'Painel Administrativo',
+            'Gerencie produtos e preços',
+            Icons.admin_panel_settings,
+            () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const AdminHomePage(),
+                ),
+              );
+            },
+          ),
 
         // Configurações
         _buildMenuItem(

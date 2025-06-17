@@ -3,6 +3,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import '../models/user_model.dart';
 import '../../core/errors/failures.dart';
 import '../../core/constants/enums.dart';
+import '../../core/constants/app_constants.dart';
 
 abstract class AuthService {
   Future<UserModel?> getCurrentUser();
@@ -168,13 +169,18 @@ class FirebaseAuthService implements AuthService {
   }
 
   UserModel _mapFirebaseUserToUserModel(firebase_auth.User firebaseUser) {
+    final email = firebaseUser.email;
+    final role = email != null && AppConstants.adminEmails.contains(email)
+        ? UserRole.admin
+        : UserRole.user;
+
     return UserModel(
       id: firebaseUser.uid,
       name: firebaseUser.displayName ?? 'Usuário',
-      email: firebaseUser.email ?? '',
+      email: email ?? '',
       photoUrl: firebaseUser.photoURL,
       points: 0, // Será obtido do Firestore
-      role: UserRole.user,
+      role: role,
       createdAt: firebaseUser.metadata.creationTime ?? DateTime.now(),
       updatedAt: DateTime.now(),
       isActive: true,
