@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // Cores principais
-  static const Color primaryColor = Color(0xFF2E7D32); // Verde escuro
-  static const Color primaryLightColor = Color(0xFF4CAF50); // Verde claro
-  static const Color primaryDarkColor = Color(0xFF1B5E20); // Verde muito escuro
-  static const Color secondaryColor = Color(0xFFFF9800); // Laranja
-  static const Color secondaryLightColor = Color(0xFFFFB74D); // Laranja claro
-  static const Color secondaryDarkColor = Color(0xFFE65100); // Laranja escuro
+  // Verde folha para a ação principal
+  static const Color primaryColor = Color(0xFF6BCB77);
+  static const Color primaryLightColor = Color(0xFF6BCB77);
+  static const Color primaryDarkColor = Color(0xFF519A5A);
+
+  // Azul claro para destaques e ações secundárias
+  static const Color secondaryColor = Color(0xFF58B4E1);
+  static const Color secondaryLightColor = Color(0xFF58B4E1);
+  static const Color secondaryDarkColor = Color(0xFF3A8CB6);
 
   // Cores de status
   static const Color successColor = Color(0xFF4CAF50);
@@ -16,14 +20,14 @@ class AppTheme {
   static const Color infoColor = Color(0xFF2196F3);
 
   // Cores neutras
-  static const Color backgroundColor = Color(0xFFF5F5F5);
-  static const Color surfaceColor = Color(0xFFFFFFFF);
-  static const Color cardColor = Color(0xFFFFFFFF);
+  static const Color backgroundColor = Color(0xFFFFFFFF);
+  static const Color surfaceColor = Color(0xFFF5F5F5);
+  static const Color cardColor = Color(0xFFF5F5F5);
   static const Color dividerColor = Color(0xFFE0E0E0);
 
   // Cores de texto
-  static const Color textPrimaryColor = Color(0xFF212121);
-  static const Color textSecondaryColor = Color(0xFF757575);
+  static const Color textPrimaryColor = Color(0xFF222222);
+  static const Color textSecondaryColor = Color(0xFF555555);
   static const Color textDisabledColor = Color(0xFFBDBDBD);
   static const Color textOnPrimaryColor = Color(0xFFFFFFFF);
 
@@ -31,6 +35,7 @@ class AppTheme {
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
+      fontFamily: GoogleFonts.poppins().fontFamily,
       brightness: Brightness.light,
       colorScheme: const ColorScheme.light(
         primary: primaryColor,
@@ -187,83 +192,23 @@ class AppTheme {
         ),
       ),
 
-      // Tipografia
-      textTheme: const TextTheme(
-        displayLarge: TextStyle(
-          fontSize: 32,
-          fontWeight: FontWeight.bold,
-          color: textPrimaryColor,
-        ),
-        displayMedium: TextStyle(
-          fontSize: 28,
-          fontWeight: FontWeight.bold,
-          color: textPrimaryColor,
-        ),
-        displaySmall: TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.bold,
-          color: textPrimaryColor,
-        ),
-        headlineLarge: TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.w600,
-          color: textPrimaryColor,
-        ),
-        headlineMedium: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-          color: textPrimaryColor,
-        ),
-        headlineSmall: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-          color: textPrimaryColor,
-        ),
-        titleLarge: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-          color: textPrimaryColor,
-        ),
-        titleMedium: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-          color: textPrimaryColor,
-        ),
-        titleSmall: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-          color: textPrimaryColor,
-        ),
-        bodyLarge: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.normal,
-          color: textPrimaryColor,
-        ),
-        bodyMedium: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.normal,
-          color: textPrimaryColor,
-        ),
-        bodySmall: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.normal,
-          color: textSecondaryColor,
-        ),
-        labelLarge: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-          color: textPrimaryColor,
-        ),
-        labelMedium: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-          color: textPrimaryColor,
-        ),
-        labelSmall: TextStyle(
-          fontSize: 10,
-          fontWeight: FontWeight.w500,
-          color: textSecondaryColor,
-        ),
+      // Tipografia baseada em Poppins
+      textTheme: GoogleFonts.poppinsTextTheme().copyWith(
+        displayLarge: const TextStyle(fontWeight: FontWeight.bold, color: textPrimaryColor, fontSize: 32),
+        displayMedium: const TextStyle(fontWeight: FontWeight.bold, color: textPrimaryColor, fontSize: 28),
+        displaySmall: const TextStyle(fontWeight: FontWeight.bold, color: textPrimaryColor, fontSize: 24),
+        headlineLarge: const TextStyle(fontWeight: FontWeight.w600, color: textPrimaryColor, fontSize: 22),
+        headlineMedium: const TextStyle(fontWeight: FontWeight.w600, color: textPrimaryColor, fontSize: 20),
+        headlineSmall: const TextStyle(fontWeight: FontWeight.w600, color: textPrimaryColor, fontSize: 18),
+        titleLarge: const TextStyle(fontWeight: FontWeight.w600, color: textPrimaryColor, fontSize: 16),
+        titleMedium: const TextStyle(fontWeight: FontWeight.w500, color: textPrimaryColor, fontSize: 14),
+        titleSmall: const TextStyle(fontWeight: FontWeight.w500, color: textPrimaryColor, fontSize: 12),
+        bodyLarge: const TextStyle(fontWeight: FontWeight.normal, color: textPrimaryColor, fontSize: 16),
+        bodyMedium: const TextStyle(fontWeight: FontWeight.normal, color: textPrimaryColor, fontSize: 14),
+        bodySmall: const TextStyle(fontWeight: FontWeight.normal, color: textSecondaryColor, fontSize: 12),
+        labelLarge: const TextStyle(fontWeight: FontWeight.w500, color: textPrimaryColor, fontSize: 14),
+        labelMedium: const TextStyle(fontWeight: FontWeight.w500, color: textPrimaryColor, fontSize: 12),
+        labelSmall: const TextStyle(fontWeight: FontWeight.w500, color: textSecondaryColor, fontSize: 10),
       ),
     );
   }
