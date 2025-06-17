@@ -68,3 +68,6 @@ flutter:
     - assets/icons/
     - assets/animations/
 
+dependency_overrides:
+  web: ^0.5.0
+
