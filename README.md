@@ -244,6 +244,7 @@ class Price {
 - [x] Tela de cadastro dedicada para a versão web
 - [x] Envio de preços para o Firestore com mensagens de sucesso ou erro
 
+
 ### 🚧 Em Desenvolvimento
 - [ ] Integração com Google Maps
 - [ ] Funcionalidade de câmera
