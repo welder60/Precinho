@@ -1,17 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/themes/app_theme.dart';
-
-class ProductSearchPage extends StatefulWidget {
+import '../admin/add_product_page.dart';
+import '../../providers/auth_provider.dart';
+class ProductSearchPage extends ConsumerStatefulWidget {
   final ValueChanged<DocumentSnapshot>? onSelected;
   const ProductSearchPage({this.onSelected, super.key});
 
   @override
-  State<ProductSearchPage> createState() => _ProductSearchPageState();
+  ConsumerState<ProductSearchPage> createState() => _ProductSearchPageState();
 }
 
-class _ProductSearchPageState extends State<ProductSearchPage> {
+class _ProductSearchPageState extends ConsumerState<ProductSearchPage> {
   final TextEditingController _controller = TextEditingController();
 
   @override
@@ -78,6 +80,19 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
           ),
         ],
       ),
+      floatingActionButton: ref.watch(isAdminProvider)
+          ? FloatingActionButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const AddProductPage(),
+                  ),
+                );
+              },
+              child: const Icon(Icons.add),
+            )
+          : null,
     );
   }
 
