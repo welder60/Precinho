@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/themes/app_theme.dart';
 import '../../../core/constants/enums.dart';
+import '../../providers/auth_provider.dart';
 
 class ShoppingListsPage extends ConsumerStatefulWidget {
   const ShoppingListsPage({super.key});
@@ -25,11 +27,39 @@ class _ShoppingListsPageState extends ConsumerState<ShoppingListsPage> {
           ),
         ],
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(AppTheme.paddingMedium),
-        itemCount: 5, // Placeholder
-        itemBuilder: (context, index) {
-          return _buildShoppingListCard(index);
+      body: Builder(
+        builder: (context) {
+          final user = ref.watch(currentUserProvider);
+          if (user == null) {
+            return const Center(child: Text('Faça login para ver suas listas'));
+          }
+          return StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('shopping_lists')
+                .where('user_id', isEqualTo: user.id)
+                .orderBy('created_at', descending: true)
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (snapshot.hasError) {
+                return const Center(child: Text('Erro ao carregar listas'));
+              }
+              final docs = snapshot.data?.docs ?? [];
+              if (docs.isEmpty) {
+                return const Center(child: Text('Nenhuma lista encontrada'));
+              }
+              return ListView.builder(
+                padding: const EdgeInsets.all(AppTheme.paddingMedium),
+                itemCount: docs.length,
+                itemBuilder: (context, index) {
+                  final data = docs[index].data() as Map<String, dynamic>;
+                  return _buildShoppingListCard(data);
+                },
+              );
+            },
+          );
         },
       ),
       floatingActionButton: FloatingActionButton(
@@ -42,11 +72,20 @@ class _ShoppingListsPageState extends ConsumerState<ShoppingListsPage> {
     );
   }
 
-  Widget _buildShoppingListCard(int index) {
-    final isCompleted = index == 2; // Placeholder
-    final itemCount = 5 + index;
-    final completedItems = isCompleted ? itemCount : index + 2;
-    final progress = completedItems / itemCount;
+  Widget _buildShoppingListCard(Map<String, dynamic> data) {
+    final statusValue = data['status'] as String? ?? ShoppingListStatus.active.value;
+    final status = ShoppingListStatus.values.firstWhere(
+      (e) => e.value == statusValue,
+      orElse: () => ShoppingListStatus.active,
+    );
+    final name = data['name'] ?? 'Lista';
+    final createdAt = (data['created_at'] as Timestamp?)?.toDate();
+    final items = (data['items'] as List?) ?? [];
+    final completedItems = items.where((item) => item['is_completed'] == true).length;
+    final itemCount = items.length;
+    final progress = itemCount > 0 ? completedItems / itemCount : 0.0;
+    final budget = (data['budget'] as num?)?.toDouble();
+    final isCompleted = status == ShoppingListStatus.completed;
 
     return Card(
       margin: const EdgeInsets.only(bottom: AppTheme.paddingMedium),
@@ -68,16 +107,17 @@ class _ShoppingListsPageState extends ConsumerState<ShoppingListsPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Lista ${index + 1}',
+                          name,
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         const SizedBox(height: AppTheme.paddingSmall),
-                        Text(
-                          'Criada em ${DateTime.now().subtract(Duration(days: index)).day}/${DateTime.now().month}',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: AppTheme.textSecondaryColor,
-                              ),
-                        ),
+                        if (createdAt != null)
+                          Text(
+                            'Criada em ${createdAt.day}/${createdAt.month}',
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: AppTheme.textSecondaryColor,
+                                ),
+                          ),
                       ],
                     ),
                   ),
@@ -89,17 +129,19 @@ class _ShoppingListsPageState extends ConsumerState<ShoppingListsPage> {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: isCompleted 
+                      color: status == ShoppingListStatus.completed
                           ? AppTheme.successColor.withOpacity(0.1)
                           : AppTheme.warningColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
                     ),
                     child: Text(
-                      isCompleted ? 'Concluída' : 'Em andamento',
+                      status == ShoppingListStatus.completed
+                          ? 'Concluída'
+                          : 'Em andamento',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        color: isCompleted 
+                        color: status == ShoppingListStatus.completed
                             ? AppTheme.successColor
                             : AppTheme.warningColor,
                       ),
@@ -193,12 +235,13 @@ class _ShoppingListsPageState extends ConsumerState<ShoppingListsPage> {
                     color: AppTheme.textSecondaryColor,
                   ),
                   const SizedBox(width: AppTheme.paddingSmall),
-                  Text(
-                    'R\$ ${(50.0 + index * 10).toStringAsFixed(2)}',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppTheme.textSecondaryColor,
-                        ),
-                  ),
+                  if (budget != null)
+                    Text(
+                      'R\$ ${budget.toStringAsFixed(2)}',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: AppTheme.textSecondaryColor,
+                          ),
+                    ),
                   const Spacer(),
                   if (!isCompleted)
                     TextButton(

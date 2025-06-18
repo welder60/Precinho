@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/themes/app_theme.dart';
@@ -169,14 +170,34 @@ class _MapPageState extends ConsumerState<MapPage> {
 
                     // Lista de preços
                     Expanded(
-                      child: ListView.builder(
-                        controller: scrollController,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: AppTheme.paddingMedium,
-                        ),
-                        itemCount: 10, // Placeholder
-                        itemBuilder: (context, index) {
-                          return _buildPriceCard(index);
+                      child: StreamBuilder<QuerySnapshot>(
+                        stream: FirebaseFirestore.instance
+                            .collection('prices')
+                            .orderBy('created_at', descending: true)
+                            .snapshots(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return const Center(child: CircularProgressIndicator());
+                          }
+                          if (snapshot.hasError) {
+                            return const Center(child: Text('Erro ao carregar preços'));
+                          }
+                          final docs = snapshot.data?.docs ?? [];
+                          if (docs.isEmpty) {
+                            return const Center(child: Text('Nenhum preço cadastrado'));
+                          }
+                          return ListView.builder(
+                            controller: scrollController,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppTheme.paddingMedium,
+                            ),
+                            itemCount: docs.length,
+                            itemBuilder: (context, index) {
+                              final doc = docs[index];
+                              final data = doc.data() as Map<String, dynamic>;
+                              return _buildPriceCard(data);
+                            },
+                          );
                         },
                       ),
                     ),
@@ -190,7 +211,11 @@ class _MapPageState extends ConsumerState<MapPage> {
     );
   }
 
-  Widget _buildPriceCard(int index) {
+  Widget _buildPriceCard(Map<String, dynamic> data) {
+    final value = (data['price'] as num?)?.toDouble() ?? 0.0;
+    final product = data['product'] ?? 'Produto';
+    final store = data['store'] ?? 'Loja';
+    final createdAt = (data['created_at'] as Timestamp?)?.toDate();
     return Card(
       margin: const EdgeInsets.only(bottom: AppTheme.paddingSmall),
       child: ListTile(
@@ -206,23 +231,24 @@ class _MapPageState extends ConsumerState<MapPage> {
             color: AppTheme.primaryColor,
           ),
         ),
-        title: Text('Produto ${index + 1}'),
-        subtitle: const Text('Supermercado ABC • 500m'),
+        title: Text(product),
+        subtitle: Text('$store${createdAt != null ? ' • ${_formatDate(createdAt)}' : ''}'),
         trailing: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text(
-              'R\$ ${(10.99 + index).toStringAsFixed(2)}',
+              'R\$ ${value.toStringAsFixed(2)}',
               style: AppTheme.priceTextStyle,
             ),
-            const Text(
-              'há 2h',
-              style: TextStyle(
-                fontSize: 12,
-                color: AppTheme.textSecondaryColor,
+            if (createdAt != null)
+              Text(
+                _timeAgo(createdAt),
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppTheme.textSecondaryColor,
+                ),
               ),
-            ),
           ],
         ),
         onTap: () {
@@ -230,6 +256,21 @@ class _MapPageState extends ConsumerState<MapPage> {
         },
       ),
     );
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.day}/${date.month}/${date.year}';
+  }
+
+  String _timeAgo(DateTime date) {
+    final diff = DateTime.now().difference(date);
+    if (diff.inMinutes < 60) {
+      return 'há ${diff.inMinutes}m';
+    } else if (diff.inHours < 24) {
+      return 'há ${diff.inHours}h';
+    } else {
+      return 'há ${diff.inDays}d';
+    }
   }
 
   void _showFilterDialog(BuildContext context) {
