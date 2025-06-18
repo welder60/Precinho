@@ -41,7 +41,7 @@ class StoreDetailPage extends ConsumerWidget {
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
                   .collection('prices')
-                  .where('store', isEqualTo: data['name'])
+                  .where('store_id', isEqualTo: store.id)
                   .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -56,7 +56,7 @@ class StoreDetailPage extends ConsumerWidget {
                   itemBuilder: (context, index) {
                     final priceData = docs[index].data() as Map<String, dynamic>;
                     return ListTile(
-                      title: Text(priceData['product'] ?? ''),
+                      title: Text(priceData['product_name'] ?? ''),
                       trailing: Text(
                         'R\$ ${(priceData['price'] as num).toStringAsFixed(2)}',
                         style: AppTheme.priceTextStyle,

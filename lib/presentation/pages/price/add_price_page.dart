@@ -5,6 +5,8 @@ import '../../../core/themes/app_theme.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/logging/firebase_logger.dart';
+import '../product/product_search_page.dart';
+import '../store/store_search_page.dart';
 
 class AddPricePage extends StatefulWidget {
   const AddPricePage({super.key});
@@ -18,6 +20,8 @@ class _AddPricePageState extends State<AddPricePage> {
   final _productController = TextEditingController();
   final _storeController = TextEditingController();
   final _priceController = TextEditingController();
+  DocumentSnapshot? _selectedProduct;
+  DocumentSnapshot? _selectedStore;
   final List<Map<String, dynamic>> _nearbyStores = [];
 
   @override
@@ -55,7 +59,7 @@ class _AddPricePageState extends State<AddPricePage> {
         );
 
         if (distance <= radiusInMeters) {
-          nearby.add({'name': data['name'] ?? '', 'distance': distance});
+          nearby.add({'doc': doc, 'distance': distance});
         }
       }
 
@@ -69,11 +73,50 @@ class _AddPricePageState extends State<AddPricePage> {
           ..clear()
           ..addAll(nearby);
         if (_nearbyStores.length == 1) {
-          _storeController.text = _nearbyStores.first['name'] as String;
+          final doc = _nearbyStores.first['doc'] as DocumentSnapshot;
+          _selectedStore = doc;
+          _storeController.text =
+              (doc.data() as Map<String, dynamic>)['name'] ?? '';
         }
       });
     } catch (e) {
       FirebaseLogger.log('Nearby store error', {'error': e.toString()});
+    }
+  }
+
+  Future<void> _selectProduct() async {
+    final doc = await Navigator.push<DocumentSnapshot>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ProductSearchPage(
+          onSelected: (product) => Navigator.pop(context, product),
+        ),
+      ),
+    );
+    if (doc != null) {
+      setState(() {
+        _selectedProduct = doc;
+        _productController.text =
+            (doc.data() as Map<String, dynamic>)['name'] ?? '';
+      });
+    }
+  }
+
+  Future<void> _selectStore() async {
+    final doc = await Navigator.push<DocumentSnapshot>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => StoreSearchPage(
+          onSelected: (store) => Navigator.pop(context, store),
+        ),
+      ),
+    );
+    if (doc != null) {
+      setState(() {
+        _selectedStore = doc;
+        _storeController.text =
+            (doc.data() as Map<String, dynamic>)['name'] ?? '';
+      });
     }
   }
 
@@ -101,9 +144,13 @@ class _AddPricePageState extends State<AddPricePage> {
           FirebaseLogger.log('Location error', {'error': e.toString()});
         }
 
+        final productData = _selectedProduct!.data() as Map<String, dynamic>;
+        final storeData = _selectedStore!.data() as Map<String, dynamic>;
         final data = {
-          'product': _productController.text.trim(),
-          'store': _storeController.text.trim(),
+          'product_id': _selectedProduct!.id,
+          'product_name': productData['name'],
+          'store_id': _selectedStore!.id,
+          'store_name': storeData['name'],
           'price': priceValue,
           'created_at': Timestamp.now(),
           if (position != null) ...{
@@ -113,7 +160,7 @@ class _AddPricePageState extends State<AddPricePage> {
         };
         FirebaseLogger.log('Adding price', data);
         await FirebaseFirestore.instance.collection('prices').add(data);
-        FirebaseLogger.log('Price added', {'product': data['product']});
+        FirebaseLogger.log('Price added', {'product': data['product_name']});
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Preço salvo')),
@@ -148,20 +195,28 @@ class _AddPricePageState extends State<AddPricePage> {
             children: [
               TextFormField(
                 controller: _productController,
+                readOnly: true,
                 decoration: const InputDecoration(
                   labelText: 'Produto',
                   prefixIcon: Icon(Icons.shopping_basket),
+                  suffixIcon: Icon(Icons.search),
                 ),
-                validator: Validators.validateProductName,
+                onTap: _selectProduct,
+                validator: (_) =>
+                    _selectedProduct == null ? 'Selecione o produto' : null,
               ),
               const SizedBox(height: AppTheme.paddingMedium),
               TextFormField(
                 controller: _storeController,
+                readOnly: true,
                 decoration: const InputDecoration(
                   labelText: 'Estabelecimento',
                   prefixIcon: Icon(Icons.store),
+                  suffixIcon: Icon(Icons.search),
                 ),
-                validator: Validators.validateStoreName,
+                onTap: _selectStore,
+                validator: (_) =>
+                    _selectedStore == null ? 'Selecione o estabelecimento' : null,
               ),
               if (_nearbyStores.isNotEmpty) ...[
                 const SizedBox(height: AppTheme.paddingSmall),
@@ -169,14 +224,20 @@ class _AddPricePageState extends State<AddPricePage> {
                   spacing: AppTheme.paddingSmall,
                   children: _nearbyStores
                       .map(
-                        (store) => ActionChip(
-                          label: Text(store['name'] as String),
-                          onPressed: () {
-                            setState(() {
-                              _storeController.text = store['name'] as String;
-                            });
-                          },
-                        ),
+                        (store) {
+                          final doc = store['doc'] as DocumentSnapshot;
+                          final name =
+                              (doc.data() as Map<String, dynamic>)['name'] ?? '';
+                          return ActionChip(
+                            label: Text(name),
+                            onPressed: () {
+                              setState(() {
+                                _selectedStore = doc;
+                                _storeController.text = name;
+                              });
+                            },
+                          );
+                        },
                       )
                       .toList(),
                 ),
