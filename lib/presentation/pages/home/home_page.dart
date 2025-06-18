@@ -1,7 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../core/themes/app_theme.dart';
+import '../../../core/logging/firebase_logger.dart';
 import '../../providers/auth_provider.dart';
 import '../map/map_page.dart';
 import '../search/search_page.dart';
@@ -169,11 +172,9 @@ class AddPriceBottomSheet extends StatelessWidget {
               leading: const Icon(Icons.camera_alt, color: AppTheme.primaryColor),
               title: const Text('Fotografar Preço'),
               subtitle: const Text('Tire uma foto do preço no estabelecimento'),
-              onTap: () {
+              onTap: () async {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Funcionalidade em desenvolvimento')),
-                );
+                await _takePricePhoto(context);
               },
             ),
             const Divider(),
@@ -206,8 +207,33 @@ class AddPriceBottomSheet extends StatelessWidget {
               },
             ),
           ],
-        ],
+          ],
       ),
+    );
+  }
+
+  Future<void> _takePricePhoto(BuildContext context) async {
+    final picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.camera);
+    if (image == null) return;
+
+    Position? position;
+    try {
+      final permission = await Geolocator.requestPermission();
+      if (permission != LocationPermission.denied &&
+          permission != LocationPermission.deniedForever) {
+        position = await Geolocator.getCurrentPosition();
+      }
+    } catch (e) {
+      FirebaseLogger.log('Location error', {'error': e.toString()});
+    }
+
+    final coords = position != null
+        ? '${position.latitude.toStringAsFixed(5)}, ${position.longitude.toStringAsFixed(5)}'
+        : 'localização indisponível';
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Foto capturada ($coords)')),
     );
   }
 }

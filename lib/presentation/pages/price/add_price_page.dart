@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import '../../../core/themes/app_theme.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/utils/validators.dart';
@@ -31,11 +32,26 @@ class _AddPricePageState extends State<AddPricePage> {
       final priceValue = Formatters.parsePrice(_priceController.text.trim());
 
       try {
+        Position? position;
+        try {
+          final permission = await Geolocator.requestPermission();
+          if (permission != LocationPermission.denied &&
+              permission != LocationPermission.deniedForever) {
+            position = await Geolocator.getCurrentPosition();
+          }
+        } catch (e) {
+          FirebaseLogger.log('Location error', {'error': e.toString()});
+        }
+
         final data = {
           'product': _productController.text.trim(),
           'store': _storeController.text.trim(),
           'price': priceValue,
           'created_at': Timestamp.now(),
+          if (position != null) ...{
+            'latitude': position.latitude,
+            'longitude': position.longitude,
+          },
         };
         FirebaseLogger.log('Adding price', data);
         await FirebaseFirestore.instance.collection('prices').add(data);
