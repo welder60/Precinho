@@ -34,6 +34,14 @@ class PrecinhApp extends ConsumerWidget {
       title: 'Precinho',
       theme: AppTheme.lightTheme,
       debugShowCheckedModeBanner: false,
+      builder: (context, child) {
+        return Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: child,
+          ),
+        );
+      },
       home: const AuthWrapper(),
     );
   }
