@@ -157,6 +157,13 @@ flutter pub get
 4. **Configure as APIs:**
    - Google Maps API Key
    - Google Sign-In (se necessário)
+     - Para autenticação na web é preciso adicionar o *client ID* do tipo **Web application** no arquivo `web/index.html`:
+
+       ```html
+       <meta name="google-signin-client_id" content="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com">
+       ```
+
+       Substitua `YOUR_GOOGLE_CLIENT_ID` pelo ID gerado no Google Cloud Console.
 
 5. **Execute a aplicação:**
 ```bash
