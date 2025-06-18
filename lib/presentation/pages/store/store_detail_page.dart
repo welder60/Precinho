@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/themes/app_theme.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/store_favorites_provider.dart';
+import '../price/price_detail_page.dart';
 
 class StoreDetailPage extends ConsumerWidget {
   final DocumentSnapshot store;
@@ -59,16 +60,37 @@ class StoreDetailPage extends ConsumerWidget {
                 if (docs.isEmpty) {
                   return const Center(child: Text('Nenhum preço para este estabelecimento'));
                 }
+
+                final Map<String, DocumentSnapshot> latest = {};
+                for (final doc in docs) {
+                  final data = doc.data() as Map<String, dynamic>;
+                  final productId = data['product_id'] as String?;
+                  if (productId == null) continue;
+                  if (!latest.containsKey(productId)) {
+                    latest[productId] = doc;
+                  }
+                }
+                final prices = latest.values.toList();
+
                 return ListView.builder(
-                  itemCount: docs.length,
+                  itemCount: prices.length,
                   itemBuilder: (context, index) {
-                    final priceData = docs[index].data() as Map<String, dynamic>;
+                    final doc = prices[index];
+                    final priceData = doc.data() as Map<String, dynamic>;
                     return ListTile(
                       title: Text(priceData['product_name'] ?? ''),
                       trailing: Text(
                         'R\$ ${(priceData['price'] as num).toStringAsFixed(2)}',
                         style: AppTheme.priceTextStyle,
                       ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => PriceDetailPage(price: doc),
+                          ),
+                        );
+                      },
                     );
                   },
                 );

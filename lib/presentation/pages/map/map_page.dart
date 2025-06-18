@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/themes/app_theme.dart';
+import '../price/price_search_page.dart';
+import '../price/price_detail_page.dart';
 
 class MapPage extends ConsumerStatefulWidget {
   const MapPage({super.key});
@@ -71,41 +73,52 @@ class _MapPageState extends ConsumerState<MapPage> {
             top: AppTheme.paddingMedium,
             left: AppTheme.paddingMedium,
             right: AppTheme.paddingMedium,
-            child: Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppTheme.paddingMedium,
-                  vertical: AppTheme.paddingSmall,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const PriceSearchPage(),
+                  ),
+                );
+              },
+              child: Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
                 ),
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.search,
-                      color: AppTheme.textSecondaryColor,
-                    ),
-                    const SizedBox(width: AppTheme.paddingSmall),
-                    const Expanded(
-                      child: Text(
-                        'Buscar produtos...',
-                        style: TextStyle(
-                          color: AppTheme.textSecondaryColor,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppTheme.paddingMedium,
+                    vertical: AppTheme.paddingSmall,
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.search,
+                        color: AppTheme.textSecondaryColor,
+                      ),
+                      const SizedBox(width: AppTheme.paddingSmall),
+                      const Expanded(
+                        child: Text(
+                          'Buscar produtos...',
+                          style: TextStyle(
+                            color: AppTheme.textSecondaryColor,
+                          ),
                         ),
                       ),
-                    ),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.tune,
-                        color: AppTheme.primaryColor,
+                      IconButton(
+                        icon: const Icon(
+                          Icons.tune,
+                          color: AppTheme.primaryColor,
+                        ),
+                        onPressed: () {
+                          _showFilterDialog(context);
+                        },
                       ),
-                      onPressed: () {
-                        _showFilterDialog(context);
-                      },
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -194,8 +207,7 @@ class _MapPageState extends ConsumerState<MapPage> {
                             itemCount: docs.length,
                             itemBuilder: (context, index) {
                               final doc = docs[index];
-                              final data = doc.data() as Map<String, dynamic>;
-                              return _buildPriceCard(data);
+                              return _buildPriceCard(doc);
                             },
                           );
                         },
@@ -211,7 +223,8 @@ class _MapPageState extends ConsumerState<MapPage> {
     );
   }
 
-  Widget _buildPriceCard(Map<String, dynamic> data) {
+  Widget _buildPriceCard(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
     final value = (data['price'] as num?)?.toDouble() ?? 0.0;
     final product = data['product_name'] ?? 'Produto';
     final store = data['store_name'] ?? 'Loja';
@@ -252,7 +265,12 @@ class _MapPageState extends ConsumerState<MapPage> {
           ],
         ),
         onTap: () {
-          // TODO: Ver detalhes do preço
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => PriceDetailPage(price: doc),
+            ),
+          );
         },
       ),
     );
