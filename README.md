@@ -34,7 +34,9 @@ O aplicativo segue uma identidade visual inspirada em economia colaborativa e si
 - Comparação de preços entre estabelecimentos
 
 ### 📝 Cadastro de Preços
-- Captura de foto do preço
+- Captura de foto do preço *(apenas pelo aplicativo para registrar a localização do usuário)*
+- Localização utilizada para sugerir ou cadastrar o estabelecimento
+- Se houver apenas um estabelecimento próximo, ele é sugerido automaticamente
 - Inserção manual de dados
 - Escaneamento de nota fiscal (OCR)
 - Validação por moderação

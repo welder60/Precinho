@@ -1,12 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import '../../../core/themes/app_theme.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/logging/firebase_logger.dart';
 
 class AddPricePage extends StatefulWidget {
-  const AddPricePage({super.key});
+  final String? suggestedStore;
+  const AddPricePage({this.suggestedStore, super.key});
 
   @override
   State<AddPricePage> createState() => _AddPricePageState();
@@ -17,6 +19,14 @@ class _AddPricePageState extends State<AddPricePage> {
   final _productController = TextEditingController();
   final _storeController = TextEditingController();
   final _priceController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.suggestedStore != null && widget.suggestedStore!.isNotEmpty) {
+      _storeController.text = widget.suggestedStore!;
+    }
+  }
 
   @override
   void dispose() {
@@ -31,11 +41,26 @@ class _AddPricePageState extends State<AddPricePage> {
       final priceValue = Formatters.parsePrice(_priceController.text.trim());
 
       try {
+        Position? position;
+        try {
+          final permission = await Geolocator.requestPermission();
+          if (permission != LocationPermission.denied &&
+              permission != LocationPermission.deniedForever) {
+            position = await Geolocator.getCurrentPosition();
+          }
+        } catch (e) {
+          FirebaseLogger.log('Location error', {'error': e.toString()});
+        }
+
         final data = {
           'product': _productController.text.trim(),
           'store': _storeController.text.trim(),
           'price': priceValue,
           'created_at': Timestamp.now(),
+          if (position != null) ...{
+            'latitude': position.latitude,
+            'longitude': position.longitude,
+          },
         };
         FirebaseLogger.log('Adding price', data);
         await FirebaseFirestore.instance.collection('prices').add(data);
@@ -89,6 +114,17 @@ class _AddPricePageState extends State<AddPricePage> {
                 ),
                 validator: Validators.validateStoreName,
               ),
+              if (widget.suggestedStore != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4.0),
+                  child: Text(
+                    'Sugerido pela localização: ${widget.suggestedStore}',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppTheme.textSecondaryColor,
+                    ),
+                  ),
+                ),
               const SizedBox(height: AppTheme.paddingMedium),
               TextFormField(
                 controller: _priceController,
