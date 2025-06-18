@@ -4,8 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/themes/app_theme.dart';
 import 'core/constants/enums.dart';
 import 'presentation/pages/splash_page.dart';
-import 'presentation/pages/auth/login_page_web.dart';
-import 'presentation/pages/home/home_page_web.dart';
+import 'presentation/pages/auth/login_page.dart';
+import 'presentation/pages/home/home_page.dart';
 import 'presentation/providers/auth_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -53,9 +53,9 @@ class AuthWrapper extends ConsumerWidget {
 
     // Navegar para home se autenticado, senão para login
     if (authState.isAuthenticated) {
-      return const HomePageWeb();
+      return const HomePage();
     } else {
-      return const LoginPageWeb();
+      return const LoginPage();
     }
   }
 }
