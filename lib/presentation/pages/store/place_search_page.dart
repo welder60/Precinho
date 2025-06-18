@@ -73,15 +73,15 @@ class _PlaceSearchPageState extends State<PlaceSearchPage> {
               itemBuilder: (context, index) {
                 final p = _predictions[index];
                 return ListTile(
-                  title: Text(p.description ?? ''),
+                  title: Text(p.text ?? ''),
                   onTap: () async {
                     final detail = await _places.fetchPlace(
                       p.placeId!,
                       fields: [
-                        PlaceField.ID,
-                        PlaceField.ADDRESS,
-                        PlaceField.LAT_LNG,
-                        PlaceField.NAME,
+                        PlaceField.id,
+                        PlaceField.address,
+                        PlaceField.latLng,
+                        PlaceField.name,
                       ],
                     );
                     if (detail.place != null) {
