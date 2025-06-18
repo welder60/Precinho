@@ -151,7 +151,8 @@ flutter pub get
      - `android/app/google-services.json` (Android)
      - `ios/Runner/GoogleService-Info.plist` (iOS)
    - Execute `flutterfire configure` para gerar o arquivo `lib/firebase_options.dart`
-   - Para a versão web, substitua os valores de exemplo em `web/index.html` pelas configurações do seu projeto
+   - Para a versão web, substitua os valores em `web/index.html` caso utilize outro projeto Firebase.
+     O arquivo já contém as credenciais de exemplo usadas neste repositório (`precinho-dd1c9`).
 
 4. **Configure as APIs:**
    - Google Maps API Key
