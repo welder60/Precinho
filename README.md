@@ -231,6 +231,11 @@ class Store {
 }
 ```
 
+Para registrar preços quando o nome do estabelecimento for desconhecido,
+crie um novo `Store` anônimo contendo as coordenadas do local. É possível
+cadastrar quantos estabelecimentos anônimos forem necessários, cada um com um
+`id` distinto e sua respectiva localização.
+
 ### Price (Preço)
 ```dart
 class Price {
@@ -242,11 +247,14 @@ class Price {
   final String? imageUrl;
   final DateTime createdAt;
   final DateTime? expiresAt;
-  final double latitude;
-  final double longitude;
   final bool isApproved;
 }
 ```
+
+Os preços não possuem mais latitude e longitude próprios. Eles são sempre
+vinculados a um `Store`, que contém as coordenadas. Caso o estabelecimento seja
+desconhecido, basta criar um `Store` anônimo com a localização informada e
+associar o preço a esse novo registro.
 
 ## 🎯 Funcionalidades Implementadas
 
