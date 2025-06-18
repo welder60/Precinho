@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/themes/app_theme.dart';
 import '../../../core/utils/validators.dart';
-import '../../providers/auth_provider_web.dart';
+import '../../providers/auth_provider.dart';
 import 'register_page_web.dart';
 
 class LoginPageWeb extends ConsumerStatefulWidget {
@@ -92,14 +92,6 @@ class _LoginPageWebState extends ConsumerState<LoginPageWeb> {
                           Text(
                             'Bem-vindo ao Precinho',
                             style: Theme.of(context).textTheme.headlineMedium,
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: AppTheme.paddingSmall),
-                          Text(
-                            'Versão Web - Demonstração',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: AppTheme.textSecondaryColor,
-                                ),
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: AppTheme.paddingLarge),
@@ -217,34 +209,6 @@ class _LoginPageWebState extends ConsumerState<LoginPageWeb> {
                             ],
                           ),
 
-                          // Informações de demonstração
-                          const SizedBox(height: AppTheme.paddingMedium),
-                          Container(
-                            padding: const EdgeInsets.all(AppTheme.paddingMedium),
-                            decoration: BoxDecoration(
-                              color: AppTheme.infoColor.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-                            ),
-                            child: Column(
-                              children: [
-                                Text(
-                                  'Demonstração',
-                                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                        color: AppTheme.infoColor,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                ),
-                                const SizedBox(height: AppTheme.paddingSmall),
-                                Text(
-                                  'Use qualquer email/senha para testar',
-                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                        color: AppTheme.infoColor,
-                                      ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
-                            ),
-                          ),
                         ],
                       ),
                     ),
