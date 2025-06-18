@@ -18,6 +18,64 @@ class _AddPricePageState extends State<AddPricePage> {
   final _productController = TextEditingController();
   final _storeController = TextEditingController();
   final _priceController = TextEditingController();
+  final List<Map<String, dynamic>> _nearbyStores = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadNearbyStores();
+  }
+
+  Future<void> _loadNearbyStores() async {
+    try {
+      final permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        return;
+      }
+
+      final position = await Geolocator.getCurrentPosition();
+      final snapshot =
+          await FirebaseFirestore.instance.collection('stores').get();
+
+      const radiusInMeters = 1000.0; // 1km
+      final nearby = <Map<String, dynamic>>[];
+
+      for (final doc in snapshot.docs) {
+        final data = doc.data();
+        final lat = (data['latitude'] as num?)?.toDouble();
+        final lng = (data['longitude'] as num?)?.toDouble();
+        if (lat == null || lng == null) continue;
+
+        final distance = Geolocator.distanceBetween(
+          position.latitude,
+          position.longitude,
+          lat,
+          lng,
+        );
+
+        if (distance <= radiusInMeters) {
+          nearby.add({'name': data['name'] ?? '', 'distance': distance});
+        }
+      }
+
+      nearby.sort((a, b) => (a['distance'] as double)
+          .compareTo(b['distance'] as double));
+
+      if (!mounted) return;
+
+      setState(() {
+        _nearbyStores
+          ..clear()
+          ..addAll(nearby);
+        if (_nearbyStores.length == 1) {
+          _storeController.text = _nearbyStores.first['name'] as String;
+        }
+      });
+    } catch (e) {
+      FirebaseLogger.log('Nearby store error', {'error': e.toString()});
+    }
+  }
 
   @override
   void dispose() {
@@ -105,6 +163,24 @@ class _AddPricePageState extends State<AddPricePage> {
                 ),
                 validator: Validators.validateStoreName,
               ),
+              if (_nearbyStores.isNotEmpty) ...[
+                const SizedBox(height: AppTheme.paddingSmall),
+                Wrap(
+                  spacing: AppTheme.paddingSmall,
+                  children: _nearbyStores
+                      .map(
+                        (store) => ActionChip(
+                          label: Text(store['name'] as String),
+                          onPressed: () {
+                            setState(() {
+                              _storeController.text = store['name'] as String;
+                            });
+                          },
+                        ),
+                      )
+                      .toList(),
+                ),
+              ],
               const SizedBox(height: AppTheme.paddingMedium),
               TextFormField(
                 controller: _priceController,
