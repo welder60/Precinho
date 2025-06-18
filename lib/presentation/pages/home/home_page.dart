@@ -7,7 +7,7 @@ import '../../../core/themes/app_theme.dart';
 import '../../../core/logging/firebase_logger.dart';
 import '../../providers/auth_provider.dart';
 import '../map/map_page.dart';
-import '../search/search_page.dart';
+import '../product/product_search_page.dart';
 import '../shopping_list/shopping_lists_page.dart';
 import '../profile/profile_page.dart';
 import '../price/add_price_page.dart';
@@ -26,7 +26,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   final List<Widget> _pages = [
     const MapPage(),
     const StoreSearchPage(),
-    const SearchPage(),
+    const ProductSearchPage(),
     const ShoppingListsPage(),
     const ProfilePage(),
   ];
@@ -59,7 +59,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                     ),
                     NavigationRailDestination(
                       icon: Icon(Icons.search),
-                      label: Text('Buscar'),
+                      label: Text('Produtos'),
                     ),
                     NavigationRailDestination(
                       icon: Icon(Icons.shopping_cart),
@@ -105,7 +105,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.search),
-                  label: 'Buscar',
+                  label: 'Produtos',
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.shopping_cart),

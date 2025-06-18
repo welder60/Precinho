@@ -262,7 +262,7 @@ associar o preço a esse novo registro.
 ### ✅ Concluído
 - [x] Estrutura base da aplicação
 - [x] Sistema de autenticação completo
-- [x] Telas principais (Login, Home, Busca, Listas, Perfil)
+- [x] Telas principais (Login, Home, Lojas, Produtos, Listas, Perfil)
 - [x] Modelos de dados e entidades
 - [x] Serviços de API e autenticação
 - [x] Gerenciamento de estado com Riverpod
