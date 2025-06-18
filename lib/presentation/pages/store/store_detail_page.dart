@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/themes/app_theme.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/store_favorites_provider.dart';
 
 class StoreDetailPage extends ConsumerWidget {
@@ -13,6 +14,7 @@ class StoreDetailPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final data = store.data() as Map<String, dynamic>;
     final isFav = ref.watch(storeFavoritesProvider).contains(store.id);
+    final isAdmin = ref.watch(isAdminProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -27,6 +29,11 @@ class StoreDetailPage extends ConsumerWidget {
               ref.read(storeFavoritesProvider.notifier).toggleFavorite(store.id);
             },
           ),
+          if (isAdmin)
+            IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: () => _deleteStore(context),
+            ),
         ],
       ),
       body: Column(
@@ -42,6 +49,7 @@ class StoreDetailPage extends ConsumerWidget {
               stream: FirebaseFirestore.instance
                   .collection('prices')
                   .where('store_id', isEqualTo: store.id)
+                  .orderBy('created_at', descending: true)
                   .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -70,5 +78,34 @@ class StoreDetailPage extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _deleteStore(BuildContext context) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Excluir Estabelecimento'),
+        content: const Text('Tem certeza que deseja excluir este estabelecimento?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Excluir'),
+          ),
+        ],
+      ),
+    );
+    if (confirm == true) {
+      await store.reference.delete();
+      if (context.mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Estabelecimento exclu\u00eddo')),
+        );
+      }
+    }
   }
 }
