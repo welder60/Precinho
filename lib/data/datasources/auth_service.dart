@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/user_model.dart';
 import '../../core/errors/failures.dart';
 import '../../core/constants/enums.dart';
@@ -86,8 +87,16 @@ class FirebaseAuthService implements AuthService {
       await credential.user!.updateDisplayName(name);
       await credential.user!.reload();
 
-      FirebaseLogger.log('Sign up success', {'uid': credential.user!.uid});
-      return _mapFirebaseUserToUserModel(credential.user!);
+      final userModel = _mapFirebaseUserToUserModel(credential.user!);
+
+      FirebaseLogger.log('Creating user record', userModel.toJson());
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userModel.id)
+          .set(userModel.toJson());
+
+      FirebaseLogger.log('Sign up success', {'uid': userModel.id});
+      return userModel;
     } on firebase_auth.FirebaseAuthException catch (e) {
       FirebaseLogger.log('Sign up firebase error', {'code': e.code});
       throw AuthenticationFailure(

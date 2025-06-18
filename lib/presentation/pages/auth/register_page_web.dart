@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/themes/app_theme.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/constants/enums.dart';
-import '../../providers/auth_provider_web.dart';
+import '../../providers/auth_provider.dart';
 
 class RegisterPageWeb extends ConsumerStatefulWidget {
   const RegisterPageWeb({super.key});
@@ -80,7 +80,7 @@ class _RegisterPageWebState extends ConsumerState<RegisterPageWeb> {
         ref.read(authNotifierProvider.notifier).clearError();
       } else if (previous?.loadingState == LoadingState.loading &&
           next.loadingState == LoadingState.success &&
-          next.userId != null) {
+          next.user != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Conta criada com sucesso!'),
@@ -122,14 +122,6 @@ class _RegisterPageWebState extends ConsumerState<RegisterPageWeb> {
                           Text(
                             'Criar Nova Conta',
                             style: Theme.of(context).textTheme.headlineMedium,
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: AppTheme.paddingSmall),
-                          Text(
-                            'Vers\u00e3o Web - Demonstra\u00e7\u00e3o',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: AppTheme.textSecondaryColor,
-                                ),
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: AppTheme.paddingLarge),

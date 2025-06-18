@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/themes/app_theme.dart';
-import '../../providers/auth_provider_web.dart';
+import '../../providers/auth_provider.dart';
 
 class HomePageWeb extends ConsumerStatefulWidget {
   const HomePageWeb({super.key});
@@ -316,7 +316,7 @@ class ProfilePageWeb extends ConsumerWidget {
                       radius: 50,
                       backgroundColor: AppTheme.primaryColor,
                       child: Text(
-                        user?.name?.isNotEmpty == true ? user!.name![0].toUpperCase() : 'U',
+                        user != null && user.name.isNotEmpty ? user.name[0].toUpperCase() : 'U',
                         style: const TextStyle(
                           fontSize: 32,
                           fontWeight: FontWeight.bold,
