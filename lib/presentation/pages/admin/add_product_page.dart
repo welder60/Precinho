@@ -23,6 +23,7 @@ class _AddProductPageState extends State<AddProductPage> {
   final _nameController = TextEditingController();
   final _brandController = TextEditingController();
   final _weightController = TextEditingController();
+  final _barcodeController = TextEditingController();
   final _descriptionController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
   XFile? _imageFile;
@@ -33,6 +34,7 @@ class _AddProductPageState extends State<AddProductPage> {
     _nameController.dispose();
     _brandController.dispose();
     _weightController.dispose();
+    _barcodeController.dispose();
     _descriptionController.dispose();
     super.dispose();
   }
@@ -65,6 +67,7 @@ class _AddProductPageState extends State<AddProductPage> {
           'name': _nameController.text.trim(),
           'brand': _brandController.text.trim(),
           'weight': double.tryParse(_weightController.text.trim()),
+          'barcode': _barcodeController.text.trim(),
           'description': _descriptionController.text.trim(),
           'category': _category?.value,
           'image_url': imageUrl,
@@ -133,6 +136,16 @@ class _AddProductPageState extends State<AddProductPage> {
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
                 validator: Validators.validateWeight,
+              ),
+              const SizedBox(height: AppTheme.paddingMedium),
+              TextFormField(
+                controller: _barcodeController,
+                decoration: const InputDecoration(
+                  labelText: 'Código de Barras',
+                  prefixIcon: Icon(Icons.qr_code),
+                ),
+                keyboardType: TextInputType.number,
+                validator: Validators.validateBarcode,
               ),
               const SizedBox(height: AppTheme.paddingMedium),
               DropdownButtonFormField<ProductCategory>(

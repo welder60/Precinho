@@ -24,6 +24,7 @@ class _EditProductPageState extends State<EditProductPage> {
   late final TextEditingController _nameController;
   late final TextEditingController _brandController;
   late final TextEditingController _weightController;
+  late final TextEditingController _barcodeController;
   late final TextEditingController _descriptionController;
   final ImagePicker _picker = ImagePicker();
   XFile? _imageFile;
@@ -38,6 +39,7 @@ class _EditProductPageState extends State<EditProductPage> {
     _brandController = TextEditingController(text: data['brand'] ?? '');
     _weightController =
         TextEditingController(text: data['weight']?.toString() ?? '');
+    _barcodeController = TextEditingController(text: data['barcode'] ?? '');
     _descriptionController =
         TextEditingController(text: data['description'] ?? '');
     _category = ProductCategory.values.firstWhere(
@@ -52,6 +54,7 @@ class _EditProductPageState extends State<EditProductPage> {
     _nameController.dispose();
     _brandController.dispose();
     _weightController.dispose();
+    _barcodeController.dispose();
     _descriptionController.dispose();
     super.dispose();
   }
@@ -82,6 +85,7 @@ class _EditProductPageState extends State<EditProductPage> {
           'name': _nameController.text.trim(),
           'brand': _brandController.text.trim(),
           'weight': double.tryParse(_weightController.text.trim()),
+          'barcode': _barcodeController.text.trim(),
           'description': _descriptionController.text.trim(),
           'category': _category?.value,
           'image_url': imageUrl,
@@ -150,6 +154,16 @@ class _EditProductPageState extends State<EditProductPage> {
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
                 validator: Validators.validateWeight,
+              ),
+              const SizedBox(height: AppTheme.paddingMedium),
+              TextFormField(
+                controller: _barcodeController,
+                decoration: const InputDecoration(
+                  labelText: 'Código de Barras',
+                  prefixIcon: Icon(Icons.qr_code),
+                ),
+                keyboardType: TextInputType.number,
+                validator: Validators.validateBarcode,
               ),
               const SizedBox(height: AppTheme.paddingMedium),
               DropdownButtonFormField<ProductCategory>(
