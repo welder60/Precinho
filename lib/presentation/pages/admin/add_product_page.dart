@@ -1,5 +1,11 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:uuid/uuid.dart';
+
 import '../../../core/themes/app_theme.dart';
 import '../../../core/constants/enums.dart';
 import '../../../core/utils/validators.dart';
@@ -17,6 +23,8 @@ class _AddProductPageState extends State<AddProductPage> {
   final _nameController = TextEditingController();
   final _brandController = TextEditingController();
   final _descriptionController = TextEditingController();
+  final ImagePicker _picker = ImagePicker();
+  XFile? _imageFile;
   ProductCategory? _category;
 
   @override
@@ -27,16 +35,39 @@ class _AddProductPageState extends State<AddProductPage> {
     super.dispose();
   }
 
+  Future<void> _pickImage() async {
+    final picked = await _picker.pickImage(source: ImageSource.gallery);
+    if (picked != null) {
+      setState(() {
+        _imageFile = picked;
+      });
+    }
+  }
+
   Future<void> _submit() async {
     if (_formKey.currentState!.validate()) {
       try {
+        String? imageUrl;
+        if (_imageFile != null) {
+          final id = const Uuid().v4();
+          final ref = FirebaseStorage.instance
+              .ref()
+              .child('product_images/$id.jpg');
+          FirebaseLogger.log('Uploading product image', {'path': ref.fullPath});
+          await ref.putFile(File(_imageFile!.path));
+          imageUrl = await ref.getDownloadURL();
+          FirebaseLogger.log('Image uploaded', {'url': imageUrl});
+        }
+
         final data = {
           'name': _nameController.text.trim(),
           'brand': _brandController.text.trim(),
           'description': _descriptionController.text.trim(),
           'category': _category?.value,
+          'image_url': imageUrl,
           'created_at': Timestamp.now(),
         };
+
         FirebaseLogger.log('Adding product', data);
         await FirebaseFirestore.instance.collection('products').add(data);
         FirebaseLogger.log('Product added', {'name': data['name']});
@@ -107,6 +138,19 @@ class _AddProductPageState extends State<AddProductPage> {
                 validator: (value) =>
                     value == null ? 'Selecione uma categoria' : null,
               ),
+              const SizedBox(height: AppTheme.paddingMedium),
+              OutlinedButton(
+                onPressed: _pickImage,
+                child: const Text('Selecionar Foto'),
+              ),
+              if (_imageFile != null) ...[
+                const SizedBox(height: AppTheme.paddingMedium),
+                Image.file(
+                  File(_imageFile!.path),
+                  height: 150,
+                  fit: BoxFit.cover,
+                ),
+              ],
               const SizedBox(height: AppTheme.paddingMedium),
               TextFormField(
                 controller: _descriptionController,
