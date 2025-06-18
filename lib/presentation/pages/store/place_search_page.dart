@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_place/google_place.dart';
+import 'package:flutter_google_places_sdk/flutter_google_places_sdk.dart';
 
 import '../../../core/themes/app_theme.dart';
 import '../../../core/constants/app_constants.dart';
@@ -12,14 +12,14 @@ class PlaceSearchPage extends StatefulWidget {
 }
 
 class _PlaceSearchPageState extends State<PlaceSearchPage> {
-  late GooglePlace _googlePlace;
+  late FlutterGooglePlacesSdk _places;
   final TextEditingController _controller = TextEditingController();
   List<AutocompletePrediction> _predictions = [];
 
   @override
   void initState() {
     super.initState();
-    _googlePlace = GooglePlace(AppConstants.googleMapsApiKey);
+    _places = FlutterGooglePlacesSdk(AppConstants.googleMapsApiKey);
   }
 
   @override
@@ -35,9 +35,9 @@ class _PlaceSearchPageState extends State<PlaceSearchPage> {
       });
       return;
     }
-    final result = await _googlePlace.autocomplete.get(value);
+    final response = await _places.findAutocompletePredictions(value);
     setState(() {
-      _predictions = result?.predictions ?? [];
+      _predictions = response.predictions;
     });
   }
 
@@ -75,9 +75,17 @@ class _PlaceSearchPageState extends State<PlaceSearchPage> {
                 return ListTile(
                   title: Text(p.description ?? ''),
                   onTap: () async {
-                    final detail = await _googlePlace.details.get(p.placeId!);
-                    if (detail != null && detail.result != null) {
-                      Navigator.pop(context, detail.result);
+                    final detail = await _places.fetchPlace(
+                      p.placeId!,
+                      fields: [
+                        PlaceField.ID,
+                        PlaceField.ADDRESS,
+                        PlaceField.LAT_LNG,
+                        PlaceField.NAME,
+                      ],
+                    );
+                    if (detail.place != null) {
+                      Navigator.pop(context, detail.place);
                     }
                   },
                 );
