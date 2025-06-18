@@ -10,8 +10,6 @@ class Price extends Equatable {
   final String? imageUrl;
   final DateTime createdAt;
   final DateTime? expiresAt;
-  final double latitude;
-  final double longitude;
   final bool isApproved;
   final ModerationStatus status;
   final DateTime updatedAt;
@@ -29,8 +27,6 @@ class Price extends Equatable {
     this.imageUrl,
     required this.createdAt,
     this.expiresAt,
-    required this.latitude,
-    required this.longitude,
     required this.isApproved,
     required this.status,
     required this.updatedAt,
@@ -49,8 +45,6 @@ class Price extends Equatable {
     String? imageUrl,
     DateTime? createdAt,
     DateTime? expiresAt,
-    double? latitude,
-    double? longitude,
     bool? isApproved,
     ModerationStatus? status,
     DateTime? updatedAt,
@@ -68,8 +62,6 @@ class Price extends Equatable {
       imageUrl: imageUrl ?? this.imageUrl,
       createdAt: createdAt ?? this.createdAt,
       expiresAt: expiresAt ?? this.expiresAt,
-      latitude: latitude ?? this.latitude,
-      longitude: longitude ?? this.longitude,
       isApproved: isApproved ?? this.isApproved,
       status: status ?? this.status,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -106,8 +98,6 @@ class Price extends Equatable {
         imageUrl,
         createdAt,
         expiresAt,
-        latitude,
-        longitude,
         isApproved,
         status,
         updatedAt,

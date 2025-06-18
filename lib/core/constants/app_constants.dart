@@ -12,7 +12,7 @@ class AppConstants {
   static const double defaultSearchRadius = 5.0; // 5km
   static const double maxSearchRadius = 50.0; // 50km
   static const double minSearchRadius = 1.0; // 1km
-  
+
   // Configurações de cache
   static const int imageCacheDuration = 7; // 7 dias
   static const int dataCacheDuration = 1; // 1 dia
