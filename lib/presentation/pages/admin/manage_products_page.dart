@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../../../core/themes/app_theme.dart';
 import 'add_product_page.dart';
+import 'edit_product_page.dart';
 import '../../../core/logging/firebase_logger.dart';
 
 class ManageProductsPage extends StatelessWidget {
@@ -67,9 +68,19 @@ class ManageProductsPage extends StatelessWidget {
               final doc = docs[index];
               final data = doc.data() as Map<String, dynamic>;
               return ListTile(
-                leading: const Icon(Icons.shopping_bag, color: AppTheme.primaryColor),
+                leading:
+                    const Icon(Icons.shopping_bag, color: AppTheme.primaryColor),
                 title: Text(data['name'] ?? ''),
-                subtitle: Text(data['brand'] ?? ''),
+                subtitle: Text(
+                    "${data['brand'] ?? ''} - ${data['weight'] ?? ''}kg"),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => EditProductPage(document: doc),
+                    ),
+                  );
+                },
                 trailing: IconButton(
                   icon: const Icon(Icons.delete, color: AppTheme.errorColor),
                   onPressed: () => _deleteProduct(context, doc.reference),

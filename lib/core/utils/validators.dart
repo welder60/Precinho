@@ -62,6 +62,28 @@ class Validators {
     return null;
   }
 
+  // Validação de peso do produto
+  static String? validateWeight(String? weight) {
+    if (weight == null || weight.isEmpty) {
+      return 'Peso é obrigatório';
+    }
+
+    final parsed = double.tryParse(weight.replaceAll(',', '.'));
+    if (parsed == null) {
+      return 'Peso inválido';
+    }
+
+    if (parsed <= 0) {
+      return 'Peso deve ser maior que zero';
+    }
+
+    if (parsed > 9999) {
+      return 'Peso muito alto';
+    }
+
+    return null;
+  }
+
   // Validação de nome da loja
   static String? validateStoreName(String? name) {
     if (name == null || name.isEmpty) {

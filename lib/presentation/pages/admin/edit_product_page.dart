@@ -11,22 +11,41 @@ import '../../../core/constants/enums.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/logging/firebase_logger.dart';
 
-class AddProductPage extends StatefulWidget {
-  const AddProductPage({super.key});
+class EditProductPage extends StatefulWidget {
+  final DocumentSnapshot document;
+  const EditProductPage({super.key, required this.document});
 
   @override
-  State<AddProductPage> createState() => _AddProductPageState();
+  State<EditProductPage> createState() => _EditProductPageState();
 }
 
-class _AddProductPageState extends State<AddProductPage> {
+class _EditProductPageState extends State<EditProductPage> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _brandController = TextEditingController();
-  final _weightController = TextEditingController();
-  final _descriptionController = TextEditingController();
+  late final TextEditingController _nameController;
+  late final TextEditingController _brandController;
+  late final TextEditingController _weightController;
+  late final TextEditingController _descriptionController;
   final ImagePicker _picker = ImagePicker();
   XFile? _imageFile;
   ProductCategory? _category;
+  String? _imageUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    final data = widget.document.data() as Map<String, dynamic>;
+    _nameController = TextEditingController(text: data['name'] ?? '');
+    _brandController = TextEditingController(text: data['brand'] ?? '');
+    _weightController =
+        TextEditingController(text: data['weight']?.toString() ?? '');
+    _descriptionController =
+        TextEditingController(text: data['description'] ?? '');
+    _category = ProductCategory.values.firstWhere(
+      (c) => c.value == data['category'],
+      orElse: () => ProductCategory.other,
+    );
+    _imageUrl = data['image_url'] as String?;
+  }
 
   @override
   void dispose() {
@@ -49,12 +68,10 @@ class _AddProductPageState extends State<AddProductPage> {
   Future<void> _submit() async {
     if (_formKey.currentState!.validate()) {
       try {
-        String? imageUrl;
+        String? imageUrl = _imageUrl;
         if (_imageFile != null) {
           final id = const Uuid().v4();
-          final ref = FirebaseStorage.instance
-              .ref()
-              .child('product_images/$id.jpg');
+          final ref = FirebaseStorage.instance.ref().child('product_images/$id.jpg');
           FirebaseLogger.log('Uploading product image', {'path': ref.fullPath});
           await ref.putFile(File(_imageFile!.path));
           imageUrl = await ref.getDownloadURL();
@@ -68,24 +85,24 @@ class _AddProductPageState extends State<AddProductPage> {
           'description': _descriptionController.text.trim(),
           'category': _category?.value,
           'image_url': imageUrl,
-          'created_at': Timestamp.now(),
+          'updated_at': Timestamp.now(),
         };
 
-        FirebaseLogger.log('Adding product', data);
-        await FirebaseFirestore.instance.collection('products').add(data);
-        FirebaseLogger.log('Product added', {'name': data['name']});
+        FirebaseLogger.log('Updating product', {'id': widget.document.id});
+        await widget.document.reference.update(data);
+        FirebaseLogger.log('Product updated', {'id': widget.document.id});
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Produto cadastrado')),
+            const SnackBar(content: Text('Produto atualizado')),
           );
           Navigator.pop(context);
         }
       } catch (e) {
-        FirebaseLogger.log('Add product error', {'error': e.toString()});
+        FirebaseLogger.log('Edit product error', {'error': e.toString()});
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Erro ao cadastrar produto: ${e.toString()}'),
+              content: Text('Erro ao atualizar produto: ${e.toString()}'),
               backgroundColor: AppTheme.errorColor,
             ),
           );
@@ -98,7 +115,7 @@ class _AddProductPageState extends State<AddProductPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Novo Produto'),
+        title: const Text('Editar Produto'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(AppTheme.paddingLarge),
@@ -157,14 +174,24 @@ class _AddProductPageState extends State<AddProductPage> {
                 onPressed: _pickImage,
                 child: const Text('Selecionar Foto'),
               ),
-              if (_imageFile != null) ...[
-                const SizedBox(height: AppTheme.paddingMedium),
-                Image.file(
-                  File(_imageFile!.path),
-                  height: 150,
-                  fit: BoxFit.cover,
-                ),
-              ],
+              if (_imageFile != null)
+                ...[
+                  const SizedBox(height: AppTheme.paddingMedium),
+                  Image.file(
+                    File(_imageFile!.path),
+                    height: 150,
+                    fit: BoxFit.cover,
+                  ),
+                ]
+              else if (_imageUrl != null && _imageUrl!.isNotEmpty)
+                ...[
+                  const SizedBox(height: AppTheme.paddingMedium),
+                  Image.network(
+                    _imageUrl!,
+                    height: 150,
+                    fit: BoxFit.cover,
+                  ),
+                ],
               const SizedBox(height: AppTheme.paddingMedium),
               TextFormField(
                 controller: _descriptionController,
