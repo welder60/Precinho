@@ -11,6 +11,7 @@ import '../search/search_page.dart';
 import '../shopping_list/shopping_lists_page.dart';
 import '../profile/profile_page.dart';
 import '../price/add_price_page.dart';
+import '../store/store_search_page.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -24,6 +25,7 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   final List<Widget> _pages = [
     const MapPage(),
+    const StoreSearchPage(),
     const SearchPage(),
     const ShoppingListsPage(),
     const ProfilePage(),
@@ -50,6 +52,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                     NavigationRailDestination(
                       icon: Icon(Icons.map),
                       label: Text('Mapa'),
+                    ),
+                    NavigationRailDestination(
+                      icon: Icon(Icons.store),
+                      label: Text('Lojas'),
                     ),
                     NavigationRailDestination(
                       icon: Icon(Icons.search),
@@ -92,6 +98,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                 BottomNavigationBarItem(
                   icon: Icon(Icons.map),
                   label: 'Mapa',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.store),
+                  label: 'Lojas',
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.search),
