@@ -1,21 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/themes/app_theme.dart';
-import '../../providers/store_favorites_provider.dart';
-import 'store_detail_page.dart';
 
-class StoreSearchPage extends ConsumerStatefulWidget {
+class ProductSearchPage extends StatefulWidget {
   final ValueChanged<DocumentSnapshot>? onSelected;
-
-  const StoreSearchPage({this.onSelected, super.key});
+  const ProductSearchPage({this.onSelected, super.key});
 
   @override
-  ConsumerState<StoreSearchPage> createState() => _StoreSearchPageState();
+  State<ProductSearchPage> createState() => _ProductSearchPageState();
 }
 
-class _StoreSearchPageState extends ConsumerState<StoreSearchPage> {
+class _ProductSearchPageState extends State<ProductSearchPage> {
   final TextEditingController _controller = TextEditingController();
 
   @override
@@ -26,11 +22,9 @@ class _StoreSearchPageState extends ConsumerState<StoreSearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    final favorites = ref.watch(storeFavoritesProvider);
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Buscar Estabelecimentos'),
+        title: const Text('Buscar Produtos'),
       ),
       body: Column(
         children: [
@@ -39,7 +33,7 @@ class _StoreSearchPageState extends ConsumerState<StoreSearchPage> {
             child: TextField(
               controller: _controller,
               decoration: InputDecoration(
-                hintText: 'Buscar estabelecimentos...',
+                hintText: 'Buscar produtos...',
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.clear),
@@ -58,45 +52,22 @@ class _StoreSearchPageState extends ConsumerState<StoreSearchPage> {
                 }
                 final docs = snapshot.data?.docs ?? [];
                 if (docs.isEmpty) {
-                  return const Center(child: Text('Nenhum estabelecimento encontrado'));
+                  return const Center(child: Text('Nenhum produto encontrado'));
                 }
-                final sortedDocs = docs.toList()
-                  ..sort((a, b) {
-                    final aFav = favorites.contains(a.id) ? 0 : 1;
-                    final bFav = favorites.contains(b.id) ? 0 : 1;
-                    return aFav.compareTo(bFav);
-                  });
                 return ListView.builder(
-                  itemCount: sortedDocs.length,
+                  itemCount: docs.length,
                   padding: const EdgeInsets.all(AppTheme.paddingMedium),
                   itemBuilder: (context, index) {
-                    final doc = sortedDocs[index];
+                    final doc = docs[index];
                     final data = doc.data() as Map<String, dynamic>;
-                    final isFav = favorites.contains(doc.id);
                     return Card(
                       child: ListTile(
-                        title: Text(data['name'] ?? 'Loja'),
-                        subtitle: Text(data['address'] ?? ''),
-                        trailing: IconButton(
-                          icon: Icon(
-                            isFav ? Icons.star : Icons.star_border,
-                            color: isFav ? Colors.amber : AppTheme.textSecondaryColor,
-                          ),
-                          onPressed: () {
-                            ref.read(storeFavoritesProvider.notifier).toggleFavorite(doc.id);
-                          },
-                        ),
+                        title: Text(data['name'] ?? 'Produto'),
+                        subtitle: Text(data['brand'] ?? ''),
                         onTap: () {
                           if (widget.onSelected != null) {
                             widget.onSelected!(doc);
                             Navigator.pop(context);
-                          } else {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => StoreDetailPage(store: doc),
-                              ),
-                            );
                           }
                         },
                       ),
@@ -113,7 +84,7 @@ class _StoreSearchPageState extends ConsumerState<StoreSearchPage> {
 
   Query _buildQuery() {
     final text = _controller.text.trim();
-    var query = FirebaseFirestore.instance.collection('stores').orderBy('name');
+    var query = FirebaseFirestore.instance.collection('products').orderBy('name');
     if (text.isNotEmpty) {
       query = query.startAt([text]).endAt(["$text\uf8ff"]);
     }

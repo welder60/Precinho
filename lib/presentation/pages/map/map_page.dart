@@ -213,8 +213,8 @@ class _MapPageState extends ConsumerState<MapPage> {
 
   Widget _buildPriceCard(Map<String, dynamic> data) {
     final value = (data['price'] as num?)?.toDouble() ?? 0.0;
-    final product = data['product'] ?? 'Produto';
-    final store = data['store'] ?? 'Loja';
+    final product = data['product_name'] ?? 'Produto';
+    final store = data['store_name'] ?? 'Loja';
     final createdAt = (data['created_at'] as Timestamp?)?.toDate();
     return Card(
       margin: const EdgeInsets.only(bottom: AppTheme.paddingSmall),
