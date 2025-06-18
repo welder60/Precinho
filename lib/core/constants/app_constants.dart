@@ -7,7 +7,7 @@ class AppConstants {
   // Configurações de API
   static const String baseUrl = 'https://api.precinho.com';
   static const int timeoutDuration = 30000; // 30 segundos
-  static const String googleMapsApiKey = 'YOUR_GOOGLE_MAPS_API_KEY';
+  static const String googleMapsApiKey = 'AIzaSyDnD2wwkgEE7t4IdXGHPvdEQ9y323wFHe8';
   
   // Configurações de geolocalização
   static const double defaultSearchRadius = 5.0; // 5km
