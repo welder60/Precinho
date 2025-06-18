@@ -67,7 +67,6 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
                         onTap: () {
                           if (widget.onSelected != null) {
                             widget.onSelected!(doc);
-                            Navigator.pop(context);
                           }
                         },
                       ),

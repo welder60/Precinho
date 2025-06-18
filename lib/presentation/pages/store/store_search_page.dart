@@ -91,7 +91,6 @@ class _StoreSearchPageState extends ConsumerState<StoreSearchPage> {
                         onTap: () {
                           if (widget.onSelected != null) {
                             widget.onSelected!(doc);
-                            Navigator.pop(context);
                           } else {
                             Navigator.push(
                               context,
