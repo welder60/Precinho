@@ -274,7 +274,7 @@ associar o preço a esse novo registro.
 
 
 ### 🚧 Em Desenvolvimento
-- [ ] Integração com Google Maps
+- [x] Integração com Google Maps
 - [ ] Funcionalidade de câmera
 - [ ] OCR para notas fiscais
 - [ ] Sistema de moderação

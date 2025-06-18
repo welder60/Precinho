@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../core/themes/app_theme.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/logging/firebase_logger.dart';
+import 'place_search_page.dart';
+import 'package:google_place/google_place.dart';
 
 class AddStorePage extends StatefulWidget {
   const AddStorePage({super.key});
@@ -15,6 +17,9 @@ class _AddStorePageState extends State<AddStorePage> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _addressController = TextEditingController();
+  double? _latitude;
+  double? _longitude;
+  String? _placeId;
 
   @override
   void dispose() {
@@ -28,6 +33,11 @@ class _AddStorePageState extends State<AddStorePage> {
       final data = {
         'name': _nameController.text.trim(),
         'address': _addressController.text.trim(),
+        if (_latitude != null && _longitude != null) ...{
+          'latitude': _latitude,
+          'longitude': _longitude,
+          'place_id': _placeId,
+        },
         'created_at': Timestamp.now(),
       };
       try {
@@ -48,6 +58,24 @@ class _AddStorePageState extends State<AddStorePage> {
           ),
         );
       }
+    }
+  }
+
+  Future<void> _selectAddress() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const PlaceSearchPage(),
+      ),
+    );
+    if (result is DetailsResult) {
+      setState(() {
+        _addressController.text =
+            result.formattedAddress ?? result.name ?? '';
+        _latitude = result.geometry?.location?.lat;
+        _longitude = result.geometry?.location?.lng;
+        _placeId = result.placeId;
+      });
     }
   }
 
@@ -74,10 +102,13 @@ class _AddStorePageState extends State<AddStorePage> {
               const SizedBox(height: AppTheme.paddingMedium),
               TextFormField(
                 controller: _addressController,
+                readOnly: true,
                 decoration: const InputDecoration(
                   labelText: 'Endereço',
                   prefixIcon: Icon(Icons.location_on),
+                  suffixIcon: Icon(Icons.search),
                 ),
+                onTap: _selectAddress,
                 validator: Validators.validateAddress,
               ),
               const SizedBox(height: AppTheme.paddingLarge),
