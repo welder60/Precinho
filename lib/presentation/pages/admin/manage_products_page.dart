@@ -68,11 +68,18 @@ class ManageProductsPage extends StatelessWidget {
               final doc = docs[index];
               final data = doc.data() as Map<String, dynamic>;
               return ListTile(
-                leading:
-                    const Icon(Icons.shopping_bag, color: AppTheme.primaryColor),
+                leading: data['image_url'] != null &&
+                        (data['image_url'] as String).isNotEmpty
+                    ? CircleAvatar(
+                        backgroundImage: NetworkImage(data['image_url']),
+                      )
+                    : const Icon(Icons.shopping_bag,
+                        color: AppTheme.primaryColor),
                 title: Text(data['name'] ?? ''),
                 subtitle: Text(
-                    "${data['brand'] ?? ''} - ${data['weight'] ?? ''}kg"),
+                  "${data['brand'] ?? ''} - ${data['barcode'] ?? ''}\n${data['description'] ?? ''}",
+                ),
+                isThreeLine: true,
                 onTap: () {
                   Navigator.push(
                     context,
