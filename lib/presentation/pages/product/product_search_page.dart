@@ -112,7 +112,7 @@ class _ProductSearchPageState extends ConsumerState<ProductSearchPage> {
                             const EdgeInsets.all(AppTheme.paddingMedium),
                         gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
+                          crossAxisCount: 3,
                           crossAxisSpacing: AppTheme.paddingMedium,
                           mainAxisSpacing: AppTheme.paddingMedium,
                           childAspectRatio: 0.8,
@@ -139,7 +139,7 @@ class _ProductSearchPageState extends ConsumerState<ProductSearchPage> {
                                 padding:
                                     const EdgeInsets.all(AppTheme.paddingSmall),
                                 child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Expanded(
                                       child: data['image_url'] != null &&
@@ -165,11 +165,13 @@ class _ProductSearchPageState extends ConsumerState<ProductSearchPage> {
                                     Text(
                                       data['name'] ?? 'Produto',
                                       maxLines: 2,
+                                      textAlign: TextAlign.center,
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                     Text(
                                       data['brand'] ?? '',
                                       maxLines: 1,
+                                      textAlign: TextAlign.center,
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                   ],

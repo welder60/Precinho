@@ -182,7 +182,7 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
                 child: GridView.builder(
                   padding: const EdgeInsets.all(AppTheme.paddingMedium),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
+                    crossAxisCount: 3,
                     crossAxisSpacing: AppTheme.paddingMedium,
                     mainAxisSpacing: AppTheme.paddingMedium,
                     childAspectRatio: 1.4,
@@ -206,7 +206,7 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
                         child: Padding(
                           padding: const EdgeInsets.all(AppTheme.paddingSmall),
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               const Expanded(
                                 child: Icon(
@@ -219,10 +219,12 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
                               Text(
                                 productName,
                                 maxLines: 2,
+                                textAlign: TextAlign.center,
                                 overflow: TextOverflow.ellipsis,
                               ),
                               Text(
                                 'R\$ ${(priceData['price'] as num).toStringAsFixed(2)}',
+                                textAlign: TextAlign.center,
                                 style: AppTheme.priceTextStyle,
                               ),
                             ],
