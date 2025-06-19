@@ -9,7 +9,9 @@ import '../product/product_search_page.dart';
 import '../store/store_search_page.dart';
 
 class AddPricePage extends StatefulWidget {
-  const AddPricePage({super.key});
+  final DocumentSnapshot? store;
+
+  const AddPricePage({this.store, super.key});
 
   @override
   State<AddPricePage> createState() => _AddPricePageState();
@@ -27,6 +29,11 @@ class _AddPricePageState extends State<AddPricePage> {
   @override
   void initState() {
     super.initState();
+    if (widget.store != null) {
+      _selectedStore = widget.store;
+      final data = widget.store!.data() as Map<String, dynamic>;
+      _storeController.text = data['name'] ?? '';
+    }
     _loadNearbyStores();
   }
 
