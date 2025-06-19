@@ -147,11 +147,31 @@ class _AddPricePageState extends State<AddPricePage> {
       final priceValue = Formatters.parsePrice(_priceController.text.trim());
 
       try {
+        Position? position;
+        try {
+          final permission = await Geolocator.requestPermission();
+          if (permission != LocationPermission.denied &&
+              permission != LocationPermission.deniedForever) {
+            position = await Geolocator.getCurrentPosition();
+          }
+        } catch (e) {
+          FirebaseLogger.log('Location error', {'error': e.toString()});
+        }
+
+        final productData = _selectedProduct!.data() as Map<String, dynamic>;
+        final storeData = _selectedStore!.data() as Map<String, dynamic>;
+
         final data = {
           'product_id': _selectedProduct!.id,
+          'product_description': productData['description'],
           'store_id': _selectedStore!.id,
+          'store_description': storeData['description'],
           'price': priceValue,
           'created_at': Timestamp.now(),
+          if (position != null) ...{
+            'latitude': position.latitude,
+            'longitude': position.longitude,
+          },
         };
         FirebaseLogger.log('Adding price', data);
         await FirebaseFirestore.instance.collection('prices').add(data);

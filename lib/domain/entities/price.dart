@@ -8,6 +8,10 @@ class Price extends Equatable {
   final String userId;
   final double value;
   final String? imageUrl;
+  final String? productDescription;
+  final String? storeDescription;
+  final double? latitude;
+  final double? longitude;
   final DateTime createdAt;
   final DateTime? expiresAt;
   final bool isApproved;
@@ -25,6 +29,10 @@ class Price extends Equatable {
     required this.userId,
     required this.value,
     this.imageUrl,
+    this.productDescription,
+    this.storeDescription,
+    this.latitude,
+    this.longitude,
     required this.createdAt,
     this.expiresAt,
     required this.isApproved,
@@ -43,6 +51,10 @@ class Price extends Equatable {
     String? userId,
     double? value,
     String? imageUrl,
+    String? productDescription,
+    String? storeDescription,
+    double? latitude,
+    double? longitude,
     DateTime? createdAt,
     DateTime? expiresAt,
     bool? isApproved,
@@ -60,6 +72,10 @@ class Price extends Equatable {
       userId: userId ?? this.userId,
       value: value ?? this.value,
       imageUrl: imageUrl ?? this.imageUrl,
+      productDescription: productDescription ?? this.productDescription,
+      storeDescription: storeDescription ?? this.storeDescription,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
       createdAt: createdAt ?? this.createdAt,
       expiresAt: expiresAt ?? this.expiresAt,
       isApproved: isApproved ?? this.isApproved,
@@ -96,6 +112,10 @@ class Price extends Equatable {
         userId,
         value,
         imageUrl,
+        productDescription,
+        storeDescription,
+        latitude,
+        longitude,
         createdAt,
         expiresAt,
         isApproved,
