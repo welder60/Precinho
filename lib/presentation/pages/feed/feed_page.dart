@@ -183,9 +183,41 @@ class _FeedPageState extends State<FeedPage> {
                       ),
                     ],
                   ),
-                  trailing: Text(
-                    Formatters.formatPrice((data['price'] as num).toDouble()),
-                    style: AppTheme.priceTextStyle,
+                  trailing: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        Formatters.formatPrice((data['price'] as num).toDouble()),
+                        style: AppTheme.priceTextStyle,
+                      ),
+                      if (data['variation'] != null)
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              (data['variation'] as num) > 0
+                                  ? Icons.arrow_upward
+                                  : Icons.arrow_downward,
+                              color: (data['variation'] as num) > 0
+                                  ? AppTheme.errorColor
+                                  : AppTheme.successColor,
+                              size: 14,
+                            ),
+                            const SizedBox(width: 2),
+                            Text(
+                              Formatters.formatPercentage(
+                                  ((data['variation'] as num).abs()).toDouble()),
+                              style: TextStyle(
+                                color: (data['variation'] as num) > 0
+                                    ? AppTheme.errorColor
+                                    : AppTheme.successColor,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                    ],
                   ),
                   onTap: () {
                     Navigator.push(
