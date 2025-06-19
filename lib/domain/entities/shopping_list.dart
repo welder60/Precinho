@@ -4,7 +4,11 @@ import '../../core/constants/enums.dart';
 class ShoppingListItem extends Equatable {
   final String id;
   final String productId;
-  final int quantity;
+  final String productName;
+  final double quantity;
+  final double? price;
+  final String? storeId;
+  final String? storeName;
   final bool isCompleted;
   final String? notes;
   final DateTime createdAt;
@@ -13,7 +17,11 @@ class ShoppingListItem extends Equatable {
   const ShoppingListItem({
     required this.id,
     required this.productId,
+    required this.productName,
     required this.quantity,
+    this.price,
+    this.storeId,
+    this.storeName,
     required this.isCompleted,
     this.notes,
     required this.createdAt,
@@ -23,7 +31,11 @@ class ShoppingListItem extends Equatable {
   ShoppingListItem copyWith({
     String? id,
     String? productId,
-    int? quantity,
+    String? productName,
+    double? quantity,
+    double? price,
+    String? storeId,
+    String? storeName,
     bool? isCompleted,
     String? notes,
     DateTime? createdAt,
@@ -32,7 +44,11 @@ class ShoppingListItem extends Equatable {
     return ShoppingListItem(
       id: id ?? this.id,
       productId: productId ?? this.productId,
+      productName: productName ?? this.productName,
       quantity: quantity ?? this.quantity,
+      price: price ?? this.price,
+      storeId: storeId ?? this.storeId,
+      storeName: storeName ?? this.storeName,
       isCompleted: isCompleted ?? this.isCompleted,
       notes: notes ?? this.notes,
       createdAt: createdAt ?? this.createdAt,
@@ -44,7 +60,11 @@ class ShoppingListItem extends Equatable {
   List<Object?> get props => [
         id,
         productId,
+        productName,
         quantity,
+        price,
+        storeId,
+        storeName,
         isCompleted,
         notes,
         createdAt,
