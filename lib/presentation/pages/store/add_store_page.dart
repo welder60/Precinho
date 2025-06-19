@@ -1,8 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:http/http.dart' as http;
+import 'dart:typed_data';
+import 'package:uuid/uuid.dart';
 import '../../../core/themes/app_theme.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/logging/firebase_logger.dart';
+import '../../../core/constants/app_constants.dart';
 import 'place_search_page.dart';
 import '../../../data/models/place_result.dart';
 
@@ -20,6 +25,7 @@ class _AddStorePageState extends State<AddStorePage> {
   double? _latitude;
   double? _longitude;
   String? _placeId;
+  Uint8List? _mapImageBytes;
 
   @override
   void dispose() {
@@ -30,6 +36,15 @@ class _AddStorePageState extends State<AddStorePage> {
 
   Future<void> _submit() async {
     if (_formKey.currentState!.validate()) {
+      String? mapImageUrl;
+      if (_mapImageBytes != null) {
+        final id = const Uuid().v4();
+        final ref = FirebaseStorage.instance.ref().child('store_maps/$id.png');
+        FirebaseLogger.log('Uploading map image', {'path': ref.fullPath});
+        await ref.putData(_mapImageBytes!);
+        mapImageUrl = await ref.getDownloadURL();
+      }
+
       final data = {
         'name': _nameController.text.trim(),
         'address': _addressController.text.trim(),
@@ -38,6 +53,7 @@ class _AddStorePageState extends State<AddStorePage> {
           'longitude': _longitude,
           'place_id': _placeId,
         },
+        if (mapImageUrl != null) 'map_image_url': mapImageUrl,
         'created_at': Timestamp.now(),
       };
       try {
@@ -75,7 +91,26 @@ class _AddStorePageState extends State<AddStorePage> {
         _longitude = result.longitude;
         _placeId = result.id;
       });
+      await _loadMapImage(result.latitude, result.longitude);
     }
+  }
+
+  Future<void> _loadMapImage(double lat, double lng) async {
+    final uri = Uri.https('maps.googleapis.com', '/maps/api/staticmap', {
+      'center': '$lat,$lng',
+      'zoom': '16',
+      'size': '600x300',
+      'markers': 'color:red|$lat,$lng',
+      'key': AppConstants.googleMapsApiKey,
+    });
+    try {
+      final res = await http.get(uri);
+      if (res.statusCode == 200) {
+        setState(() {
+          _mapImageBytes = res.bodyBytes;
+        });
+      }
+    } catch (_) {}
   }
 
   @override
@@ -110,6 +145,15 @@ class _AddStorePageState extends State<AddStorePage> {
                 onTap: _selectAddress,
                 validator: Validators.validateAddress,
               ),
+              if (_mapImageBytes != null) ...[
+                const SizedBox(height: AppTheme.paddingMedium),
+                Image.memory(
+                  _mapImageBytes!,
+                  width: double.infinity,
+                  height: 200,
+                  fit: BoxFit.cover,
+                ),
+              ],
               const SizedBox(height: AppTheme.paddingLarge),
               SizedBox(
                 width: double.infinity,
