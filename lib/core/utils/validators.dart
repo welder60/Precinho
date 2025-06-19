@@ -62,23 +62,23 @@ class Validators {
     return null;
   }
 
-  // Validação de peso do produto
-  static String? validateWeight(String? weight) {
-    if (weight == null || weight.isEmpty) {
-      return 'Peso é obrigatório';
+  // Validação de volume do produto
+  static String? validateVolume(String? volume) {
+    if (volume == null || volume.isEmpty) {
+      return 'Volume é obrigatório';
     }
 
-    final parsed = double.tryParse(weight.replaceAll(',', '.'));
+    final parsed = double.tryParse(volume.replaceAll(',', '.'));
     if (parsed == null) {
-      return 'Peso inválido';
+      return 'Volume inválido';
     }
 
     if (parsed <= 0) {
-      return 'Peso deve ser maior que zero';
+      return 'Volume deve ser maior que zero';
     }
 
     if (parsed > 9999) {
-      return 'Peso muito alto';
+      return 'Volume muito alto';
     }
 
     return null;

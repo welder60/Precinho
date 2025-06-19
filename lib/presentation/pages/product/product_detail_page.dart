@@ -32,9 +32,19 @@ class ProductDetailPage extends StatelessWidget {
                   data['brand'] ?? '',
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
-                if (data['weight'] != null) ...[
+                if (data['categories'] != null) ...[
                   const SizedBox(height: AppTheme.paddingSmall),
-                  Text('Peso: ${data['weight']} kg'),
+                  Wrap(
+                    spacing: 4,
+                    children: List<Widget>.from(
+                      (data['categories'] as List)
+                          .map((c) => Chip(label: Text(c.toString()))),
+                    ),
+                  ),
+                ],
+                if (data['volume'] != null && data['unit'] != null) ...[
+                  const SizedBox(height: AppTheme.paddingSmall),
+                  Text('Volume: ${data['volume']} ${data['unit']}'),
                 ],
                 if (data['barcode'] != null && (data['barcode'] as String).isNotEmpty) ...[
                   const SizedBox(height: AppTheme.paddingSmall),

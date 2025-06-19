@@ -23,12 +23,14 @@ class _EditProductPageState extends State<EditProductPage> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nameController;
   late final TextEditingController _brandController;
-  late final TextEditingController _weightController;
+  late final TextEditingController _volumeController;
   late final TextEditingController _barcodeController;
   late final TextEditingController _descriptionController;
   final ImagePicker _picker = ImagePicker();
   XFile? _imageFile;
-  ProductCategory? _category;
+  String? _unit;
+  final List<String> _categories = [];
+  final TextEditingController _categoryController = TextEditingController();
   String? _imageUrl;
 
   @override
@@ -37,15 +39,17 @@ class _EditProductPageState extends State<EditProductPage> {
     final data = widget.document.data() as Map<String, dynamic>;
     _nameController = TextEditingController(text: data['name'] ?? '');
     _brandController = TextEditingController(text: data['brand'] ?? '');
-    _weightController =
-        TextEditingController(text: data['weight']?.toString() ?? '');
+    _volumeController =
+        TextEditingController(text: data['volume']?.toString() ?? '');
     _barcodeController = TextEditingController(text: data['barcode'] ?? '');
     _descriptionController =
         TextEditingController(text: data['description'] ?? '');
-    _category = ProductCategory.values.firstWhere(
-      (c) => c.value == data['category'],
-      orElse: () => ProductCategory.other,
-    );
+    if (data['unit'] != null) {
+      _unit = data['unit'] as String?;
+    }
+    if (data['categories'] != null) {
+      _categories.addAll(List<String>.from(data['categories'] as List));
+    }
     _imageUrl = data['image_url'] as String?;
   }
 
@@ -53,9 +57,10 @@ class _EditProductPageState extends State<EditProductPage> {
   void dispose() {
     _nameController.dispose();
     _brandController.dispose();
-    _weightController.dispose();
+    _volumeController.dispose();
     _barcodeController.dispose();
     _descriptionController.dispose();
+    _categoryController.dispose();
     super.dispose();
   }
 
@@ -65,6 +70,16 @@ class _EditProductPageState extends State<EditProductPage> {
       setState(() {
         _imageFile = picked;
       });
+    }
+  }
+
+  void _addCategory() {
+    final text = _categoryController.text.trim();
+    if (text.isNotEmpty && !_categories.contains(text)) {
+      setState(() {
+        _categories.add(text);
+      });
+      _categoryController.clear();
     }
   }
 
@@ -84,10 +99,11 @@ class _EditProductPageState extends State<EditProductPage> {
         final data = {
           'name': _nameController.text.trim(),
           'brand': _brandController.text.trim(),
-          'weight': double.tryParse(_weightController.text.trim()),
+          'volume': double.tryParse(_volumeController.text.trim()),
+          'unit': _unit,
           'barcode': _barcodeController.text.trim(),
           'description': _descriptionController.text.trim(),
-          'category': _category?.value,
+          'categories': _categories,
           'image_url': imageUrl,
           'updated_at': Timestamp.now(),
         };
@@ -146,14 +162,32 @@ class _EditProductPageState extends State<EditProductPage> {
               ),
               const SizedBox(height: AppTheme.paddingMedium),
               TextFormField(
-                controller: _weightController,
+                controller: _volumeController,
                 decoration: const InputDecoration(
-                  labelText: 'Peso (kg)',
+                  labelText: 'Volume',
                   prefixIcon: Icon(Icons.scale),
                 ),
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
-                validator: Validators.validateWeight,
+                validator: Validators.validateVolume,
+              ),
+              const SizedBox(height: AppTheme.paddingMedium),
+              DropdownButtonFormField<String>(
+                value: _unit,
+                decoration: const InputDecoration(labelText: 'Unidade de Medida'),
+                items: const [
+                  DropdownMenuItem(value: 'kg', child: Text('kg')),
+                  DropdownMenuItem(value: 'g', child: Text('g')),
+                  DropdownMenuItem(value: 'l', child: Text('l')),
+                  DropdownMenuItem(value: 'ml', child: Text('ml')),
+                  DropdownMenuItem(value: 'un', child: Text('unidade')),
+                ],
+                onChanged: (value) {
+                  setState(() {
+                    _unit = value;
+                  });
+                },
+                validator: (value) => value == null ? 'Selecione a unidade' : null,
               ),
               const SizedBox(height: AppTheme.paddingMedium),
               TextFormField(
@@ -166,22 +200,29 @@ class _EditProductPageState extends State<EditProductPage> {
                 validator: Validators.validateBarcode,
               ),
               const SizedBox(height: AppTheme.paddingMedium),
-              DropdownButtonFormField<ProductCategory>(
-                value: _category,
-                decoration: const InputDecoration(labelText: 'Categoria'),
-                items: ProductCategory.values.map((category) {
-                  return DropdownMenuItem(
-                    value: category,
-                    child: Text(category.displayName),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _category = value;
-                  });
-                },
-                validator: (value) =>
-                    value == null ? 'Selecione uma categoria' : null,
+              TextFormField(
+                controller: _categoryController,
+                decoration: InputDecoration(
+                  labelText: 'Adicionar Categoria',
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.add),
+                    onPressed: _addCategory,
+                  ),
+                ),
+                onFieldSubmitted: (_) => _addCategory(),
+              ),
+              Wrap(
+                spacing: 8,
+                children: _categories
+                    .map((c) => InputChip(
+                          label: Text(c),
+                          onDeleted: () {
+                            setState(() {
+                              _categories.remove(c);
+                            });
+                          },
+                        ))
+                    .toList(),
               ),
               const SizedBox(height: AppTheme.paddingMedium),
               OutlinedButton(
