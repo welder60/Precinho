@@ -113,9 +113,7 @@ class _PlaceSearchPageState extends State<PlaceSearchPage> {
                 final p = _results[index];
                 return ListTile(
                   title: Text(p.name),
-                  subtitle: Text(
-                    '${p.latitude.toStringAsFixed(5)}, ${p.longitude.toStringAsFixed(5)}',
-                  ),
+                  subtitle: Text(p.address),
                   onTap: () {
                     Navigator.pop(context, p);
                   },
