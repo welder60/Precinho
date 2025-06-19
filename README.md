@@ -227,11 +227,17 @@ class Store {
   final String id;
   final String name;
   final String address;
+  final String? cnpj;
   final double latitude;
   final double longitude;
   final String? imageUrl;
+  final String? mapImageUrl;
   final StoreCategory category;
   final bool isApproved;
+  final String userId;
+  final String status;
+  final double rating;
+  final DateTime createdAt;
 }
 ```
 

@@ -178,7 +178,21 @@ class Validators {
     if (cleanBarcode.length < 8 || cleanBarcode.length > 14) {
       return 'Código de barras inválido';
     }
-    
+
+    return null;
+  }
+
+  // Validação de CNPJ
+  static String? validateCnpj(String? cnpj) {
+    if (cnpj == null || cnpj.isEmpty) {
+      return null; // CNPJ é opcional
+    }
+
+    final cleanCnpj = cnpj.replaceAll(RegExp(r'[^\d]'), '');
+    if (cleanCnpj.length != 14) {
+      return 'CNPJ inválido';
+    }
+
     return null;
   }
 
