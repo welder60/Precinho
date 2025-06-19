@@ -17,12 +17,12 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> {
-  int _currentIndex = 0;
+  int _currentIndex = 2;
 
   final List<Widget> _pages = [
-    const FeedPage(),
     const StoreSearchPage(),
     const ProductSearchPage(),
+    const FeedPage(),
     const ShoppingListsPage(),
     const ProfilePage(),
   ];
@@ -32,55 +32,11 @@ class _HomePageState extends ConsumerState<HomePage> {
     final user = ref.watch(currentUserProvider);
 
     return Scaffold(
-      body: kIsWeb 
-          ? Row(
-              children: [
-                // Sidebar para web
-                NavigationRail(
-                  selectedIndex: _currentIndex,
-                  onDestinationSelected: (index) {
-                    setState(() {
-                      _currentIndex = index;
-                    });
-                  },
-                  labelType: NavigationRailLabelType.all,
-                  destinations: const [
-                    NavigationRailDestination(
-                      icon: Icon(Icons.home),
-                      label: Text('Início'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.store),
-                      label: Text('Lojas'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.search),
-                      label: Text('Produtos'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.shopping_cart),
-                      label: Text('Listas'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.person),
-                      label: Text('Perfil'),
-                    ),
-                  ],
-                ),
-                const VerticalDivider(thickness: 1, width: 1),
-                // Conteúdo principal
-                Expanded(
-                  child: _pages[_currentIndex],
-                ),
-              ],
-            )
-          : IndexedStack(
-              index: _currentIndex,
-              children: _pages,
-            ),
-      bottomNavigationBar: kIsWeb 
-          ? null 
-          : BottomNavigationBar(
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _pages,
+      ),
+      bottomNavigationBar: BottomNavigationBar(
               type: BottomNavigationBarType.fixed,
               currentIndex: _currentIndex,
               onTap: (index) {
@@ -92,16 +48,16 @@ class _HomePageState extends ConsumerState<HomePage> {
               unselectedItemColor: AppTheme.textSecondaryColor,
               items: const [
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.home),
-                  label: 'Início',
-                ),
-                BottomNavigationBarItem(
                   icon: Icon(Icons.store),
                   label: 'Lojas',
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.search),
                   label: 'Produtos',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.home),
+                  label: 'Início',
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.shopping_cart),
