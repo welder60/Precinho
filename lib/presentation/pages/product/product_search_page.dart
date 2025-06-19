@@ -163,7 +163,7 @@ class _ProductSearchPageState extends ConsumerState<ProductSearchPage> {
                                     const SizedBox(
                                         height: AppTheme.paddingSmall),
                                     Text(
-                                      data['name'] ?? 'Produto',
+                                      _buildLabel(data),
                                       maxLines: 2,
                                       textAlign: TextAlign.center,
                                       overflow: TextOverflow.ellipsis,
@@ -212,5 +212,15 @@ class _ProductSearchPageState extends ConsumerState<ProductSearchPage> {
       query = query.startAt([text]).endAt(["$text\uf8ff"]);
     }
     return query;
+  }
+
+  String _buildLabel(Map<String, dynamic> data) {
+    final name = data['name'] ?? 'Produto';
+    final volume = data['volume'];
+    final unit = data['unit'];
+    if (volume != null && unit != null && unit != 'un') {
+      return '$name (${volume.toString()} $unit)';
+    }
+    return name;
   }
 }

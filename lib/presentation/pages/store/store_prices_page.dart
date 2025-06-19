@@ -20,6 +20,7 @@ class StorePricesPage extends ConsumerStatefulWidget {
 class _StorePricesPageState extends ConsumerState<StorePricesPage> {
   final TextEditingController _controller = TextEditingController();
   final Map<String, List<String>> _productCategories = {};
+  final Map<String, Map<String, dynamic>> _productInfo = {};
   final Set<String> _selectedCategories = {};
 
   @override
@@ -29,7 +30,7 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
   }
 
   Future<void> _fetchCategories(Iterable<String> ids) async {
-    final missing = ids.where((id) => !_productCategories.containsKey(id)).toList();
+    final missing = ids.where((id) => !_productInfo.containsKey(id)).toList();
     for (var i = 0; i < missing.length; i += 10) {
       final chunk = missing.sublist(i, i + 10 > missing.length ? missing.length : i + 10);
       final snap = await FirebaseFirestore.instance
@@ -37,8 +38,9 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
           .where(FieldPath.documentId, whereIn: chunk)
           .get();
       for (final doc in snap.docs) {
-        _productCategories[doc.id] =
-            List<String>.from(doc.data()['categories'] ?? []);
+        final data = doc.data();
+        _productCategories[doc.id] = List<String>.from(data['categories'] ?? []);
+        _productInfo[doc.id] = data;
       }
     }
     if (mounted) setState(() {});
@@ -128,7 +130,7 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
             latest.putIfAbsent(productId, () => doc);
           }
 
-          if (ids.any((id) => !_productCategories.containsKey(id))) {
+          if (ids.any((id) => !_productInfo.containsKey(id))) {
             Future.microtask(() => _fetchCategories(ids));
           }
 
@@ -192,6 +194,15 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
                     final doc = prices[index];
                     final priceData = doc.data() as Map<String, dynamic>;
                     final productName = priceData['product_name'] as String? ?? '';
+                    final productId = priceData['product_id'] as String?;
+                    final info = productId != null ? _productInfo[productId] : null;
+                    final imageUrl = info?['image_url'] as String?;
+                    final volume = info?['volume'];
+                    final unit = info?['unit'];
+                    var label = productName;
+                    if (volume != null && unit != null && unit != 'un') {
+                      label = '$productName (${volume.toString()} $unit)';
+                    }
 
                     return GestureDetector(
                       onTap: () {
@@ -208,20 +219,30 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              const Expanded(
-                                child: Icon(
-                                  Icons.shopping_bag,
-                                  size: 40,
-                                  color: AppTheme.primaryColor,
-                                ),
+                              Expanded(
+                                child: imageUrl != null && imageUrl.isNotEmpty
+                                    ? ClipRRect(
+                                        borderRadius: BorderRadius.circular(
+                                            AppTheme.radiusSmall),
+                                        child: Image.network(
+                                          imageUrl,
+                                          fit: BoxFit.cover,
+                                          width: double.infinity,
+                                        ),
+                                      )
+                                    : const Icon(
+                                        Icons.shopping_bag,
+                                        size: 40,
+                                        color: AppTheme.primaryColor,
+                                      ),
                               ),
                               const SizedBox(height: AppTheme.paddingSmall),
-                              Text(
-                                productName,
-                                maxLines: 2,
-                                textAlign: TextAlign.center,
-                                overflow: TextOverflow.ellipsis,
-                              ),
+                                Text(
+                                  label,
+                                  maxLines: 2,
+                                  textAlign: TextAlign.center,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               Text(
                                 'R\$ ${(priceData['price'] as num).toStringAsFixed(2)}',
                                 textAlign: TextAlign.center,
