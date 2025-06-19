@@ -56,7 +56,12 @@ class ShoppingListNotifier extends StateNotifier<List<ShoppingList>> {
     ];
   }
 
-  ShoppingList? getList(String id) => state.firstWhere((e) => e.id == id, orElse: () => null);
+  ShoppingList? getList(String id) {
+    for (final list in state) {
+      if (list.id == id) return list;
+    }
+    return null;
+  }
 
   Map<String, double> totalsByStore(String listId) {
     final list = getList(listId);
