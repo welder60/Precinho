@@ -35,6 +35,28 @@ class PriceDetailPage extends StatelessWidget {
     );
   }
 
+  Future<Map<String, DocumentSnapshot?>> _fetchExtraDetails() async {
+    final data = price.data() as Map<String, dynamic>;
+    final productId = data['product_id'] as String?;
+    final userId = data['user_id'] as String?;
+
+    final productDoc = productId != null
+        ? await FirebaseFirestore.instance
+            .collection('products')
+            .doc(productId)
+            .get()
+        : null;
+
+    final userDoc = userId != null
+        ? await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userId)
+            .get()
+        : null;
+
+    return {'product': productDoc, 'user': userDoc};
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -46,26 +68,67 @@ class PriceDetailPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Detalhes do Preço'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(AppTheme.paddingLarge),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              productName.isNotEmpty ? productName : 'Produto',
-              style: Theme.of(context).textTheme.titleLarge,
+      body: FutureBuilder<Map<String, DocumentSnapshot?>>(
+        future: _fetchExtraDetails(),
+        builder: (context, snapshot) {
+          final productDoc = snapshot.data?['product'];
+          final userDoc = snapshot.data?['user'];
+
+          final productImage = (productDoc?.data() as Map<String, dynamic>?)?['image_url'] as String?;
+          final userData = userDoc?.data() as Map<String, dynamic>?;
+          final userName = userData?['name'] as String? ?? 'Usu\u00e1rio';
+          final userPhoto = userData?['photo_url'] as String?;
+          final createdAt = (data['created_at'] as Timestamp?)?.toDate();
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          return Padding(
+            padding: const EdgeInsets.all(AppTheme.paddingLarge),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (productImage != null && productImage.isNotEmpty)
+                  Image.network(
+                    productImage,
+                    width: double.infinity,
+                    height: 200,
+                    fit: BoxFit.cover,
+                  ),
+                const SizedBox(height: AppTheme.paddingMedium),
+                Text(
+                  productName.isNotEmpty ? productName : 'Produto',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: AppTheme.paddingMedium),
+                Text('Com\u00e9rcio: $storeName'),
+                const SizedBox(height: AppTheme.paddingMedium),
+                Text(
+                  Formatters.formatPrice((data['price'] as num).toDouble()),
+                  style: AppTheme.priceTextStyle,
+                ),
+                const SizedBox(height: AppTheme.paddingLarge),
+                Row(
+                  children: [
+                    if (userPhoto != null && userPhoto.isNotEmpty)
+                      CircleAvatar(backgroundImage: NetworkImage(userPhoto))
+                    else
+                      const CircleAvatar(child: Icon(Icons.person)),
+                    const SizedBox(width: AppTheme.paddingSmall),
+                    Text(userName),
+                  ],
+                ),
+                if (createdAt != null) ...[
+                  const SizedBox(height: AppTheme.paddingMedium),
+                  Text('Registrado em: ${Formatters.formatDateTime(createdAt)}'),
+                ],
+                const SizedBox(height: AppTheme.paddingLarge),
+                const Text('Mais detalhes ser\u00e3o implementados futuramente.'),
+              ],
             ),
-            const SizedBox(height: AppTheme.paddingMedium),
-            Text('Com\u00e9rcio: $storeName'),
-            const SizedBox(height: AppTheme.paddingMedium),
-            Text(
-              Formatters.formatPrice((data['price'] as num).toDouble()),
-              style: AppTheme.priceTextStyle,
-            ),
-            const SizedBox(height: AppTheme.paddingLarge),
-            const Text('Mais detalhes ser\u00e3o implementados futuramente.'),
-          ],
-        ),
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _updatePrice(context),
