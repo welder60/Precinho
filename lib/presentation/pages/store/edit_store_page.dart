@@ -1,13 +1,7 @@
-import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:uuid/uuid.dart';
 import '../../../core/themes/app_theme.dart';
 import '../../../core/utils/validators.dart';
-import '../../../core/constants/app_constants.dart';
 import '../../../core/logging/firebase_logger.dart';
 import 'place_search_page.dart';
 import '../../../data/models/place_result.dart';
@@ -27,14 +21,10 @@ class _EditStorePageState extends State<EditStorePage> {
   final _addressController = TextEditingController();
   final _cnpjController = TextEditingController();
   final _placesService = PlacesService();
-  final ImagePicker _picker = ImagePicker();
-  XFile? _imageFile;
   double? _latitude;
   double? _longitude;
   String? _placeId;
-  String? _photoReference;
-  String? _imageUrl;
-  String? _mapImageUrl;
+  
 
   @override
   void initState() {
@@ -46,17 +36,6 @@ class _EditStorePageState extends State<EditStorePage> {
     _latitude = (data['latitude'] as num?)?.toDouble();
     _longitude = (data['longitude'] as num?)?.toDouble();
     _placeId = data['place_id'] as String?;
-    _imageUrl = data['image_url'] as String?;
-    _mapImageUrl = data['map_image_url'] as String?;
-  }
-
-  Future<void> _pickImage() async {
-    final picked = await _picker.pickImage(source: ImageSource.gallery);
-    if (picked != null) {
-      setState(() {
-        _imageFile = picked;
-      });
-    }
   }
 
   @override
@@ -70,28 +49,6 @@ class _EditStorePageState extends State<EditStorePage> {
   Future<void> _submit() async {
     if (_formKey.currentState!.validate()) {
       try {
-        String? imageUrl = _imageUrl;
-        if (_imageFile != null) {
-          final id = const Uuid().v4();
-          final ref = FirebaseStorage.instance
-              .ref()
-              .child('store_images/$id.jpg');
-          FirebaseLogger.log('Uploading store image', {'path': ref.fullPath});
-          await ref.putFile(File(_imageFile!.path));
-          imageUrl = await ref.getDownloadURL();
-          FirebaseLogger.log('Store image uploaded', {'url': imageUrl});
-        }
-        if (_photoReference == null && _placeId != null) {
-          try {
-            _photoReference =
-                await _placesService.getPhotoReference(_placeId!);
-          } catch (_) {}
-        }
-
-        final mapImageUrl = _photoReference != null
-            ? _placesService.buildPhotoUrl(_photoReference!)
-            : _mapImageUrl;
-
         final data = {
           'name': _nameController.text.trim(),
           'address': _addressController.text.trim(),
@@ -101,8 +58,6 @@ class _EditStorePageState extends State<EditStorePage> {
             'longitude': _longitude,
             'place_id': _placeId,
           },
-          'map_image_url': mapImageUrl,
-          'image_url': imageUrl,
           'updated_at': Timestamp.now(),
         };
 
@@ -140,7 +95,6 @@ class _EditStorePageState extends State<EditStorePage> {
         _latitude = result.latitude;
         _longitude = result.longitude;
         _placeId = result.id;
-        _photoReference = result.photoReference;
       });
     }
   }
@@ -189,29 +143,6 @@ class _EditStorePageState extends State<EditStorePage> {
                 validator: Validators.validateCnpj,
               ),
               const SizedBox(height: AppTheme.paddingMedium),
-              if (_imageFile != null)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: AppTheme.paddingMedium),
-                  child: Image.file(
-                    File(_imageFile!.path),
-                    height: 150,
-                    fit: BoxFit.cover,
-                  ),
-                )
-              else if (_imageUrl != null && _imageUrl!.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: AppTheme.paddingMedium),
-                  child: Image.network(
-                    _imageUrl!,
-                    height: 150,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              OutlinedButton.icon(
-                onPressed: _pickImage,
-                icon: const Icon(Icons.photo),
-                label: const Text('Selecionar Foto'),
-              ),
               const SizedBox(height: AppTheme.paddingLarge),
               SizedBox(
                 width: double.infinity,

@@ -137,25 +137,12 @@ class _ProductPricesPageState extends ConsumerState<ProductPricesPage> {
                       '${Formatters.formatPrice((priceData['price'] as num).toDouble())}');
 
               final storeData = storeId != null ? _storeInfo[storeId] : null;
-              final storeImageUrl = storeData != null
-                  ? storeData['image_url'] as String?
-                  : null;
-              final mapImageUrl = storeData != null
-                  ? storeData['map_image_url'] as String?
-                  : null;
-              final imageUrl = (storeImageUrl != null && storeImageUrl.isNotEmpty)
-                  ? storeImageUrl
-                  : mapImageUrl;
 
               return ListTile(
-                leading: imageUrl != null && imageUrl.isNotEmpty
-                    ? CircleAvatar(
-                        backgroundImage: NetworkImage(imageUrl),
-                      )
-                    : const Icon(
-                        Icons.store,
-                        color: AppTheme.primaryColor,
-                      ),
+                leading: const Icon(
+                  Icons.store,
+                  color: AppTheme.primaryColor,
+                ),
                 title: Text(storeName),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
