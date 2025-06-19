@@ -57,36 +57,69 @@ class _ProductSearchPageState extends ConsumerState<ProductSearchPage> {
                 if (docs.isEmpty) {
                   return const Center(child: Text('Nenhum produto encontrado'));
                 }
-                return ListView.builder(
+                return GridView.builder(
                   itemCount: docs.length,
                   padding: const EdgeInsets.all(AppTheme.paddingMedium),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: AppTheme.paddingMedium,
+                    mainAxisSpacing: AppTheme.paddingMedium,
+                    childAspectRatio: 0.8,
+                  ),
                   itemBuilder: (context, index) {
                     final doc = docs[index];
                     final data = doc.data() as Map<String, dynamic>;
-                    return Card(
-                      child: ListTile(
-                        leading: data['image_url'] != null &&
-                                (data['image_url'] as String).isNotEmpty
-                            ? CircleAvatar(
-                                backgroundImage:
-                                    NetworkImage(data['image_url']),
-                              )
-                            : const Icon(Icons.shopping_bag,
-                                color: AppTheme.primaryColor),
-                        title: Text(data['name'] ?? 'Produto'),
-                        subtitle: Text(data['brand'] ?? ''),
-                        onTap: () {
-                          if (widget.onSelected != null) {
-                            widget.onSelected!(doc);
-                          } else {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => ProductPricesPage(product: doc),
+                    return GestureDetector(
+                      onTap: () {
+                        if (widget.onSelected != null) {
+                          widget.onSelected!(doc);
+                        } else {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => ProductPricesPage(product: doc),
+                            ),
+                          );
+                        }
+                      },
+                      child: Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(AppTheme.paddingSmall),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: data['image_url'] != null &&
+                                        (data['image_url'] as String).isNotEmpty
+                                    ? ClipRRect(
+                                        borderRadius: BorderRadius.circular(
+                                            AppTheme.radiusSmall),
+                                        child: Image.network(
+                                          data['image_url'],
+                                          fit: BoxFit.cover,
+                                          width: double.infinity,
+                                        ),
+                                      )
+                                    : const Icon(
+                                        Icons.shopping_bag,
+                                        size: 40,
+                                        color: AppTheme.primaryColor,
+                                      ),
                               ),
-                            );
-                          }
-                        },
+                              const SizedBox(height: AppTheme.paddingSmall),
+                              Text(
+                                data['name'] ?? 'Produto',
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Text(
+                                data['brand'] ?? '',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     );
                   },
