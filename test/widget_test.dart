@@ -1,30 +1,55 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:precinho_app/main.dart';
+import 'package:precinho_app/presentation/pages/auth/login_page.dart';
+import 'package:precinho_app/presentation/providers/auth_provider.dart';
+import 'package:precinho_app/data/datasources/auth_service.dart';
+import 'package:precinho_app/data/models/user_model.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('renders login page when not authenticated', (tester) async {
+    final authService = _FakeAuthService();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [authServiceProvider.overrideWithValue(authService)],
+        child: const PrecinhApp(),
+      ),
+    );
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
     await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.byType(LoginPage), findsOneWidget);
   });
+}
+
+class _FakeAuthService implements AuthService {
+  @override
+  Stream<UserModel?> get authStateChanges => const Stream.empty();
+
+  @override
+  Future<UserModel?> getCurrentUser() async => null;
+
+  @override
+  Future<void> resetPassword(String email) async {}
+
+  @override
+  Future<void> signOut() async {}
+
+  @override
+  Future<UserModel> signInWithEmail(String email, String password) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<UserModel> signInWithGoogle() {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<UserModel> signUpWithEmail(String email, String password, String name) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> updateProfile(String name, String? photoUrl) async {}
 }
