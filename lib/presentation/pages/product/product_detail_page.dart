@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../providers/auth_provider.dart';
+import '../../providers/shopping_list_provider.dart';
 import '../admin/edit_product_page.dart';
 
 import '../../../core/themes/app_theme.dart';
@@ -75,6 +76,74 @@ class ProductDetailPage extends ConsumerWidget {
                 ],
               ],
             ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showAddToListDialog(context, ref, data),
+        child: const Icon(Icons.add_shopping_cart),
+      ),
+    );
+  }
+
+  void _showAddToListDialog(BuildContext context, WidgetRef ref, Map<String, dynamic> data) {
+    final lists = ref.read(shoppingListProvider);
+    final controller = TextEditingController(text: '1');
+    String? selectedId = lists.isNotEmpty ? lists.first.id : null;
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Adicionar à lista'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (lists.isEmpty)
+              Text('Nenhuma lista encontrada'),
+            if (lists.isEmpty)
+              TextButton(
+                onPressed: () {
+                  final id = ref
+                      .read(shoppingListProvider.notifier)
+                      .createList('Minha Lista');
+                  selectedId = id;
+                },
+                child: const Text('Criar lista'),
+              )
+            else
+              DropdownButton<String>(
+                value: selectedId,
+                onChanged: (v) => selectedId = v,
+                items: [
+                  for (final l in lists)
+                    DropdownMenuItem(value: l.id, child: Text(l.name)),
+                ],
+              ),
+            TextField(
+              controller: controller,
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
+              decoration: const InputDecoration(labelText: 'Quantidade'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (selectedId != null) {
+                final quantity = double.tryParse(controller.text) ?? 1;
+                ref.read(shoppingListProvider.notifier).addProductToList(
+                      listId: selectedId!,
+                      productId: product.id,
+                      productName: data['name'] ?? 'Produto',
+                      quantity: quantity,
+                    );
+              }
+              Navigator.pop(context);
+            },
+            child: const Text('Adicionar'),
           ),
         ],
       ),
