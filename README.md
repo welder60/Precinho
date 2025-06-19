@@ -176,6 +176,7 @@ flutter run
 1. **Firestore Database:**
    - Crie as coleções: `users`, `products`, `stores`, `prices`, `shopping_lists`
    - Configure as regras de segurança
+   - Crie os índices compostos definidos em `firestore.indexes.json`
 
 2. **Authentication:**
    - Habilite Email/Password
