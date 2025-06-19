@@ -6,14 +6,25 @@ import '../../../core/themes/app_theme.dart';
 import '../../providers/shopping_list_provider.dart';
 import '../product/product_search_page.dart';
 
-class ShoppingListDetailPage extends ConsumerWidget {
+class ShoppingListDetailPage extends ConsumerStatefulWidget {
   final String listId;
   const ShoppingListDetailPage({required this.listId, super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final list = ref.watch(shoppingListProvider).firstWhere((e) => e.id == listId);
-    final totals = ref.read(shoppingListProvider.notifier).totalsByStore(listId);
+  ConsumerState<ShoppingListDetailPage> createState() => _ShoppingListDetailPageState();
+}
+
+class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage> {
+  String? _selectedStore;
+
+  @override
+  Widget build(BuildContext context) {
+    final list = ref.watch(shoppingListProvider).firstWhere((e) => e.id == widget.listId);
+    final totals = ref.read(shoppingListProvider.notifier).totalsByStore(widget.listId);
+
+    final storeOptions = totals.keys.toList();
+    double totalForStore = 0;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(list.name),
@@ -21,34 +32,73 @@ class ShoppingListDetailPage extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.all(AppTheme.paddingMedium),
         children: [
-          ...list.items.map(
-            (item) => ListTile(
-              title: Text(item.productName),
-              subtitle: Text(item.storeName ?? '-'),
-              trailing: Text(
-                item.price != null
-                    ? '${item.quantity} x ${item.price!.toStringAsFixed(2)}'
-                    : item.quantity.toString(),
-              ),
+          if (storeOptions.isNotEmpty)
+            DropdownButton<String?>(
+              isExpanded: true,
+              value: _selectedStore,
+              hint: const Text('Selecionar estabelecimento'),
+              items: [
+                const DropdownMenuItem<String?>(
+                  value: null,
+                  child: Text('Todos'),
+                ),
+                ...storeOptions.map(
+                  (s) => DropdownMenuItem<String?>(
+                    value: s,
+                    child: Text(s),
+                  ),
+                ),
+              ],
+              onChanged: (value) {
+                setState(() {
+                  _selectedStore = value;
+                });
+              },
             ),
+          ...list.items.map(
+            (item) {
+              final price = _selectedStore == null
+                  ? item.price
+                  : item.storeName == _selectedStore
+                      ? item.price
+                      : null;
+              if (_selectedStore != null) {
+                totalForStore += (price ?? 0) * item.quantity;
+              }
+              return ListTile(
+                title: Text(item.productName),
+                subtitle: Text(item.storeName ?? '-'),
+                trailing: Text(
+                  price != null
+                      ? '${item.quantity} x ${price.toStringAsFixed(2)}'
+                      : item.quantity.toString(),
+                ),
+              );
+            },
           ),
           const Divider(),
-          ...totals.entries.map(
-            (e) => ListTile(
-              title: Text(e.key),
-              trailing: Text('R\$ ${e.value.toStringAsFixed(2)}'),
+          if (_selectedStore == null)
+            ...totals.entries.map(
+              (e) => ListTile(
+                title: Text(e.key),
+                trailing: Text('R\$ ${e.value.toStringAsFixed(2)}'),
+              ),
+            )
+          else
+            ListTile(
+              title: const Text('Total'),
+              trailing: Text('R\$ ${totalForStore.toStringAsFixed(2)}'),
             ),
-          ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _addProduct(context, ref),
+        onPressed: () => _addProduct(context),
         child: const Icon(Icons.add),
       ),
     );
   }
 
-  Future<void> _addProduct(BuildContext context, WidgetRef ref) async {
+  Future<void> _addProduct(BuildContext context) async {
     final product = await Navigator.push<DocumentSnapshot>(
       context,
       MaterialPageRoute(
@@ -94,7 +144,7 @@ class ShoppingListDetailPage extends ConsumerWidget {
     if (quantity == null) return;
 
     ref.read(shoppingListProvider.notifier).addProductToList(
-          listId: listId,
+          listId: widget.listId,
           productId: product.id,
           productName: data['name'] ?? 'Produto',
           quantity: quantity,
