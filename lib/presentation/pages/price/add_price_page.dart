@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../../core/themes/app_theme.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../core/utils/price_input_formatter.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/logging/firebase_logger.dart';
 import '../product/product_search_page.dart';
@@ -259,9 +260,10 @@ class _AddPricePageState extends State<AddPricePage> {
               TextFormField(
                 controller: _priceController,
                 keyboardType: TextInputType.number,
+                inputFormatters: [PriceInputFormatter()],
                 decoration: const InputDecoration(
                   labelText: 'Preço',
-                  prefixIcon: Icon(Icons.attach_money),
+                  prefixText: 'R\$ ',
                 ),
                 validator: Validators.validatePrice,
               ),
