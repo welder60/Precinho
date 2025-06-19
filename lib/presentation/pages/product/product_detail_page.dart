@@ -1,18 +1,37 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../providers/auth_provider.dart';
+import '../admin/edit_product_page.dart';
 
 import '../../../core/themes/app_theme.dart';
 
-class ProductDetailPage extends StatelessWidget {
+class ProductDetailPage extends ConsumerWidget {
   final DocumentSnapshot product;
   const ProductDetailPage({required this.product, super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final data = product.data() as Map<String, dynamic>;
+    final isAdmin = ref.watch(isAdminProvider);
     return Scaffold(
       appBar: AppBar(
         title: Text(data['name'] ?? 'Produto'),
+        actions: [
+          if (isAdmin)
+            IconButton(
+              icon: const Icon(Icons.edit),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => EditProductPage(document: product),
+                  ),
+                );
+              },
+            ),
+        ],
       ),
       body: ListView(
         children: [
