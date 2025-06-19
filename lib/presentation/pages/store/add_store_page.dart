@@ -12,6 +12,7 @@ import '../../../core/constants/app_constants.dart';
 import '../../../core/logging/firebase_logger.dart';
 import 'place_search_page.dart';
 import '../../../data/models/place_result.dart';
+import '../../../data/datasources/places_service.dart';
 
 class AddStorePage extends StatefulWidget {
   const AddStorePage({super.key});
@@ -25,11 +26,13 @@ class _AddStorePageState extends State<AddStorePage> {
   final _nameController = TextEditingController();
   final _addressController = TextEditingController();
   final _cnpjController = TextEditingController();
+  final _placesService = PlacesService();
   final ImagePicker _picker = ImagePicker();
   XFile? _imageFile;
   double? _latitude;
   double? _longitude;
   String? _placeId;
+  String? _photoReference;
 
   Future<void> _pickImage() async {
     final picked = await _picker.pickImage(source: ImageSource.gallery);
@@ -62,10 +65,11 @@ class _AddStorePageState extends State<AddStorePage> {
           imageUrl = await ref.getDownloadURL();
           FirebaseLogger.log('Store image uploaded', {'url': imageUrl});
         }
-
-        final mapImageUrl = (_latitude != null && _longitude != null)
-            ? 'https://maps.googleapis.com/maps/api/staticmap?center=$_latitude,$_longitude&zoom=16&size=600x400&markers=color:red%7C$_latitude,$_longitude&key=${AppConstants.googleMapsApiKey}'
-            : null;
+        final mapImageUrl = (_photoReference != null)
+            ? _placesService.buildPhotoUrl(_photoReference!)
+            : (_latitude != null && _longitude != null)
+                ? 'https://maps.googleapis.com/maps/api/staticmap?center=$_latitude,$_longitude&zoom=16&size=600x400&markers=color:red%7C$_latitude,$_longitude&key=${AppConstants.googleMapsApiKey}'
+                : null;
 
         final data = {
           'name': _nameController.text.trim(),
@@ -114,9 +118,11 @@ class _AddStorePageState extends State<AddStorePage> {
     if (result is PlaceResult) {
       setState(() {
         _addressController.text = result.address;
+        _nameController.text = result.name;
         _latitude = result.latitude;
         _longitude = result.longitude;
         _placeId = result.id;
+        _photoReference = result.photoReference;
       });
     }
   }
@@ -135,8 +141,9 @@ class _AddStorePageState extends State<AddStorePage> {
             children: [
               TextFormField(
                 controller: _nameController,
+                readOnly: true,
                 decoration: const InputDecoration(
-                  labelText: 'Nome',
+                  labelText: 'Nome do Local',
                   prefixIcon: Icon(Icons.store),
                 ),
                 validator: Validators.validateStoreName,
