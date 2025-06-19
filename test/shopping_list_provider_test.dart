@@ -1,8 +1,15 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:precinho_app/presentation/providers/shopping_list_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:precinho_app/presentation/providers/shopping_list_provider.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
   test('create list and add item', () {
     final container = ProviderContainer();
     addTearDown(container.dispose);
