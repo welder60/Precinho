@@ -90,7 +90,13 @@ class StoreDetailPage extends ConsumerWidget {
                 icon: const Icon(Icons.map),
                 label: const Text('Abrir no Maps'),
                 onPressed: () {
-                  _openMaps(context, data['latitude'], data['longitude'], data['address']);
+                  _openMaps(
+                    context,
+                    data['latitude'],
+                    data['longitude'],
+                    data['address'],
+                    data['place_id'],
+                  );
                 },
               ),
               const SizedBox(width: AppTheme.paddingMedium),
@@ -98,7 +104,13 @@ class StoreDetailPage extends ConsumerWidget {
                 icon: const Icon(Icons.directions_car),
                 label: const Text('Abrir no Waze'),
                 onPressed: () {
-                  _openWaze(context, data['latitude'], data['longitude'], data['address']);
+                  _openWaze(
+                    context,
+                    data['latitude'],
+                    data['longitude'],
+                    data['address'],
+                    data['place_id'],
+                  );
                 },
               ),
             ],
@@ -138,24 +150,46 @@ class StoreDetailPage extends ConsumerWidget {
     }
   }
 
-  Future<void> _openMaps(BuildContext context, Object? lat, Object? lng, Object? address) async {
+  Future<void> _openMaps(
+    BuildContext context,
+    Object? lat,
+    Object? lng,
+    Object? address,
+    Object? placeId,
+  ) async {
     Uri? url;
-    if (lat is num && lng is num) {
-      url = Uri.parse('https://www.google.com/maps/search/?api=1&query=${lat.toDouble()},${lng.toDouble()}');
+    if (placeId is String && placeId.isNotEmpty) {
+      url = Uri.parse(
+          'https://www.google.com/maps/search/?api=1&query_place_id=${Uri.encodeComponent(placeId)}');
+    } else if (lat is num && lng is num) {
+      url = Uri.parse(
+          'https://www.google.com/maps/search/?api=1&query=${lat.toDouble()},${lng.toDouble()}');
     } else if (address is String && address.isNotEmpty) {
-      url = Uri.parse('https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(address)}');
+      url = Uri.parse(
+          'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(address)}');
     }
     if (url != null && await canLaunchUrl(url)) {
       await launchUrl(url, mode: LaunchMode.externalApplication);
     }
   }
 
-  Future<void> _openWaze(BuildContext context, Object? lat, Object? lng, Object? address) async {
+  Future<void> _openWaze(
+    BuildContext context,
+    Object? lat,
+    Object? lng,
+    Object? address,
+    Object? placeId,
+  ) async {
     Uri? url;
-    if (lat is num && lng is num) {
-      url = Uri.parse('https://waze.com/ul?ll=${lat.toDouble()},${lng.toDouble()}&navigate=yes');
+    if (placeId is String && placeId.isNotEmpty) {
+      url = Uri.parse(
+          'https://waze.com/ul?place=${Uri.encodeComponent(placeId)}&navigate=yes');
+    } else if (lat is num && lng is num) {
+      url = Uri.parse(
+          'https://waze.com/ul?ll=${lat.toDouble()},${lng.toDouble()}&navigate=yes');
     } else if (address is String && address.isNotEmpty) {
-      url = Uri.parse('https://waze.com/ul?query=${Uri.encodeComponent(address)}&navigate=yes');
+      url = Uri.parse(
+          'https://waze.com/ul?query=${Uri.encodeComponent(address)}&navigate=yes');
     }
     if (url != null && await canLaunchUrl(url)) {
       await launchUrl(url, mode: LaunchMode.externalApplication);
