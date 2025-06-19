@@ -86,6 +86,8 @@ class StorePricesPage extends ConsumerWidget {
               final productName = priceData['product_name'] as String? ?? '';
 
               return ListTile(
+                leading: const Icon(Icons.shopping_bag,
+                    color: AppTheme.primaryColor),
                 title: Text(productName),
                 trailing: Text(
                   'R\$ ${(priceData['price'] as num).toStringAsFixed(2)}',

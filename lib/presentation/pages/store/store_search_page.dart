@@ -77,6 +77,14 @@ class _StoreSearchPageState extends ConsumerState<StoreSearchPage> {
                     final isFav = favorites.contains(doc.id);
                     return Card(
                       child: ListTile(
+                        leading: data['image_url'] != null &&
+                                (data['image_url'] as String).isNotEmpty
+                            ? CircleAvatar(
+                                backgroundImage:
+                                    NetworkImage(data['image_url']),
+                              )
+                            : const Icon(Icons.store,
+                                color: AppTheme.primaryColor),
                         title: Text(data['name'] ?? 'Loja'),
                         subtitle: Text(data['address'] ?? ''),
                         trailing: IconButton(
