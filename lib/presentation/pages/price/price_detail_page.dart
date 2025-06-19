@@ -75,7 +75,7 @@ class PriceDetailPage extends StatelessWidget {
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(height: AppTheme.paddingMedium),
-                Text('Estabelecimento: $storeName'),
+                Text('Com\u00e9rcio: $storeName'),
                 const SizedBox(height: AppTheme.paddingMedium),
                 Text(
                   'R\$ ${(data['price'] as num).toStringAsFixed(2)}',

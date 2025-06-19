@@ -21,7 +21,7 @@ class StorePricesPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(data['name'] ?? 'Estabelecimento'),
+        title: Text(data['name'] ?? 'Com\u00e9rcio'),
         actions: [
           IconButton(
             icon: Icon(
@@ -64,7 +64,7 @@ class StorePricesPage extends ConsumerWidget {
           }
           final docs = snapshot.data?.docs ?? [];
           if (docs.isEmpty) {
-            return const Center(child: Text('Nenhum preço para este estabelecimento'));
+            return const Center(child: Text('Nenhum preço para este comércio'));
           }
 
           final Map<String, DocumentSnapshot> latest = {};
@@ -135,8 +135,8 @@ class StorePricesPage extends ConsumerWidget {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Excluir Estabelecimento'),
-        content: const Text('Tem certeza que deseja excluir este estabelecimento?'),
+        title: const Text('Excluir Comércio'),
+        content: const Text('Tem certeza que deseja excluir este comércio?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -154,7 +154,7 @@ class StorePricesPage extends ConsumerWidget {
       if (context.mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Estabelecimento excluído')),
+          const SnackBar(content: Text('Comércio excluído')),
         );
       }
     }

@@ -226,13 +226,13 @@ class _AddPricePageState extends State<AddPricePage> {
                 controller: _storeController,
                 readOnly: true,
                 decoration: const InputDecoration(
-                  labelText: 'Estabelecimento',
+                  labelText: 'Com\u00e9rcio',
                   prefixIcon: Icon(Icons.store),
                   suffixIcon: Icon(Icons.search),
                 ),
                 onTap: _selectStore,
                 validator: (_) =>
-                    _selectedStore == null ? 'Selecione o estabelecimento' : null,
+                    _selectedStore == null ? 'Selecione o com\u00e9rcio' : null,
               ),
               if (_nearbyStores.isNotEmpty) ...[
                 const SizedBox(height: AppTheme.paddingSmall),

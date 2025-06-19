@@ -32,7 +32,7 @@ class _StoreSearchPageState extends ConsumerState<StoreSearchPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Buscar Estabelecimentos'),
+        title: const Text('Buscar Com\u00e9rcios'),
       ),
       body: Column(
         children: [
@@ -41,7 +41,7 @@ class _StoreSearchPageState extends ConsumerState<StoreSearchPage> {
             child: TextField(
               controller: _controller,
               decoration: InputDecoration(
-                hintText: 'Buscar estabelecimentos...',
+                hintText: 'Buscar com\u00e9rcios...',
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.clear),
@@ -60,7 +60,7 @@ class _StoreSearchPageState extends ConsumerState<StoreSearchPage> {
                 }
                 final docs = snapshot.data?.docs ?? [];
                 if (docs.isEmpty) {
-                  return const Center(child: Text('Nenhum estabelecimento encontrado'));
+                  return const Center(child: Text('Nenhum com\u00e9rcio encontrado'));
                 }
                 final sortedDocs = docs.toList()
                   ..sort((a, b) {

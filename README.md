@@ -24,25 +24,25 @@ O aplicativo segue uma identidade visual inspirada em economia colaborativa e si
 ### 🗺️ Mapa de Preços
 - Visualização de preços em mapa interativo
 - Busca por raio geográfico
-- Filtros por categoria e estabelecimento
+- Filtros por categoria e comércio
 - Localização automática do usuário
 
 ### 🔍 Busca de Produtos
 - Busca por nome do produto
 - Filtros por categoria
 - Ordenação por preço e distância
-- Comparação de preços entre estabelecimentos
+- Comparação de preços entre comércios
 
 ### 📝 Cadastro de Preços
 - Captura de foto do preço *(apenas pelo aplicativo para registrar a localização do usuário)*
-- Localização utilizada para sugerir ou cadastrar o estabelecimento
+- Localização utilizada para sugerir ou cadastrar o comércio
 - Inserção manual de dados
 - Escaneamento de nota fiscal (OCR)
 - Validação por moderação
 
 ### 🛒 Listas de Compras
 - Criação de múltiplas listas
-- Cálculo de valor total por estabelecimento
+- Cálculo de valor total por comércio
 - Sugestão de melhor combinação de lojas
 - Acompanhamento de progresso
 
@@ -219,7 +219,7 @@ class Product {
 }
 ```
 
-### Store (Estabelecimento)
+### Store (Comércio)
 ```dart
 class Store {
   final String id;
@@ -233,9 +233,9 @@ class Store {
 }
 ```
 
-Para registrar preços quando o nome do estabelecimento for desconhecido,
+Para registrar preços quando o nome do comércio for desconhecido,
 crie um novo `Store` anônimo contendo as coordenadas do local. É possível
-cadastrar quantos estabelecimentos anônimos forem necessários, cada um com um
+cadastrar quantos comércios anônimos forem necessários, cada um com um
 `id` distinto e sua respectiva localização.
 
 ### Price (Preço)
@@ -258,7 +258,7 @@ class Price {
 ```
 
 Os preços voltam a armazenar suas próprias coordenadas geográficas, além de
-manter as descrições do produto e do estabelecimento no registro. Essa
+manter as descrições do produto e do comércio no registro. Essa
 redundância permite consultas mais rápidas mesmo que as informações de produto
 ou loja sejam alteradas posteriormente.
 
