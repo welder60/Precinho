@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_google_places_sdk/flutter_google_places_sdk.dart';
+import 'package:geolocator/geolocator.dart';
+
+import '../../../data/datasources/places_service.dart';
+import '../../../data/models/place_result.dart';
 
 import '../../../core/themes/app_theme.dart';
-import '../../../core/constants/app_constants.dart';
 
 class PlaceSearchPage extends StatefulWidget {
   const PlaceSearchPage({super.key});
@@ -12,14 +14,17 @@ class PlaceSearchPage extends StatefulWidget {
 }
 
 class _PlaceSearchPageState extends State<PlaceSearchPage> {
-  late FlutterGooglePlacesSdk _places;
+  final _placesService = PlacesService();
   final TextEditingController _controller = TextEditingController();
-  List<AutocompletePrediction> _predictions = [];
+  List<PlaceResult> _results = [];
+  double? _latitude;
+  double? _longitude;
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _places = FlutterGooglePlacesSdk(AppConstants.googleMapsApiKey);
+    _loadLocation();
   }
 
   @override
@@ -28,17 +33,51 @@ class _PlaceSearchPageState extends State<PlaceSearchPage> {
     super.dispose();
   }
 
-  void _search(String value) async {
+  Future<void> _loadLocation() async {
+    try {
+      final permission = await Geolocator.requestPermission();
+      if (permission != LocationPermission.denied &&
+          permission != LocationPermission.deniedForever) {
+        final position = await Geolocator.getCurrentPosition();
+        _latitude = position.latitude;
+        _longitude = position.longitude;
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _search(String value) async {
     if (value.isEmpty) {
       setState(() {
-        _predictions = [];
+        _results = [];
       });
       return;
     }
-    final response = await _places.findAutocompletePredictions(value);
+
     setState(() {
-      _predictions = response.predictions;
+      _isLoading = true;
     });
+    try {
+      final res = await _placesService.searchPlacesByName(
+        name: value,
+        latitude: _latitude,
+        longitude: _longitude,
+      );
+      if (!mounted) return;
+      setState(() {
+        _results = res;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _results = [];
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   @override
@@ -69,24 +108,16 @@ class _PlaceSearchPageState extends State<PlaceSearchPage> {
           ),
           Expanded(
             child: ListView.builder(
-              itemCount: _predictions.length,
+              itemCount: _results.length,
               itemBuilder: (context, index) {
-                final p = _predictions[index];
+                final p = _results[index];
                 return ListTile(
-                  title: Text(p.description ?? ''),
-                  onTap: () async {
-                    final detail = await _places.fetchPlace(
-                      p.placeId!,
-                      fields: [
-                        PlaceField.ID,
-                        PlaceField.ADDRESS,
-                        PlaceField.LAT_LNG,
-                        PlaceField.NAME,
-                      ],
-                    );
-                    if (detail.place != null) {
-                      Navigator.pop(context, detail.place);
-                    }
+                  title: Text(p.name),
+                  subtitle: Text(
+                    '${p.latitude.toStringAsFixed(5)}, ${p.longitude.toStringAsFixed(5)}',
+                  ),
+                  onTap: () {
+                    Navigator.pop(context, p);
                   },
                 );
               },

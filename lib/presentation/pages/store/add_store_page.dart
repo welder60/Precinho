@@ -4,7 +4,7 @@ import '../../../core/themes/app_theme.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/logging/firebase_logger.dart';
 import 'place_search_page.dart';
-import 'package:flutter_google_places_sdk/flutter_google_places_sdk.dart';
+import '../../../data/models/place_result.dart';
 
 class AddStorePage extends StatefulWidget {
   const AddStorePage({super.key});
@@ -68,11 +68,11 @@ class _AddStorePageState extends State<AddStorePage> {
         builder: (_) => const PlaceSearchPage(),
       ),
     );
-    if (result is Place) {
+    if (result is PlaceResult) {
       setState(() {
-        _addressController.text = result.address ?? result.name ?? '';
-        _latitude = result.latLng?.lat;
-        _longitude = result.latLng?.lng;
+        _addressController.text = result.name;
+        _latitude = result.latitude;
+        _longitude = result.longitude;
         _placeId = result.id;
       });
     }
