@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/themes/app_theme.dart';
+import '../../../core/utils/formatters.dart';
 import '../../providers/store_favorites_provider.dart';
 import '../price/add_price_page.dart';
 import '../price/price_detail_page.dart';
@@ -121,7 +122,8 @@ class _ProductPricesPageState extends ConsumerState<ProductPricesPage> {
               final storeName = priceData['store_name'] as String? ?? 'Loja desconhecida';
               final isFav = storeId != null && favorites.contains(storeId);
 
-                  print('[DEBUG] Exibindo preço de ${storeName} -> R\$ ${(priceData['price'] as num).toStringAsFixed(2)}');
+                  print('[DEBUG] Exibindo preço de ${storeName} -> '
+                      '${Formatters.formatPrice((priceData['price'] as num).toDouble())}');
 
               final storeData = storeId != null ? _storeInfo[storeId] : null;
               final imageUrl = (storeData?['image_url'] as String?)?.isNotEmpty == true
@@ -142,7 +144,7 @@ class _ProductPricesPageState extends ConsumerState<ProductPricesPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'R\$ ${(priceData['price'] as num).toStringAsFixed(2)}',
+                      Formatters.formatPrice((priceData['price'] as num).toDouble()),
                       style: AppTheme.priceTextStyle,
                     ),
                     IconButton(

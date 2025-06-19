@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/themes/app_theme.dart';
+import '../../../core/utils/formatters.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/store_favorites_provider.dart';
 import '../price/add_price_page.dart';
@@ -244,7 +245,7 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               Text(
-                                'R\$ ${(priceData['price'] as num).toStringAsFixed(2)}',
+                                Formatters.formatPrice((priceData['price'] as num).toDouble()),
                                 textAlign: TextAlign.center,
                                 style: AppTheme.priceTextStyle,
                               ),

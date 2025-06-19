@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/themes/app_theme.dart';
+import '../../../core/utils/formatters.dart';
 import 'price_detail_page.dart';
 
 class PriceSearchPage extends StatefulWidget {
@@ -74,7 +75,7 @@ class _PriceSearchPageState extends State<PriceSearchPage> {
                         title: Text(productName.isNotEmpty ? productName : 'Produto'),
                         subtitle: Text(storeName.isNotEmpty ? storeName : 'Loja'),
                         trailing: Text(
-                          'R\$ ${(data['price'] as num).toStringAsFixed(2)}',
+                          Formatters.formatPrice((data['price'] as num).toDouble()),
                           style: AppTheme.priceTextStyle,
                         ),
                         onTap: () {
