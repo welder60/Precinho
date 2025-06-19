@@ -8,16 +8,38 @@ import '../price/add_price_page.dart';
 import '../price/price_detail_page.dart';
 import 'product_detail_page.dart';
 
-class ProductPricesPage extends ConsumerWidget {
+class ProductPricesPage extends ConsumerStatefulWidget {
   final DocumentSnapshot product;
   const ProductPricesPage({required this.product, super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final favorites = ref.watch(storeFavoritesProvider);
-    final data = product.data() as Map<String, dynamic>;
+  ConsumerState<ProductPricesPage> createState() => _ProductPricesPageState();
+}
 
-    print('[DEBUG] Exibindo preços para o produto: ${data['name']} (ID: ${product.id})');
+class _ProductPricesPageState extends ConsumerState<ProductPricesPage> {
+  final Map<String, Map<String, dynamic>> _storeInfo = {};
+
+  Future<void> _fetchStores(Iterable<String> ids) async {
+    final missing = ids.where((id) => !_storeInfo.containsKey(id)).toList();
+    for (var i = 0; i < missing.length; i += 10) {
+      final chunk = missing.sublist(i, i + 10 > missing.length ? missing.length : i + 10);
+      final snap = await FirebaseFirestore.instance
+          .collection('stores')
+          .where(FieldPath.documentId, whereIn: chunk)
+          .get();
+      for (final doc in snap.docs) {
+        _storeInfo[doc.id] = doc.data();
+      }
+    }
+    if (mounted) setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final favorites = ref.watch(storeFavoritesProvider);
+    final data = widget.product.data() as Map<String, dynamic>;
+
+    print('[DEBUG] Exibindo preços para o produto: ${data['name']} (ID: ${widget.product.id})');
 
     return Scaffold(
       appBar: AppBar(
@@ -29,7 +51,7 @@ class ProductPricesPage extends ConsumerWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => ProductDetailPage(product: product),
+                  builder: (_) => ProductDetailPage(product: widget.product),
                 ),
               );
             },
@@ -39,7 +61,7 @@ class ProductPricesPage extends ConsumerWidget {
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('prices')
-            .where('product_id', isEqualTo: product.id)
+            .where('product_id', isEqualTo: widget.product.id)
             .where('isApproved', isEqualTo: true)
 			.orderBy('price')
             .orderBy('created_at', descending: true)
@@ -74,6 +96,15 @@ class ProductPricesPage extends ConsumerWidget {
             }
           }
 
+          final storeIds = latest.values
+              .map((d) => (d.data() as Map<String, dynamic>)['store_id'] as String?)
+              .whereType<String>()
+              .toSet();
+
+          if (storeIds.any((id) => !_storeInfo.containsKey(id))) {
+            Future.microtask(() => _fetchStores(storeIds));
+          }
+
           final prices = latest.values.toList()
             ..sort((a, b) {
               final aFav = favorites.contains((a.data() as Map<String, dynamic>)['store_id']) ? 0 : 1;
@@ -92,8 +123,20 @@ class ProductPricesPage extends ConsumerWidget {
 
                   print('[DEBUG] Exibindo preço de ${storeName} -> R\$ ${(priceData['price'] as num).toStringAsFixed(2)}');
 
+              final storeData = storeId != null ? _storeInfo[storeId] : null;
+              final imageUrl = (storeData?['image_url'] as String?)?.isNotEmpty == true
+                  ? storeData?['image_url']
+                  : storeData?['map_image_url'] as String?;
+
               return ListTile(
-                leading: const Icon(Icons.store, color: AppTheme.primaryColor),
+                leading: imageUrl != null && imageUrl.isNotEmpty
+                    ? CircleAvatar(
+                        backgroundImage: NetworkImage(imageUrl),
+                      )
+                    : const Icon(
+                        Icons.store,
+                        color: AppTheme.primaryColor,
+                      ),
                 title: Text(storeName),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -136,7 +179,7 @@ class ProductPricesPage extends ConsumerWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => AddPricePage(product: product),
+              builder: (_) => AddPricePage(product: widget.product),
             ),
           );
         },
