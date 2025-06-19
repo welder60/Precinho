@@ -6,8 +6,7 @@ import '../../../core/themes/app_theme.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/store_favorites_provider.dart';
-import '../price/price_detail_page.dart';
-import '../price/add_price_page.dart';
+// Página de detalhes exibe apenas informações do estabelecimento.
 
 class StoreDetailPage extends ConsumerWidget {
   final DocumentSnapshot store;
@@ -61,72 +60,17 @@ class StoreDetailPage extends ConsumerWidget {
             padding: const EdgeInsets.all(AppTheme.paddingMedium),
             child: Text(data['address'] ?? ''),
           ),
-          const Divider(),
-          Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection('prices')
-                  .where('store_id', isEqualTo: store.id)
-                  .orderBy('created_at', descending: true)
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                final docs = snapshot.data?.docs ?? [];
-                if (docs.isEmpty) {
-                  return const Center(child: Text('Nenhum preço para este estabelecimento'));
-                }
-
-                final Map<String, DocumentSnapshot> latest = {};
-                for (final doc in docs) {
-                  final data = doc.data() as Map<String, dynamic>;
-                  final productId = data['product_id'] as String?;
-                  if (productId == null) continue;
-                  if (!latest.containsKey(productId)) {
-                    latest[productId] = doc;
-                  }
-                }
-                final prices = latest.values.toList();
-
-                return ListView.builder(
-                  itemCount: prices.length,
-                  itemBuilder: (context, index) {
-                    final doc = prices[index];
-                    final priceData = doc.data() as Map<String, dynamic>;
-                    return ListTile(
-                      title: Text(priceData['product_name'] ?? ''),
-                      trailing: Text(
-                        'R\$ ${(priceData['price'] as num).toStringAsFixed(2)}',
-                        style: AppTheme.priceTextStyle,
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => PriceDetailPage(price: doc),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                );
-              },
+          const SizedBox(height: AppTheme.paddingLarge),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppTheme.paddingMedium),
+            child: Text(
+              'Mais informações serão disponibilizadas em futuras versões.',
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => AddPricePage(store: store),
-            ),
-          );
-        },
-        child: const Icon(Icons.add),
-      ),
+      // Sem ações nesta tela
     );
   }
 

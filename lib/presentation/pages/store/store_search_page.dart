@@ -6,7 +6,7 @@ import '../../../core/themes/app_theme.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/store_favorites_provider.dart';
 import 'add_store_page.dart';
-import 'store_detail_page.dart';
+import 'store_prices_page.dart';
 
 class StoreSearchPage extends ConsumerStatefulWidget {
   final ValueChanged<DocumentSnapshot>? onSelected;
@@ -95,7 +95,7 @@ class _StoreSearchPageState extends ConsumerState<StoreSearchPage> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => StoreDetailPage(store: doc),
+                                builder: (_) => StorePricesPage(store: doc),
                               ),
                             );
                           }
