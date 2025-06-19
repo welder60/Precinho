@@ -148,6 +148,58 @@ class PriceDetailPage extends StatelessWidget {
                   Text('Registrado em: ${Formatters.formatDateTime(createdAt)}'),
                 ],
                 const SizedBox(height: AppTheme.paddingLarge),
+                Text(
+                  'Hist\u00f3rico de pre\u00e7os',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: AppTheme.paddingSmall),
+                StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('prices')
+                      .where('product_id', isEqualTo: data['product_id'])
+                      .where('store_id', isEqualTo: data['store_id'])
+                      .orderBy('created_at', descending: true)
+                      .limit(10)
+                      .snapshots(),
+                  builder: (context, historySnapshot) {
+                    if (historySnapshot.connectionState ==
+                        ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    final historyDocs = historySnapshot.data?.docs ?? [];
+                    if (historyDocs.isEmpty) {
+                      return const Text('Nenhum hist\u00f3rico encontrado');
+                    }
+
+                    return ListView.separated(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: historyDocs.length,
+                      separatorBuilder: (_, __) => const Divider(),
+                      itemBuilder: (context, index) {
+                        final hData =
+                            historyDocs[index].data() as Map<String, dynamic>;
+                        final date =
+                            (hData['created_at'] as Timestamp?)?.toDate();
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(date != null
+                                ? Formatters.formatDateTime(date)
+                                : '-'),
+                            Text(
+                              Formatters.formatPrice(
+                                  (hData['price'] as num).toDouble()),
+                              style: AppTheme.priceTextStyle,
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                ),
+                const SizedBox(height: AppTheme.paddingLarge),
                 const Text('Mais detalhes ser\u00e3o implementados futuramente.'),
               ],
             ),
