@@ -45,7 +45,7 @@ class _AddStorePageState extends State<AddStorePage> {
         await FirebaseFirestore.instance.collection('stores').add(data);
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Estabelecimento cadastrado')),
+          const SnackBar(content: Text('Com\u00e9rcio cadastrado')),
         );
         Navigator.pop(context);
       } catch (e) {
@@ -82,7 +82,7 @@ class _AddStorePageState extends State<AddStorePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Novo Estabelecimento'),
+        title: const Text('Novo Com\u00e9rcio'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(AppTheme.paddingLarge),

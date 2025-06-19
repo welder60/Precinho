@@ -35,7 +35,7 @@ enum ModerationStatus {
   final String displayName;
 }
 
-// Categoria de estabelecimento
+// Categoria de comércio
 enum StoreCategory {
   supermarket('supermarket', 'Supermercado'),
   hypermarket('hypermarket', 'Hipermercado'),

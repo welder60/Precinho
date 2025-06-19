@@ -6,7 +6,7 @@ import '../../../core/themes/app_theme.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/store_favorites_provider.dart';
-// Página de detalhes exibe apenas informações do estabelecimento.
+// Página de detalhes exibe apenas informações do comércio.
 
 class StoreDetailPage extends ConsumerWidget {
   final DocumentSnapshot store;
@@ -20,7 +20,7 @@ class StoreDetailPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(data['name'] ?? 'Estabelecimento'),
+        title: Text(data['name'] ?? 'Comércio'),
         actions: [
           IconButton(
             icon: Icon(
@@ -78,8 +78,8 @@ class StoreDetailPage extends ConsumerWidget {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Excluir Estabelecimento'),
-        content: const Text('Tem certeza que deseja excluir este estabelecimento?'),
+        title: const Text('Excluir Comércio'),
+        content: const Text('Tem certeza que deseja excluir este comércio?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -97,7 +97,7 @@ class StoreDetailPage extends ConsumerWidget {
       if (context.mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Estabelecimento exclu\u00eddo')),
+          const SnackBar(content: Text('Com\u00e9rcio exclu\u00eddo')),
         );
       }
     }
