@@ -108,6 +108,30 @@ class PriceDetailPage extends StatelessWidget {
                   Formatters.formatPrice((data['price'] as num).toDouble()),
                   style: AppTheme.priceTextStyle,
                 ),
+                if (data['variation'] != null)
+                  Row(
+                    children: [
+                      Icon(
+                        (data['variation'] as num) > 0
+                            ? Icons.arrow_upward
+                            : Icons.arrow_downward,
+                        color: (data['variation'] as num) > 0
+                            ? AppTheme.errorColor
+                            : AppTheme.successColor,
+                        size: 16,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        Formatters.formatPercentage(
+                            ((data['variation'] as num).abs()).toDouble()),
+                        style: TextStyle(
+                          color: (data['variation'] as num) > 0
+                              ? AppTheme.errorColor
+                              : AppTheme.successColor,
+                        ),
+                      ),
+                    ],
+                  ),
                 const SizedBox(height: AppTheme.paddingLarge),
                 Row(
                   children: [

@@ -147,9 +147,40 @@ class _ProductPricesPageState extends ConsumerState<ProductPricesPage> {
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      Formatters.formatPrice((priceData['price'] as num).toDouble()),
-                      style: AppTheme.priceTextStyle,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          Formatters.formatPrice((priceData['price'] as num).toDouble()),
+                          style: AppTheme.priceTextStyle,
+                        ),
+                        if (priceData['variation'] != null)
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                (priceData['variation'] as num) > 0
+                                    ? Icons.arrow_upward
+                                    : Icons.arrow_downward,
+                                color: (priceData['variation'] as num) > 0
+                                    ? AppTheme.errorColor
+                                    : AppTheme.successColor,
+                                size: 14,
+                              ),
+                              const SizedBox(width: 2),
+                              Text(
+                                Formatters.formatPercentage(
+                                    ((priceData['variation'] as num).abs()).toDouble()),
+                                style: TextStyle(
+                                  color: (priceData['variation'] as num) > 0
+                                      ? AppTheme.errorColor
+                                      : AppTheme.successColor,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                      ],
                     ),
                     IconButton(
                       icon: Icon(

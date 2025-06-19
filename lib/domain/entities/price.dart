@@ -21,6 +21,7 @@ class Price extends Equatable {
   final bool isPromotional;
   final DateTime? promotionalUntil;
   final Map<String, dynamic>? metadata;
+  final double? variation;
 
   const Price({
     required this.id,
@@ -42,6 +43,7 @@ class Price extends Equatable {
     required this.isPromotional,
     this.promotionalUntil,
     this.metadata,
+    this.variation,
   });
 
   Price copyWith({
@@ -64,6 +66,7 @@ class Price extends Equatable {
     bool? isPromotional,
     DateTime? promotionalUntil,
     Map<String, dynamic>? metadata,
+    double? variation,
   }) {
     return Price(
       id: id ?? this.id,
@@ -85,6 +88,7 @@ class Price extends Equatable {
       isPromotional: isPromotional ?? this.isPromotional,
       promotionalUntil: promotionalUntil ?? this.promotionalUntil,
       metadata: metadata ?? this.metadata,
+      variation: variation ?? this.variation,
     );
   }
 
@@ -125,11 +129,12 @@ class Price extends Equatable {
         isPromotional,
         promotionalUntil,
         metadata,
+        variation,
       ];
 
   @override
   String toString() {
-    return 'Price(id: $id, productId: $productId, storeId: $storeId, value: $value, isApproved: $isApproved)';
+    return 'Price(id: $id, productId: $productId, storeId: $storeId, value: $value, variation: $variation, isApproved: $isApproved)';
   }
 }
 
