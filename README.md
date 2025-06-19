@@ -212,7 +212,9 @@ class Product {
   final String brand;
   final String description;
   final String? imageUrl;
-  final ProductCategory category;
+  final List<String> categories;
+  final String unit;
+  final double volume;
   final String? barcode;
   final bool isApproved;
   final ModerationStatus status;
