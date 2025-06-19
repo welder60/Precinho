@@ -1,9 +1,22 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/shopping_list.dart';
 import '../../core/constants/enums.dart';
+import '../../data/models/shopping_list_model.dart';
+import '../../data/datasources/shopping_list_storage.dart';
 
 class ShoppingListNotifier extends StateNotifier<List<ShoppingList>> {
-  ShoppingListNotifier() : super(const []);
+  final ShoppingListStorage _storage;
+
+  ShoppingListNotifier(this._storage) : super(const []) {
+    _loadLists();
+  }
+
+  Future<void> _loadLists() async {
+    final lists = await _storage.loadLists();
+    if (state.isEmpty) {
+      state = lists;
+    }
+  }
 
   String createList(String name) {
     final id = DateTime.now().millisecondsSinceEpoch.toString();
@@ -17,6 +30,8 @@ class ShoppingListNotifier extends StateNotifier<List<ShoppingList>> {
       updatedAt: DateTime.now(),
     );
     state = [...state, list];
+    _storage.saveLists(
+        state.map((e) => ShoppingListModel.fromEntity(e)).toList());
     return id;
   }
 
@@ -54,6 +69,8 @@ class ShoppingListNotifier extends StateNotifier<List<ShoppingList>> {
         else
           l
     ];
+    _storage.saveLists(
+        state.map((e) => ShoppingListModel.fromEntity(e)).toList());
   }
 
   ShoppingList? getList(String id) {
@@ -76,5 +93,11 @@ class ShoppingListNotifier extends StateNotifier<List<ShoppingList>> {
   }
 }
 
-final shoppingListProvider =
-    StateNotifierProvider<ShoppingListNotifier, List<ShoppingList>>((ref) => ShoppingListNotifier());
+final shoppingListStorageProvider = Provider<ShoppingListStorage>((ref) {
+  return ShoppingListStorage();
+});
+
+final shoppingListProvider = StateNotifierProvider<ShoppingListNotifier, List<ShoppingList>>((ref) {
+  final storage = ref.watch(shoppingListStorageProvider);
+  return ShoppingListNotifier(storage);
+});
