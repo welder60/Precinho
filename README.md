@@ -243,12 +243,12 @@ cadastrar quantos comércios anônimos forem necessários, cada um com um
 class Price {
   final String id;
   final String productId;
+  final String productName;
   final String storeId;
+  final String storeName;
   final String userId;
   final double value;
   final String? imageUrl;
-  final String? productDescription;
-  final String? storeDescription;
   final double? latitude;
   final double? longitude;
   final DateTime createdAt;
@@ -257,10 +257,10 @@ class Price {
 }
 ```
 
-Os preços voltam a armazenar suas próprias coordenadas geográficas, além de
-manter as descrições do produto e do comércio no registro. Essa
-redundância permite consultas mais rápidas mesmo que as informações de produto
-ou loja sejam alteradas posteriormente.
+Os registros de preços armazenam suas próprias coordenadas geográficas e
+também mantêm o nome do produto e do comércio. Essa redundância permite
+consultas mais rápidas mesmo que as informações de produto ou loja sejam
+alteradas posteriormente e abre caminho para anexar fotos no futuro.
 
 ## 🎯 Funcionalidades Implementadas
 

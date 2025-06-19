@@ -60,63 +60,32 @@ class _PriceSearchPageState extends State<PriceSearchPage> {
                   itemBuilder: (context, index) {
                     final doc = docs[index];
                     final data = doc.data() as Map<String, dynamic>;
-                    final productId = data['product_id'] as String?;
-                    final storeId = data['store_id'] as String?;
+                    final productName = data['product_name'] as String? ?? '';
+                    final storeName = data['store_name'] as String? ?? '';
 
-                    Future<Map<String, String>> fetchNames() async {
-                      String productName = '';
-                      String storeName = '';
-                      if (productId != null) {
-                        final productDoc = await FirebaseFirestore.instance
-                            .collection('products')
-                            .doc(productId)
-                            .get();
-                        productName = (productDoc.data()?['name'] ?? '') as String;
-                      }
-                      if (storeId != null) {
-                        final storeDoc = await FirebaseFirestore.instance
-                            .collection('stores')
-                            .doc(storeId)
-                            .get();
-                        storeName = (storeDoc.data()?['name'] ?? '') as String;
-                      }
-                      return {'product': productName, 'store': storeName};
+                    final text = _controller.text.trim().toLowerCase();
+                    if (text.isNotEmpty &&
+                        !productName.toLowerCase().contains(text)) {
+                      return const SizedBox.shrink();
                     }
 
-                    return FutureBuilder<Map<String, String>>(
-                      future: fetchNames(),
-                      builder: (context, snapshot) {
-                        if (!snapshot.hasData) {
-                          return const SizedBox.shrink();
-                        }
-                        final productName = snapshot.data!['product']!;
-                        final storeName = snapshot.data!['store']!;
-
-                        final text = _controller.text.trim().toLowerCase();
-                        if (text.isNotEmpty &&
-                            !productName.toLowerCase().contains(text)) {
-                          return const SizedBox.shrink();
-                        }
-
-                        return Card(
-                          child: ListTile(
-                            title: Text(productName.isNotEmpty ? productName : 'Produto'),
-                            subtitle: Text(storeName.isNotEmpty ? storeName : 'Loja'),
-                            trailing: Text(
-                              'R\$ ${(data['price'] as num).toStringAsFixed(2)}',
-                              style: AppTheme.priceTextStyle,
+                    return Card(
+                      child: ListTile(
+                        title: Text(productName.isNotEmpty ? productName : 'Produto'),
+                        subtitle: Text(storeName.isNotEmpty ? storeName : 'Loja'),
+                        trailing: Text(
+                          'R\$ ${(data['price'] as num).toStringAsFixed(2)}',
+                          style: AppTheme.priceTextStyle,
+                        ),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => PriceDetailPage(price: doc),
                             ),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => PriceDetailPage(price: doc),
-                                ),
-                              );
-                            },
-                          ),
-                        );
-                      },
+                          );
+                        },
+                      ),
                     );
                   },
                 );

@@ -8,8 +8,8 @@ class Price extends Equatable {
   final String userId;
   final double value;
   final String? imageUrl;
-  final String? productDescription;
-  final String? storeDescription;
+  final String productName;
+  final String storeName;
   final double? latitude;
   final double? longitude;
   final DateTime createdAt;
@@ -29,8 +29,8 @@ class Price extends Equatable {
     required this.userId,
     required this.value,
     this.imageUrl,
-    this.productDescription,
-    this.storeDescription,
+    required this.productName,
+    required this.storeName,
     this.latitude,
     this.longitude,
     required this.createdAt,
@@ -51,8 +51,8 @@ class Price extends Equatable {
     String? userId,
     double? value,
     String? imageUrl,
-    String? productDescription,
-    String? storeDescription,
+    String? productName,
+    String? storeName,
     double? latitude,
     double? longitude,
     DateTime? createdAt,
@@ -72,8 +72,8 @@ class Price extends Equatable {
       userId: userId ?? this.userId,
       value: value ?? this.value,
       imageUrl: imageUrl ?? this.imageUrl,
-      productDescription: productDescription ?? this.productDescription,
-      storeDescription: storeDescription ?? this.storeDescription,
+      productName: productName ?? this.productName,
+      storeName: storeName ?? this.storeName,
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
       createdAt: createdAt ?? this.createdAt,
@@ -112,8 +112,8 @@ class Price extends Equatable {
         userId,
         value,
         imageUrl,
-        productDescription,
-        storeDescription,
+        productName,
+        storeName,
         latitude,
         longitude,
         createdAt,
