@@ -65,11 +65,15 @@ class _AddStorePageState extends State<AddStorePage> {
           imageUrl = await ref.getDownloadURL();
           FirebaseLogger.log('Store image uploaded', {'url': imageUrl});
         }
-        final mapImageUrl = (_photoReference != null)
-            ? _placesService.buildPhotoUrl(_photoReference!)
-            : (_latitude != null && _longitude != null)
-                ? 'https://maps.googleapis.com/maps/api/staticmap?center=$_latitude,$_longitude&zoom=16&size=600x400&markers=color:red%7C$_latitude,$_longitude&key=${AppConstants.googleMapsApiKey}'
-                : null;
+        if (_photoReference == null && _placeId != null) {
+          try {
+            _photoReference =
+                await _placesService.getPhotoReference(_placeId!);
+          } catch (_) {}
+        }
+
+        final mapImageUrl =
+            _photoReference != null ? _placesService.buildPhotoUrl(_photoReference!) : null;
 
         final data = {
           'name': _nameController.text.trim(),
