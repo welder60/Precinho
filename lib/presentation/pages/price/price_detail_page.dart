@@ -60,8 +60,11 @@ class PriceDetailPage extends StatelessWidget {
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
-          final productName = snapshot.data![0]?.data()?['name'] ?? '';
-          final storeName = snapshot.data![1]?.data()?['name'] ?? '';
+          final productData =
+              snapshot.data![0]?.data() as Map<String, dynamic>?;
+          final storeData = snapshot.data![1]?.data() as Map<String, dynamic>?;
+          final productName = productData?['name'] ?? '';
+          final storeName = storeData?['name'] ?? '';
           return Padding(
             padding: const EdgeInsets.all(AppTheme.paddingLarge),
             child: Column(

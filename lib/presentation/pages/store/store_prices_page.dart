@@ -91,7 +91,9 @@ class StorePricesPage extends ConsumerWidget {
               return FutureBuilder<DocumentSnapshot?>(
                 future: fetchProduct(),
                 builder: (context, productSnapshot) {
-                  final productName = productSnapshot.data?.data()?['name'] ?? '';
+                  final productData =
+                      productSnapshot.data?.data() as Map<String, dynamic>?;
+                  final productName = productData?['name'] ?? '';
                   return ListTile(
                     title: Text(productName),
                     trailing: Text(
