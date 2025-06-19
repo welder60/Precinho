@@ -86,7 +86,7 @@ class _AddStorePageState extends State<AddStorePage> {
     );
     if (result is PlaceResult) {
       setState(() {
-        _addressController.text = result.name;
+        _addressController.text = result.address;
         _latitude = result.latitude;
         _longitude = result.longitude;
         _placeId = result.id;
