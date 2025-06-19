@@ -14,6 +14,31 @@ class FeedPage extends StatefulWidget {
 class _FeedPageState extends State<FeedPage> {
   final Map<String, Map<String, dynamic>> _productInfo = {};
   final Map<String, Map<String, dynamic>> _userInfo = {};
+  final List<DocumentSnapshot> _docs = [];
+  final ScrollController _controller = ScrollController();
+  DocumentSnapshot? _lastDoc;
+  bool _isLoading = false;
+  bool _hasMore = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchMore();
+    _controller.addListener(() {
+      if (_controller.position.pixels >=
+              _controller.position.maxScrollExtent - 200 &&
+          !_isLoading &&
+          _hasMore) {
+        _fetchMore();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   Future<void> _fetchProducts(Iterable<String> ids) async {
     final missing = ids.where((id) => !_productInfo.containsKey(id)).toList();
@@ -45,49 +70,65 @@ class _FeedPageState extends State<FeedPage> {
     if (mounted) setState(() {});
   }
 
+  Future<void> _fetchMore() async {
+    if (_isLoading || !_hasMore) return;
+    setState(() => _isLoading = true);
+
+    Query query = FirebaseFirestore.instance
+        .collection('prices')
+        .where('isApproved', isEqualTo: true)
+        .orderBy('created_at', descending: true)
+        .limit(20);
+    if (_lastDoc != null) {
+      query = query.startAfterDocument(_lastDoc!);
+    }
+
+    final snap = await query.get();
+    if (snap.docs.isNotEmpty) {
+      _lastDoc = snap.docs.last;
+      _docs.addAll(snap.docs);
+      final productIds = _docs
+          .map((d) => (d.data() as Map<String, dynamic>)['product_id'] as String?)
+          .whereType<String>()
+          .toSet();
+      final userIds = _docs
+          .map((d) => (d.data() as Map<String, dynamic>)['user_id'] as String?)
+          .whereType<String>()
+          .toSet();
+
+      if (productIds.any((id) => !_productInfo.containsKey(id))) {
+        await _fetchProducts(productIds);
+      }
+      if (userIds.any((id) => !_userInfo.containsKey(id))) {
+        await _fetchUsers(userIds);
+      }
+    } else {
+      _hasMore = false;
+    }
+
+    if (mounted) setState(() => _isLoading = false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('In\u00edcio'),
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('prices')
-            .where('isApproved', isEqualTo: true)
-            .orderBy('created_at', descending: true)
-            .limit(50)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          final docs = snapshot.data?.docs ?? [];
-          if (docs.isEmpty) {
-            return const Center(child: Text('Nenhum pre\u00e7o encontrado'));
-          }
-
-          final productIds = docs
-              .map((d) => (d.data() as Map<String, dynamic>)['product_id'] as String?)
-              .whereType<String>()
-              .toSet();
-          final userIds = docs
-              .map((d) => (d.data() as Map<String, dynamic>)['user_id'] as String?)
-              .whereType<String>()
-              .toSet();
-
-          if (productIds.any((id) => !_productInfo.containsKey(id))) {
-            Future.microtask(() => _fetchProducts(productIds));
-          }
-          if (userIds.any((id) => !_userInfo.containsKey(id))) {
-            Future.microtask(() => _fetchUsers(userIds));
-          }
-
-          return ListView.builder(
-            itemCount: docs.length,
-            padding: const EdgeInsets.all(AppTheme.paddingMedium),
-            itemBuilder: (context, index) {
-              final doc = docs[index];
+      body: _docs.isEmpty && _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : ListView.builder(
+              controller: _controller,
+              itemCount: _docs.length + (_hasMore ? 1 : 0),
+              padding: const EdgeInsets.all(AppTheme.paddingMedium),
+              itemBuilder: (context, index) {
+                if (index >= _docs.length) {
+                  return const Padding(
+                    padding: EdgeInsets.all(AppTheme.paddingMedium),
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
+                final doc = _docs[index];
               final data = doc.data() as Map<String, dynamic>;
               final productId = data['product_id'] as String?;
               final userId = data['user_id'] as String?;
@@ -157,9 +198,7 @@ class _FeedPageState extends State<FeedPage> {
                 ),
               );
             },
-          );
-        },
-      ),
+          ),
     );
   }
 }
