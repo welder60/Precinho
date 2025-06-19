@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/themes/app_theme.dart';
 import '../admin/add_product_page.dart';
+import '../product/product_detail_page.dart';
 import '../../providers/auth_provider.dart';
 class ProductSearchPage extends ConsumerStatefulWidget {
   final ValueChanged<DocumentSnapshot>? onSelected;
@@ -69,6 +70,13 @@ class _ProductSearchPageState extends ConsumerState<ProductSearchPage> {
                         onTap: () {
                           if (widget.onSelected != null) {
                             widget.onSelected!(doc);
+                          } else {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ProductDetailPage(product: doc),
+                              ),
+                            );
                           }
                         },
                       ),
