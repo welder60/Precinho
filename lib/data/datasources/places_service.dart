@@ -1,4 +1,7 @@
+import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
+import 'dart:js_util' as js_util;
 
 import 'package:http/http.dart' as http;
 
@@ -16,6 +19,21 @@ class PlacesService {
     double? longitude,
     int radiusInMeters = 5000,
   }) async {
+    if (kIsWeb) {
+      final resultJson = await js_util.promiseToFuture<String>(
+        js_util.callMethod(
+          js_util.globalThis,
+          'searchPlaces',
+          [name, latitude, longitude, radiusInMeters],
+        ) as dynamic,
+      );
+      final data = json.decode(resultJson) as Map<String, dynamic>;
+      final results = data['results'] as List<dynamic>? ?? [];
+      return results
+          .map((e) => PlaceResult.fromJson(
+              Map<String, dynamic>.from(e as Map<String, dynamic>)))
+          .toList();
+    }
     final queryParameters = {
       'key': AppConstants.googleMapsApiKey,
       'query': name,

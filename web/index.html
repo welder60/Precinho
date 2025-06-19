@@ -52,6 +52,25 @@
   </script>
   <!-- This script adds the flutter initialization JS code -->
   <script src="flutter.js" defer></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDnD2wwkgEE7t4IdXGHPvdEQ9y323wFHe8&libraries=places"></script>
+  <script>
+    window.searchPlaces = function(query, lat, lng, radius) {
+      return new Promise(function(resolve, reject) {
+        const service = new google.maps.places.PlacesService(document.createElement('div'));
+        const request = { query: query, radius: radius };
+        if (lat != null && lng != null) {
+          request.location = new google.maps.LatLng(lat, lng);
+        }
+        service.textSearch(request, function(results, status) {
+          if (status === google.maps.places.PlacesServiceStatus.OK) {
+            resolve(JSON.stringify({ results: results }));
+          } else {
+            reject(status);
+          }
+        });
+      });
+    }
+  </script>
 
   <!-- Firebase Configuration -->
   <script type="module">
