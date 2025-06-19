@@ -2,8 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/themes/app_theme.dart';
-import '../price/add_price_page.dart';
-import '../price/price_detail_page.dart';
 
 class ProductDetailPage extends StatelessWidget {
   final DocumentSnapshot product;
@@ -16,8 +14,7 @@ class ProductDetailPage extends StatelessWidget {
       appBar: AppBar(
         title: Text(data['name'] ?? 'Produto'),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      body: ListView(
         children: [
           if (data['image_url'] != null && (data['image_url'] as String).isNotEmpty)
             Image.network(
@@ -28,71 +25,29 @@ class ProductDetailPage extends StatelessWidget {
             ),
           Padding(
             padding: const EdgeInsets.all(AppTheme.paddingMedium),
-            child: Text(data['brand'] ?? ''),
-          ),
-          const Divider(),
-          Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection('prices')
-                  .where('product_id', isEqualTo: product.id)
-                  .orderBy('created_at', descending: true)
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                final docs = snapshot.data?.docs ?? [];
-                if (docs.isEmpty) {
-                  return const Center(child: Text('Nenhum preço para este produto'));
-                }
-                final Map<String, DocumentSnapshot> latest = {};
-                for (final doc in docs) {
-                  final data = doc.data() as Map<String, dynamic>;
-                  final storeId = data['store_id'] as String?;
-                  if (storeId == null) continue;
-                  if (!latest.containsKey(storeId)) {
-                    latest[storeId] = doc;
-                  }
-                }
-                final prices = latest.values.toList();
-                return ListView.builder(
-                  itemCount: prices.length,
-                  itemBuilder: (context, index) {
-                    final doc = prices[index];
-                    final priceData = doc.data() as Map<String, dynamic>;
-                    return ListTile(
-                      title: Text(priceData['store_name'] ?? ''),
-                      trailing: Text(
-                        'R\$ ${(priceData['price'] as num).toStringAsFixed(2)}',
-                        style: AppTheme.priceTextStyle,
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => PriceDetailPage(price: doc),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                );
-              },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  data['brand'] ?? '',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                if (data['weight'] != null) ...[
+                  const SizedBox(height: AppTheme.paddingSmall),
+                  Text('Peso: ${data['weight']} kg'),
+                ],
+                if (data['barcode'] != null && (data['barcode'] as String).isNotEmpty) ...[
+                  const SizedBox(height: AppTheme.paddingSmall),
+                  Text('Código de barras: ${data['barcode']}'),
+                ],
+                if (data['description'] != null && (data['description'] as String).isNotEmpty) ...[
+                  const SizedBox(height: AppTheme.paddingMedium),
+                  Text(data['description']),
+                ],
+              ],
             ),
           ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => AddPricePage(product: product),
-            ),
-          );
-        },
-        child: const Icon(Icons.add),
       ),
     );
   }
