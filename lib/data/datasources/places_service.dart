@@ -13,6 +13,10 @@ class PlacesService {
 
   PlacesService({http.Client? client}) : _client = client ?? http.Client();
 
+  String buildPhotoUrl(String photoReference, {int maxWidth = 600}) {
+    return 'https://maps.googleapis.com/maps/api/place/photo?maxwidth=$maxWidth&photo_reference=$photoReference&key=${AppConstants.googleMapsApiKey}';
+  }
+
   Future<List<PlaceResult>> searchPlacesByName({
     required String name,
     double? latitude,
