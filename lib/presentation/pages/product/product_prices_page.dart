@@ -59,15 +59,26 @@ class _ProductPricesPageState extends ConsumerState<ProductPricesPage> {
           ),
         ],
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('prices')
-            .where('product_id', isEqualTo: widget.product.id)
-            .where('isApproved', isEqualTo: true)
-			.orderBy('price')
-            .orderBy('created_at', descending: true)
-            .snapshots(),
-        builder: (context, snapshot) {
+      body: Column(
+        children: [
+          if (data['image_url'] != null &&
+              (data['image_url'] as String).isNotEmpty)
+            Image.network(
+              data['image_url'],
+              width: double.infinity,
+              height: 200,
+              fit: BoxFit.cover,
+            ),
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('prices')
+                  .where('product_id', isEqualTo: widget.product.id)
+                  .where('isApproved', isEqualTo: true)
+                  .orderBy('price')
+                  .orderBy('created_at', descending: true)
+                  .snapshots(),
+              builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -182,6 +193,9 @@ class _ProductPricesPageState extends ConsumerState<ProductPricesPage> {
           );
         },
       ),
+    ),
+  ],
+),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
