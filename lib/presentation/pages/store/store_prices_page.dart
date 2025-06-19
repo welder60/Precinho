@@ -263,10 +263,27 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
                                   textAlign: TextAlign.center,
                                   overflow: TextOverflow.ellipsis,
                                 ),
-                              Text(
-                                Formatters.formatPrice((priceData['price'] as num).toDouble()),
-                                textAlign: TextAlign.center,
-                                style: AppTheme.priceTextStyle,
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (priceData['variation'] != null)
+                                    Icon(
+                                      (priceData['variation'] as num) > 0
+                                          ? Icons.arrow_upward
+                                          : Icons.arrow_downward,
+                                      size: 16,
+                                      color: (priceData['variation'] as num) > 0
+                                          ? AppTheme.errorColor
+                                          : AppTheme.successColor,
+                                    ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    Formatters.formatPrice((priceData['price'] as num).toDouble()),
+                                    textAlign: TextAlign.center,
+                                    style: AppTheme.priceTextStyle,
+                                  ),
+                                ],
                               ),
                             ],
                           ),

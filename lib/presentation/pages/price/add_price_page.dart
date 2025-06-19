@@ -135,6 +135,32 @@ class _AddPricePageState extends State<AddPricePage> {
     }
   }
 
+  Future<double?> _calculateVariation(
+      String productId, String storeId, double newPrice) async {
+    try {
+      final snap = await FirebaseFirestore.instance
+          .collection('prices')
+          .where('product_id', isEqualTo: productId)
+          .where('store_id', isEqualTo: storeId)
+          .where('isApproved', isEqualTo: true)
+          .orderBy('created_at', descending: true)
+          .limit(5)
+          .get();
+
+      for (final doc in snap.docs) {
+        final data = doc.data();
+        final prevPrice = (data['price'] as num?)?.toDouble();
+        if (prevPrice == null) continue;
+        if (prevPrice != newPrice) {
+          return ((newPrice - prevPrice) / prevPrice) * 100;
+        }
+      }
+    } catch (e) {
+      FirebaseLogger.log('Variation calc error', {'error': e.toString()});
+    }
+    return null;
+  }
+
   @override
   void dispose() {
     _productController.dispose();
@@ -162,6 +188,12 @@ class _AddPricePageState extends State<AddPricePage> {
         final productData = _selectedProduct!.data() as Map<String, dynamic>;
         final storeData = _selectedStore!.data() as Map<String, dynamic>;
 
+        double? variation;
+        if (priceValue != null) {
+          variation = await _calculateVariation(
+              _selectedProduct!.id, _selectedStore!.id, priceValue);
+        }
+
         final data = {
           'product_id': _selectedProduct!.id,
           'product_name': productData['name'],
@@ -169,6 +201,7 @@ class _AddPricePageState extends State<AddPricePage> {
           'store_name': storeData['name'],
           'user_id': FirebaseAuth.instance.currentUser?.uid,
           'price': priceValue,
+          'variation': variation,
           'image_url': null,
           'created_at': Timestamp.now(),
           'isApproved': true,

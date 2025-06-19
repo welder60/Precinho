@@ -104,9 +104,23 @@ class PriceDetailPage extends StatelessWidget {
                 const SizedBox(height: AppTheme.paddingMedium),
                 Text('Com\u00e9rcio: $storeName'),
                 const SizedBox(height: AppTheme.paddingMedium),
-                Text(
-                  Formatters.formatPrice((data['price'] as num).toDouble()),
-                  style: AppTheme.priceTextStyle,
+                Row(
+                  children: [
+                    if (data['variation'] != null)
+                      Icon(
+                        (data['variation'] as num) > 0
+                            ? Icons.arrow_upward
+                            : Icons.arrow_downward,
+                        color: (data['variation'] as num) > 0
+                            ? AppTheme.errorColor
+                            : AppTheme.successColor,
+                      ),
+                    const SizedBox(width: AppTheme.paddingSmall),
+                    Text(
+                      Formatters.formatPrice((data['price'] as num).toDouble()),
+                      style: AppTheme.priceTextStyle,
+                    ),
+                  ],
                 ),
                 const SizedBox(height: AppTheme.paddingLarge),
                 Row(

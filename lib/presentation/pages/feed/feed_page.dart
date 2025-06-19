@@ -183,9 +183,24 @@ class _FeedPageState extends State<FeedPage> {
                       ),
                     ],
                   ),
-                  trailing: Text(
-                    Formatters.formatPrice((data['price'] as num).toDouble()),
-                    style: AppTheme.priceTextStyle,
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (data['variation'] != null)
+                        Icon(
+                          (data['variation'] as num) > 0
+                              ? Icons.arrow_upward
+                              : Icons.arrow_downward,
+                          color: (data['variation'] as num) > 0
+                              ? AppTheme.errorColor
+                              : AppTheme.successColor,
+                        ),
+                      const SizedBox(width: 4),
+                      Text(
+                        Formatters.formatPrice((data['price'] as num).toDouble()),
+                        style: AppTheme.priceTextStyle,
+                      ),
+                    ],
                   ),
                   onTap: () {
                     Navigator.push(

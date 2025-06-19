@@ -147,6 +147,16 @@ class _ProductPricesPageState extends ConsumerState<ProductPricesPage> {
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    if (priceData['variation'] != null)
+                      Icon(
+                        (priceData['variation'] as num) > 0
+                            ? Icons.arrow_upward
+                            : Icons.arrow_downward,
+                        color: (priceData['variation'] as num) > 0
+                            ? AppTheme.errorColor
+                            : AppTheme.successColor,
+                      ),
+                    const SizedBox(width: 4),
                     Text(
                       Formatters.formatPrice((priceData['price'] as num).toDouble()),
                       style: AppTheme.priceTextStyle,
