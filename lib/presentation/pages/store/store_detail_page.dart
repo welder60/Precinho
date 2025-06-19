@@ -42,7 +42,15 @@ class StoreDetailPage extends ConsumerWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (data['latitude'] != null && data['longitude'] != null)
+          if (data['map_image_url'] != null &&
+              (data['map_image_url'] as String).isNotEmpty)
+            Image.network(
+              data['map_image_url'],
+              width: double.infinity,
+              height: 200,
+              fit: BoxFit.cover,
+            )
+          else if (data['latitude'] != null && data['longitude'] != null)
             Image.network(
               'https://maps.googleapis.com/maps/api/staticmap?center=${data['latitude']},${data['longitude']}&zoom=16&size=600x200&markers=color:red%7C${data['latitude']},${data['longitude']}&key=${AppConstants.googleMapsApiKey}',
               width: double.infinity,
