@@ -78,21 +78,21 @@ class StorePricesPage extends ConsumerWidget {
           }
           final prices = latest.values.toList();
 
-          return ListView.builder(
+          return GridView.builder(
+            padding: const EdgeInsets.all(AppTheme.paddingMedium),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: AppTheme.paddingMedium,
+              mainAxisSpacing: AppTheme.paddingMedium,
+              childAspectRatio: 1.4,
+            ),
             itemCount: prices.length,
             itemBuilder: (context, index) {
               final doc = prices[index];
               final priceData = doc.data() as Map<String, dynamic>;
               final productName = priceData['product_name'] as String? ?? '';
 
-              return ListTile(
-                leading: const Icon(Icons.shopping_bag,
-                    color: AppTheme.primaryColor),
-                title: Text(productName),
-                trailing: Text(
-                  'R\$ ${(priceData['price'] as num).toStringAsFixed(2)}',
-                  style: AppTheme.priceTextStyle,
-                ),
+              return GestureDetector(
                 onTap: () {
                   Navigator.push(
                     context,
@@ -101,6 +101,33 @@ class StorePricesPage extends ConsumerWidget {
                     ),
                   );
                 },
+                child: Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppTheme.paddingSmall),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Expanded(
+                          child: Icon(
+                            Icons.shopping_bag,
+                            size: 40,
+                            color: AppTheme.primaryColor,
+                          ),
+                        ),
+                        const SizedBox(height: AppTheme.paddingSmall),
+                        Text(
+                          productName,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Text(
+                          'R\$ ${(priceData['price'] as num).toStringAsFixed(2)}',
+                          style: AppTheme.priceTextStyle,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               );
             },
           );
