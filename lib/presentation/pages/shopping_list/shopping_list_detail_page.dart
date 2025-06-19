@@ -1,8 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/themes/app_theme.dart';
 import '../../providers/shopping_list_provider.dart';
+import '../product/product_search_page.dart';
 
 class ShoppingListDetailPage extends ConsumerWidget {
   final String listId;
@@ -39,6 +41,63 @@ class ShoppingListDetailPage extends ConsumerWidget {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _addProduct(context, ref),
+        child: const Icon(Icons.add),
+      ),
     );
+  }
+
+  Future<void> _addProduct(BuildContext context, WidgetRef ref) async {
+    final product = await Navigator.push<DocumentSnapshot>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ProductSearchPage(
+          onSelected: (doc) => Navigator.pop(context, doc),
+        ),
+      ),
+    );
+
+    if (product == null) return;
+
+    final data = product.data() as Map<String, dynamic>;
+    final controller = TextEditingController(text: '1');
+
+    final quantity = await showDialog<double>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Adicionar produto'),
+        content: TextField(
+          controller: controller,
+          keyboardType:
+              const TextInputType.numberWithOptions(decimal: true),
+          decoration: const InputDecoration(labelText: 'Quantidade'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final q = double.tryParse(controller.text) ?? 1;
+              Navigator.pop(context, q);
+            },
+            child: const Text('Adicionar'),
+          ),
+        ],
+      ),
+    );
+
+    controller.dispose();
+
+    if (quantity == null) return;
+
+    ref.read(shoppingListProvider.notifier).addProductToList(
+          listId: listId,
+          productId: product.id,
+          productName: data['name'] ?? 'Produto',
+          quantity: quantity,
+        );
   }
 }
