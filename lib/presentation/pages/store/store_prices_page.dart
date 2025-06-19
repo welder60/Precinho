@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/themes/app_theme.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../core/constants/app_constants.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/store_favorites_provider.dart';
 import '../price/add_price_page.dart';
@@ -87,7 +88,33 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
         ],
       ),
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if ((data['image_url'] as String?)?.isNotEmpty == true)
+            Image.network(
+              data['image_url'],
+              width: double.infinity,
+              height: 200,
+              fit: BoxFit.cover,
+            )
+          else if ((data['map_image_url'] as String?)?.isNotEmpty == true)
+            Image.network(
+              data['map_image_url'],
+              width: double.infinity,
+              height: 200,
+              fit: BoxFit.cover,
+            )
+          else if (data['latitude'] != null && data['longitude'] != null)
+            Image.network(
+              'https://maps.googleapis.com/maps/api/staticmap?center=${data['latitude']},${data['longitude']}&zoom=16&size=600x200&markers=color:red%7C${data['latitude']},${data['longitude']}&key=${AppConstants.googleMapsApiKey}',
+              width: double.infinity,
+              height: 200,
+              fit: BoxFit.cover,
+            ),
+          Padding(
+            padding: const EdgeInsets.all(AppTheme.paddingMedium),
+            child: Text(data['address'] ?? ''),
+          ),
           Padding(
             padding: const EdgeInsets.all(AppTheme.paddingMedium),
             child: TextField(
