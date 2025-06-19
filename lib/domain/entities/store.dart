@@ -8,8 +8,6 @@ class Store extends Equatable {
   final String? cnpj;
   final double latitude;
   final double longitude;
-  final String? imageUrl;
-  final String? mapImageUrl;
   final StoreCategory category;
   final bool isApproved;
   final ModerationStatus status;
@@ -30,8 +28,6 @@ class Store extends Equatable {
     this.cnpj,
     required this.latitude,
     required this.longitude,
-    this.imageUrl,
-    this.mapImageUrl,
     required this.category,
     required this.isApproved,
     required this.status,
@@ -53,8 +49,6 @@ class Store extends Equatable {
     String? cnpj,
     double? latitude,
     double? longitude,
-    String? imageUrl,
-    String? mapImageUrl,
     StoreCategory? category,
     bool? isApproved,
     ModerationStatus? status,
@@ -75,8 +69,6 @@ class Store extends Equatable {
       cnpj: cnpj ?? this.cnpj,
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
-      imageUrl: imageUrl ?? this.imageUrl,
-      mapImageUrl: mapImageUrl ?? this.mapImageUrl,
       category: category ?? this.category,
       isApproved: isApproved ?? this.isApproved,
       status: status ?? this.status,
@@ -92,10 +84,6 @@ class Store extends Equatable {
     );
   }
 
-  bool get hasImage {
-    return (imageUrl != null && imageUrl!.isNotEmpty) ||
-        (mapImageUrl != null && mapImageUrl!.isNotEmpty);
-  }
   bool get hasRating => rating != null && rating! > 0;
   bool get hasContact => phoneNumber != null || website != null;
 
@@ -107,8 +95,6 @@ class Store extends Equatable {
         cnpj,
         latitude,
         longitude,
-        imageUrl,
-        mapImageUrl,
         category,
         isApproved,
         status,

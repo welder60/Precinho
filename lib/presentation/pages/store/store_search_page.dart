@@ -75,19 +75,12 @@ class _StoreSearchPageState extends ConsumerState<StoreSearchPage> {
                     final doc = sortedDocs[index];
                     final data = doc.data() as Map<String, dynamic>;
                     final isFav = favorites.contains(doc.id);
-                    final imageUrl = (data['image_url'] as String?)?.isNotEmpty == true
-                        ? data['image_url']
-                        : data['map_image_url'] as String?;
                     return Card(
                       child: ListTile(
-                        leading: imageUrl != null && imageUrl.isNotEmpty
-                            ? CircleAvatar(
-                                backgroundImage: NetworkImage(imageUrl),
-                              )
-                            : const Icon(
-                                Icons.store,
-                                color: AppTheme.primaryColor,
-                              ),
+                        leading: const Icon(
+                          Icons.store,
+                          color: AppTheme.primaryColor,
+                        ),
                         title: Text(data['name'] ?? 'Loja'),
                         subtitle: Text(data['address'] ?? ''),
                         trailing: IconButton(

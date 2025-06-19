@@ -230,8 +230,6 @@ class Store {
   final String? cnpj;
   final double latitude;
   final double longitude;
-  final String? imageUrl;
-  final String? mapImageUrl;
   final StoreCategory category;
   final bool isApproved;
   final String userId;
