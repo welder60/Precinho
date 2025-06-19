@@ -54,21 +54,35 @@
   <script src="flutter.js" defer></script>
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDnD2wwkgEE7t4IdXGHPvdEQ9y323wFHe8&libraries=places"></script>
   <script>
-    window.searchPlaces = function(query, lat, lng, radius) {
-      return new Promise(function(resolve, reject) {
-        const service = new google.maps.places.PlacesService(document.createElement('div'));
-        const request = { query: query, radius: radius };
+    window.searchPlaces = async function(query, lat, lng, radius) {
+      try {
+        const { Place } = await google.maps.importLibrary('places');
+        const request = { textQuery: query };
         if (lat != null && lng != null) {
-          request.location = new google.maps.LatLng(lat, lng);
+          request.locationBias = {
+            center: new google.maps.LatLng(lat, lng),
+            radius: radius
+          };
         }
-        service.textSearch(request, function(results, status) {
-          if (status === google.maps.places.PlacesServiceStatus.OK) {
-            resolve(JSON.stringify({ results: results }));
-          } else {
-            reject(status);
-          }
-        });
-      });
+        const { places } = await Place.searchByText(request);
+        const results = (places || []).map(p => ({
+          place_id: p.id,
+          name: p.displayName?.text || '',
+          formatted_address: p.formattedAddress || '',
+          geometry: {
+            location: {
+              lat: p.location?.latLng?.lat() ?? 0,
+              lng: p.location?.latLng?.lng() ?? 0
+            }
+          },
+          photos: p.photos?.length
+            ? [{ photo_reference: p.photos[0].name }]
+            : []
+        }));
+        return JSON.stringify({ results: results });
+      } catch (e) {
+        throw e;
+      }
     }
   </script>
 
