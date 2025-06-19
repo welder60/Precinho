@@ -71,29 +71,41 @@ class ProductPricesPage extends ConsumerWidget {
               final priceData = doc.data() as Map<String, dynamic>;
               final storeId = priceData['store_id'] as String?;
               final isFav = storeId != null && favorites.contains(storeId);
-              return ListTile(
-                leading: IconButton(
-                  icon: Icon(
-                    isFav ? Icons.star : Icons.star_border,
-                    color: isFav ? Colors.amber : AppTheme.textSecondaryColor,
-                  ),
-                  onPressed: storeId == null
-                      ? null
-                      : () {
-                          ref.read(storeFavoritesProvider.notifier).toggleFavorite(storeId);
-                        },
-                ),
-                title: Text(priceData['store_name'] ?? ''),
-                trailing: Text(
-                  'R\$ ${(priceData['price'] as num).toStringAsFixed(2)}',
-                  style: AppTheme.priceTextStyle,
-                ),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => PriceDetailPage(price: doc),
+
+              Future<DocumentSnapshot?> fetchStore() async {
+                if (storeId == null) return null;
+                return FirebaseFirestore.instance.collection('stores').doc(storeId).get();
+              }
+
+              return FutureBuilder<DocumentSnapshot?>(
+                future: fetchStore(),
+                builder: (context, storeSnapshot) {
+                  final storeName = storeSnapshot.data?.data()?['name'] ?? '';
+                  return ListTile(
+                    leading: IconButton(
+                      icon: Icon(
+                        isFav ? Icons.star : Icons.star_border,
+                        color: isFav ? Colors.amber : AppTheme.textSecondaryColor,
+                      ),
+                      onPressed: storeId == null
+                          ? null
+                          : () {
+                              ref.read(storeFavoritesProvider.notifier).toggleFavorite(storeId);
+                            },
                     ),
+                    title: Text(storeName),
+                    trailing: Text(
+                      'R\$ ${(priceData['price'] as num).toStringAsFixed(2)}',
+                      style: AppTheme.priceTextStyle,
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => PriceDetailPage(price: doc),
+                        ),
+                      );
+                    },
                   );
                 },
               );

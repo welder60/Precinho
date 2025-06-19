@@ -81,18 +81,31 @@ class StorePricesPage extends ConsumerWidget {
             itemBuilder: (context, index) {
               final doc = prices[index];
               final priceData = doc.data() as Map<String, dynamic>;
-              return ListTile(
-                title: Text(priceData['product_name'] ?? ''),
-                trailing: Text(
-                  'R\$ ${(priceData['price'] as num).toStringAsFixed(2)}',
-                  style: AppTheme.priceTextStyle,
-                ),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => PriceDetailPage(price: doc),
+              final productId = priceData['product_id'] as String?;
+
+              Future<DocumentSnapshot?> fetchProduct() async {
+                if (productId == null) return null;
+                return FirebaseFirestore.instance.collection('products').doc(productId).get();
+              }
+
+              return FutureBuilder<DocumentSnapshot?>(
+                future: fetchProduct(),
+                builder: (context, productSnapshot) {
+                  final productName = productSnapshot.data?.data()?['name'] ?? '';
+                  return ListTile(
+                    title: Text(productName),
+                    trailing: Text(
+                      'R\$ ${(priceData['price'] as num).toStringAsFixed(2)}',
+                      style: AppTheme.priceTextStyle,
                     ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => PriceDetailPage(price: doc),
+                        ),
+                      );
+                    },
                   );
                 },
               );
