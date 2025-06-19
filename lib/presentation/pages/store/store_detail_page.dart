@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/themes/app_theme.dart';
 import '../../../core/constants/app_constants.dart';
@@ -81,6 +82,27 @@ class StoreDetailPage extends ConsumerWidget {
               style: Theme.of(context).textTheme.bodyMedium,
             ),
           ),
+          const SizedBox(height: AppTheme.paddingLarge),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton.icon(
+                icon: const Icon(Icons.map),
+                label: const Text('Abrir no Maps'),
+                onPressed: () {
+                  _openMaps(context, data['latitude'], data['longitude'], data['address']);
+                },
+              ),
+              const SizedBox(width: AppTheme.paddingMedium),
+              ElevatedButton.icon(
+                icon: const Icon(Icons.directions_car),
+                label: const Text('Abrir no Waze'),
+                onPressed: () {
+                  _openWaze(context, data['latitude'], data['longitude'], data['address']);
+                },
+              ),
+            ],
+          ),
         ],
       ),
       // Sem ações nesta tela
@@ -113,6 +135,30 @@ class StoreDetailPage extends ConsumerWidget {
           const SnackBar(content: Text('Com\u00e9rcio exclu\u00eddo')),
         );
       }
+    }
+  }
+
+  Future<void> _openMaps(BuildContext context, Object? lat, Object? lng, Object? address) async {
+    Uri? url;
+    if (lat is num && lng is num) {
+      url = Uri.parse('https://www.google.com/maps/search/?api=1&query=${lat.toDouble()},${lng.toDouble()}');
+    } else if (address is String && address.isNotEmpty) {
+      url = Uri.parse('https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(address)}');
+    }
+    if (url != null && await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  Future<void> _openWaze(BuildContext context, Object? lat, Object? lng, Object? address) async {
+    Uri? url;
+    if (lat is num && lng is num) {
+      url = Uri.parse('https://waze.com/ul?ll=${lat.toDouble()},${lng.toDouble()}&navigate=yes');
+    } else if (address is String && address.isNotEmpty) {
+      url = Uri.parse('https://waze.com/ul?query=${Uri.encodeComponent(address)}&navigate=yes');
+    }
+    if (url != null && await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
     }
   }
 }
