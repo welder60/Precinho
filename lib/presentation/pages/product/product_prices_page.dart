@@ -93,21 +93,30 @@ class ProductPricesPage extends ConsumerWidget {
                   print('[DEBUG] Exibindo preço de ${storeName} -> R\$ ${(priceData['price'] as num).toStringAsFixed(2)}');
 
               return ListTile(
-                leading: IconButton(
-                  icon: Icon(
-                    isFav ? Icons.star : Icons.star_border,
-                    color: isFav ? Colors.amber : AppTheme.textSecondaryColor,
-                  ),
-                  onPressed: storeId == null
-                      ? null
-                      : () {
-                          ref.read(storeFavoritesProvider.notifier).toggleFavorite(storeId);
-                        },
-                ),
+                leading: const Icon(Icons.store, color: AppTheme.primaryColor),
                 title: Text(storeName),
-                trailing: Text(
-                  'R\$ ${(priceData['price'] as num).toStringAsFixed(2)}',
-                  style: AppTheme.priceTextStyle,
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'R\$ ${(priceData['price'] as num).toStringAsFixed(2)}',
+                      style: AppTheme.priceTextStyle,
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        isFav ? Icons.star : Icons.star_border,
+                        color:
+                            isFav ? Colors.amber : AppTheme.textSecondaryColor,
+                      ),
+                      onPressed: storeId == null
+                          ? null
+                          : () {
+                              ref
+                                  .read(storeFavoritesProvider.notifier)
+                                  .toggleFavorite(storeId);
+                            },
+                    ),
+                  ],
                 ),
                 onTap: () {
                   Navigator.push(

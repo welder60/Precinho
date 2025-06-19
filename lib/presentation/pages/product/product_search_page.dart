@@ -65,6 +65,14 @@ class _ProductSearchPageState extends ConsumerState<ProductSearchPage> {
                     final data = doc.data() as Map<String, dynamic>;
                     return Card(
                       child: ListTile(
+                        leading: data['image_url'] != null &&
+                                (data['image_url'] as String).isNotEmpty
+                            ? CircleAvatar(
+                                backgroundImage:
+                                    NetworkImage(data['image_url']),
+                              )
+                            : const Icon(Icons.shopping_bag,
+                                color: AppTheme.primaryColor),
                         title: Text(data['name'] ?? 'Produto'),
                         subtitle: Text(data['brand'] ?? ''),
                         onTap: () {
