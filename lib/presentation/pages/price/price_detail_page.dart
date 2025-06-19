@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/themes/app_theme.dart';
+import '../../../core/utils/formatters.dart';
 import 'add_price_page.dart';
 
 class PriceDetailPage extends StatelessWidget {
@@ -58,7 +59,7 @@ class PriceDetailPage extends StatelessWidget {
             Text('Com\u00e9rcio: $storeName'),
             const SizedBox(height: AppTheme.paddingMedium),
             Text(
-              'R\$ ${(data['price'] as num).toStringAsFixed(2)}',
+              Formatters.formatPrice((data['price'] as num).toDouble()),
               style: AppTheme.priceTextStyle,
             ),
             const SizedBox(height: AppTheme.paddingLarge),

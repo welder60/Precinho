@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/themes/app_theme.dart';
+import '../../../core/utils/formatters.dart';
 import '../../../core/constants/enums.dart';
 import '../../providers/auth_provider.dart';
 
@@ -237,7 +238,7 @@ class _ShoppingListsPageState extends ConsumerState<ShoppingListsPage> {
                   const SizedBox(width: AppTheme.paddingSmall),
                   if (budget != null)
                     Text(
-                      'R\$ ${budget.toStringAsFixed(2)}',
+                      Formatters.formatPrice(budget.toDouble()),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: AppTheme.textSecondaryColor,
                           ),
