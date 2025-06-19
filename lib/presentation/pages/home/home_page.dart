@@ -7,6 +7,7 @@ import '../product/product_search_page.dart';
 import '../shopping_list/shopping_lists_page.dart';
 import '../profile/profile_page.dart';
 import '../store/store_search_page.dart';
+import '../feed/feed_page.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -19,6 +20,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = [
+    const FeedPage(),
     const StoreSearchPage(),
     const ProductSearchPage(),
     const ShoppingListsPage(),
@@ -43,6 +45,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                   },
                   labelType: NavigationRailLabelType.all,
                   destinations: const [
+                    NavigationRailDestination(
+                      icon: Icon(Icons.home),
+                      label: Text('Início'),
+                    ),
                     NavigationRailDestination(
                       icon: Icon(Icons.store),
                       label: Text('Lojas'),
@@ -85,6 +91,10 @@ class _HomePageState extends ConsumerState<HomePage> {
               selectedItemColor: AppTheme.primaryColor,
               unselectedItemColor: AppTheme.textSecondaryColor,
               items: const [
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.home),
+                  label: 'Início',
+                ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.store),
                   label: 'Lojas',
