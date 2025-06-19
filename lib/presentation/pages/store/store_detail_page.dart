@@ -6,6 +6,7 @@ import '../../../core/themes/app_theme.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/store_favorites_provider.dart';
+import 'edit_store_page.dart';
 // Página de detalhes exibe apenas informações do comércio.
 
 class StoreDetailPage extends ConsumerWidget {
@@ -31,6 +32,18 @@ class StoreDetailPage extends ConsumerWidget {
               ref.read(storeFavoritesProvider.notifier).toggleFavorite(store.id);
             },
           ),
+          if (isAdmin)
+            IconButton(
+              icon: const Icon(Icons.edit),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => EditStorePage(document: store),
+                  ),
+                );
+              },
+            ),
           if (isAdmin)
             IconButton(
               icon: const Icon(Icons.delete),

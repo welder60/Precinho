@@ -255,6 +255,13 @@ class ApiService {
     return await post('/products', data: productData);
   }
 
+  Future<Map<String, dynamic>> updateProduct(
+    String id,
+    Map<String, dynamic> productData,
+  ) async {
+    return await put('/products/$id', data: productData);
+  }
+
   // Preços
   Future<Map<String, dynamic>> getPrices({
     required double latitude,
@@ -299,6 +306,13 @@ class ApiService {
 
   Future<Map<String, dynamic>> createStore(Map<String, dynamic> storeData) async {
     return await post('/stores', data: storeData);
+  }
+
+  Future<Map<String, dynamic>> updateStore(
+    String id,
+    Map<String, dynamic> storeData,
+  ) async {
+    return await put('/stores/$id', data: storeData);
   }
 
   // Listas de compras

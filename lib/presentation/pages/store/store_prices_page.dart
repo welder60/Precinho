@@ -10,6 +10,7 @@ import '../../providers/store_favorites_provider.dart';
 import '../price/add_price_page.dart';
 import '../price/price_detail_page.dart';
 import 'store_detail_page.dart';
+import 'edit_store_page.dart';
 
 class StorePricesPage extends ConsumerStatefulWidget {
   final DocumentSnapshot store;
@@ -80,6 +81,18 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
               );
             },
           ),
+          if (isAdmin)
+            IconButton(
+              icon: const Icon(Icons.edit),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => EditStorePage(document: widget.store),
+                  ),
+                );
+              },
+            ),
           if (isAdmin)
             IconButton(
               icon: const Icon(Icons.delete),
