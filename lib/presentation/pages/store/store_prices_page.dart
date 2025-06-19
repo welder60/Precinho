@@ -197,9 +197,10 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
                     final productName = priceData['product_name'] as String? ?? '';
                     final productId = priceData['product_id'] as String?;
                     final info = productId != null ? _productInfo[productId] : null;
-                    final imageUrl = info?['image_url'] as String?;
-                    final volume = info?['volume'];
-                    final unit = info?['unit'];
+                    final String? imageUrl =
+                        info != null ? info['image_url'] as String? : null;
+                    final volume = info != null ? info['volume'] : null;
+                    final unit = info != null ? info['unit'] : null;
                     var label = productName;
                     if (volume != null && unit != null && unit != 'un') {
                       label = '$productName (${volume.toString()} $unit)';
