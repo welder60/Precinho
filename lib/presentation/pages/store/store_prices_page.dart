@@ -54,6 +54,8 @@ class StorePricesPage extends ConsumerWidget {
         stream: FirebaseFirestore.instance
             .collection('prices')
             .where('store_id', isEqualTo: store.id)
+            .where('isApproved', isEqualTo: true)
+			.orderBy('price')
             .orderBy('created_at', descending: true)
             .snapshots(),
         builder: (context, snapshot) {

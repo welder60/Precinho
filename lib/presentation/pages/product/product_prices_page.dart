@@ -17,6 +17,8 @@ class ProductPricesPage extends ConsumerWidget {
     final favorites = ref.watch(storeFavoritesProvider);
     final data = product.data() as Map<String, dynamic>;
 
+    print('[DEBUG] Exibindo preços para o produto: ${data['name']} (ID: ${product.id})');
+
     return Scaffold(
       appBar: AppBar(
         title: Text(data['name'] ?? 'Produto'),
@@ -38,25 +40,40 @@ class ProductPricesPage extends ConsumerWidget {
         stream: FirebaseFirestore.instance
             .collection('prices')
             .where('product_id', isEqualTo: product.id)
+            .where('isApproved', isEqualTo: true)
+			.orderBy('price')
             .orderBy('created_at', descending: true)
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
+
           final docs = snapshot.data?.docs ?? [];
-          if (docs.isEmpty) {
-            return const Center(child: Text('Nenhum pre\u00e7o para este produto'));
+          print('[DEBUG] Total de preços retornados do Firestore: ${docs.length}');
+
+          for (final doc in docs) {
+            print('[DEBUG] Documento de preço: ${doc.id} -> ${doc.data()}');
           }
+
+          if (docs.isEmpty) {
+            return const Center(child: Text('Nenhum preço para este produto'));
+          }
+
           final Map<String, DocumentSnapshot> latest = {};
           for (final doc in docs) {
-            final priceData = doc.data() as Map<String, dynamic>;
-            final storeId = priceData['store_id'] as String?;
-            if (storeId == null) continue;
-            if (!latest.containsKey(storeId)) {
-              latest[storeId] = doc;
+            try {
+              final priceData = doc.data() as Map<String, dynamic>;
+              final storeId = priceData['store_id'] as String?;
+              if (storeId == null) continue;
+              if (!latest.containsKey(storeId)) {
+                latest[storeId] = doc;
+              }
+            } catch (e) {
+              print('[ERRO] Falha ao processar documento de preço: ${doc.id} -> $e');
             }
           }
+
           final prices = latest.values.toList()
             ..sort((a, b) {
               final aFav = favorites.contains((a.data() as Map<String, dynamic>)['store_id']) ? 0 : 1;
@@ -80,9 +97,15 @@ class ProductPricesPage extends ConsumerWidget {
               return FutureBuilder<DocumentSnapshot?>(
                 future: fetchStore(),
                 builder: (context, storeSnapshot) {
-                  final storeData =
-                      storeSnapshot.data?.data() as Map<String, dynamic>?;
-                  final storeName = storeData?['name'] ?? '';
+                  if (storeSnapshot.connectionState == ConnectionState.waiting) {
+                    return const ListTile(title: Text('Carregando loja...'));
+                  }
+
+                  final storeData = storeSnapshot.data?.data() as Map<String, dynamic>?;
+                  final storeName = storeData?['name'] ?? 'Loja desconhecida';
+
+                  print('[DEBUG] Exibindo preço de ${storeName} -> R\$ ${(priceData['price'] as num).toStringAsFixed(2)}');
+
                   return ListTile(
                     leading: IconButton(
                       icon: Icon(
