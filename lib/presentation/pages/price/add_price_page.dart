@@ -168,6 +168,7 @@ class _AddPricePageState extends State<AddPricePage> {
           'store_description': storeData['description'],
           'price': priceValue,
           'created_at': Timestamp.now(),
+          'isApproved': true,
           if (position != null) ...{
             'latitude': position.latitude,
             'longitude': position.longitude,
