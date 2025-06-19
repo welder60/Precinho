@@ -64,4 +64,32 @@ class PlacesService {
         .map((e) => PlaceResult.fromJson(e as Map<String, dynamic>))
         .toList();
   }
+
+  Future<String?> getPhotoReference(String placeId) async {
+    final queryParameters = {
+      'place_id': placeId,
+      'fields': 'photos',
+      'key': AppConstants.googleMapsApiKey,
+    };
+
+    final uri = Uri.https(
+      'maps.googleapis.com',
+      '/maps/api/place/details/json',
+      queryParameters,
+    );
+
+    final response = await _client.get(uri);
+    if (response.statusCode != 200) {
+      throw Exception('Erro ao buscar detalhes: ${response.statusCode}');
+    }
+
+    final data = json.decode(response.body) as Map<String, dynamic>;
+    final result = data['result'] as Map<String, dynamic>?;
+    final photos = result?['photos'] as List<dynamic>?;
+    if (photos != null && photos.isNotEmpty) {
+      final firstPhoto = photos.first as Map<String, dynamic>;
+      return firstPhoto['photo_reference'] as String?;
+    }
+    return null;
+  }
 }
