@@ -247,16 +247,20 @@ class Price {
   final String userId;
   final double value;
   final String? imageUrl;
+  final String? productDescription;
+  final String? storeDescription;
+  final double? latitude;
+  final double? longitude;
   final DateTime createdAt;
   final DateTime? expiresAt;
   final bool isApproved;
 }
 ```
 
-Os preços não possuem mais latitude e longitude próprios. Eles são sempre
-vinculados a um `Store`, que contém as coordenadas. Caso o estabelecimento seja
-desconhecido, basta criar um `Store` anônimo com a localização informada e
-associar o preço a esse novo registro.
+Os preços voltam a armazenar suas próprias coordenadas geográficas, além de
+manter as descrições do produto e do estabelecimento no registro. Essa
+redundância permite consultas mais rápidas mesmo que as informações de produto
+ou loja sejam alteradas posteriormente.
 
 ## 🎯 Funcionalidades Implementadas
 
