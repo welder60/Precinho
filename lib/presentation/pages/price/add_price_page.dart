@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../../core/themes/app_theme.dart';
 import '../../../core/utils/formatters.dart';
@@ -163,10 +164,12 @@ class _AddPricePageState extends State<AddPricePage> {
 
         final data = {
           'product_id': _selectedProduct!.id,
-          'product_description': productData['description'],
+          'product_name': productData['name'],
           'store_id': _selectedStore!.id,
-          'store_description': storeData['description'],
+          'store_name': storeData['name'],
+          'user_id': FirebaseAuth.instance.currentUser?.uid,
           'price': priceValue,
+          'image_url': null,
           'created_at': Timestamp.now(),
           'isApproved': true,
           if (position != null) ...{
