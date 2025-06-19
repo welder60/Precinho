@@ -34,35 +34,56 @@ class PriceDetailPage extends StatelessWidget {
     );
   }
 
+  Future<List<DocumentSnapshot?>> _loadDocs(String? productId, String? storeId) async {
+    final productDoc = productId != null
+        ? await FirebaseFirestore.instance.collection('products').doc(productId).get()
+        : null;
+    final storeDoc = storeId != null
+        ? await FirebaseFirestore.instance.collection('stores').doc(storeId).get()
+        : null;
+    return [productDoc, storeDoc];
+  }
+
   @override
   Widget build(BuildContext context) {
     final data = price.data() as Map<String, dynamic>;
+    final productId = data['product_id'] as String?;
+    final storeId = data['store_id'] as String?;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Detalhes do Preço'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(AppTheme.paddingLarge),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              data['product_name'] ?? 'Produto',
-              style: Theme.of(context).textTheme.titleLarge,
+      body: FutureBuilder<List<DocumentSnapshot?>>(
+        future: _loadDocs(productId, storeId),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          final productName = snapshot.data![0]?.data()?['name'] ?? '';
+          final storeName = snapshot.data![1]?.data()?['name'] ?? '';
+          return Padding(
+            padding: const EdgeInsets.all(AppTheme.paddingLarge),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  productName.isNotEmpty ? productName : 'Produto',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: AppTheme.paddingMedium),
+                Text('Estabelecimento: $storeName'),
+                const SizedBox(height: AppTheme.paddingMedium),
+                Text(
+                  'R\$ ${(data['price'] as num).toStringAsFixed(2)}',
+                  style: AppTheme.priceTextStyle,
+                ),
+                const SizedBox(height: AppTheme.paddingLarge),
+                const Text('Mais detalhes ser\u00e3o implementados futuramente.'),
+              ],
             ),
-            const SizedBox(height: AppTheme.paddingMedium),
-            Text(
-              'Estabelecimento: ${data['store_name'] ?? ''}',
-            ),
-            const SizedBox(height: AppTheme.paddingMedium),
-            Text(
-              'R\$ ${(data['price'] as num).toStringAsFixed(2)}',
-              style: AppTheme.priceTextStyle,
-            ),
-            const SizedBox(height: AppTheme.paddingLarge),
-            const Text('Mais detalhes ser\u00e3o implementados futuramente.'),
-          ],
-        ),
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _updatePrice(context),
