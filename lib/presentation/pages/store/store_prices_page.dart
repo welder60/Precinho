@@ -9,14 +9,45 @@ import '../price/add_price_page.dart';
 import '../price/price_detail_page.dart';
 import 'store_detail_page.dart';
 
-class StorePricesPage extends ConsumerWidget {
+class StorePricesPage extends ConsumerStatefulWidget {
   final DocumentSnapshot store;
   const StorePricesPage({required this.store, super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final data = store.data() as Map<String, dynamic>;
-    final isFav = ref.watch(storeFavoritesProvider).contains(store.id);
+  ConsumerState<StorePricesPage> createState() => _StorePricesPageState();
+}
+
+class _StorePricesPageState extends ConsumerState<StorePricesPage> {
+  final TextEditingController _controller = TextEditingController();
+  final Map<String, List<String>> _productCategories = {};
+  final Set<String> _selectedCategories = {};
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _fetchCategories(Iterable<String> ids) async {
+    final missing = ids.where((id) => !_productCategories.containsKey(id)).toList();
+    for (var i = 0; i < missing.length; i += 10) {
+      final chunk = missing.sublist(i, i + 10 > missing.length ? missing.length : i + 10);
+      final snap = await FirebaseFirestore.instance
+          .collection('products')
+          .where(FieldPath.documentId, whereIn: chunk)
+          .get();
+      for (final doc in snap.docs) {
+        _productCategories[doc.id] =
+            List<String>.from(doc.data()['categories'] ?? []);
+      }
+    }
+    if (mounted) setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final data = widget.store.data() as Map<String, dynamic>;
+    final isFav = ref.watch(storeFavoritesProvider).contains(widget.store.id);
     final isAdmin = ref.watch(isAdminProvider);
 
     return Scaffold(
@@ -29,7 +60,9 @@ class StorePricesPage extends ConsumerWidget {
               color: isFav ? Colors.amber : AppTheme.textOnPrimaryColor,
             ),
             onPressed: () {
-              ref.read(storeFavoritesProvider.notifier).toggleFavorite(store.id);
+              ref
+                  .read(storeFavoritesProvider.notifier)
+                  .toggleFavorite(widget.store.id);
             },
           ),
           IconButton(
@@ -38,7 +71,7 @@ class StorePricesPage extends ConsumerWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => StoreDetailPage(store: store),
+                  builder: (_) => StoreDetailPage(store: widget.store),
                 ),
               );
             },
@@ -50,15 +83,33 @@ class StorePricesPage extends ConsumerWidget {
             ),
         ],
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('prices')
-            .where('store_id', isEqualTo: store.id)
-            .where('isApproved', isEqualTo: true)
-			.orderBy('price')
-            .orderBy('created_at', descending: true)
-            .snapshots(),
-        builder: (context, snapshot) {
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(AppTheme.paddingMedium),
+            child: TextField(
+              controller: _controller,
+              decoration: InputDecoration(
+                hintText: 'Buscar produto...',
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.clear),
+                  onPressed: () => _controller.clear(),
+                ),
+              ),
+              onChanged: (_) => setState(() {}),
+            ),
+          ),
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('prices')
+                  .where('store_id', isEqualTo: widget.store.id)
+                  .where('isApproved', isEqualTo: true)
+                  .orderBy('price')
+                  .orderBy('created_at', descending: true)
+                  .snapshots(),
+              builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -68,77 +119,133 @@ class StorePricesPage extends ConsumerWidget {
           }
 
           final Map<String, DocumentSnapshot> latest = {};
+          final Set<String> ids = {};
           for (final doc in docs) {
-            final priceData = doc.data() as Map<String, dynamic>;
-            final productId = priceData['product_id'] as String?;
+            final data = doc.data() as Map<String, dynamic>;
+            final productId = data['product_id'] as String?;
             if (productId == null) continue;
-            if (!latest.containsKey(productId)) {
-              latest[productId] = doc;
-            }
+            ids.add(productId);
+            latest.putIfAbsent(productId, () => doc);
           }
-          final prices = latest.values.toList();
 
-          return GridView.builder(
-            padding: const EdgeInsets.all(AppTheme.paddingMedium),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: AppTheme.paddingMedium,
-              mainAxisSpacing: AppTheme.paddingMedium,
-              childAspectRatio: 1.4,
-            ),
-            itemCount: prices.length,
-            itemBuilder: (context, index) {
-              final doc = prices[index];
-              final priceData = doc.data() as Map<String, dynamic>;
-              final productName = priceData['product_name'] as String? ?? '';
+          if (ids.any((id) => !_productCategories.containsKey(id))) {
+            Future.microtask(() => _fetchCategories(ids));
+          }
 
-              return GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => PriceDetailPage(price: doc),
-                    ),
-                  );
-                },
-                child: Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(AppTheme.paddingSmall),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Expanded(
-                          child: Icon(
-                            Icons.shopping_bag,
-                            size: 40,
-                            color: AppTheme.primaryColor,
-                          ),
+          var prices = latest.values.toList();
+          final text = _controller.text.trim().toLowerCase();
+          prices = prices.where((doc) {
+            final data = doc.data() as Map<String, dynamic>;
+            final name = (data['product_name'] as String? ?? '').toLowerCase();
+            if (text.isNotEmpty && !name.contains(text)) return false;
+            final cats = _productCategories[data['product_id']] ?? [];
+            if (_selectedCategories.isNotEmpty &&
+                !cats.any(_selectedCategories.contains)) {
+              return false;
+            }
+            return true;
+          }).toList();
+
+          final categories =
+              _productCategories.values.expand((e) => e).toSet().toList();
+
+          return Column(
+            children: [
+              if (categories.isNotEmpty)
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: AppTheme.paddingMedium),
+                  child: Row(
+                    children: categories.map((c) {
+                      final selected = _selectedCategories.contains(c);
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: FilterChip(
+                          label: Text(c),
+                          selected: selected,
+                          onSelected: (_) {
+                            setState(() {
+                              if (selected) {
+                                _selectedCategories.remove(c);
+                              } else {
+                                _selectedCategories.add(c);
+                              }
+                            });
+                          },
                         ),
-                        const SizedBox(height: AppTheme.paddingSmall),
-                        Text(
-                          productName,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        Text(
-                          'R\$ ${(priceData['price'] as num).toStringAsFixed(2)}',
-                          style: AppTheme.priceTextStyle,
-                        ),
-                      ],
-                    ),
+                      );
+                    }).toList(),
                   ),
                 ),
-              );
-            },
+              Expanded(
+                child: GridView.builder(
+                  padding: const EdgeInsets.all(AppTheme.paddingMedium),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: AppTheme.paddingMedium,
+                    mainAxisSpacing: AppTheme.paddingMedium,
+                    childAspectRatio: 1.4,
+                  ),
+                  itemCount: prices.length,
+                  itemBuilder: (context, index) {
+                    final doc = prices[index];
+                    final priceData = doc.data() as Map<String, dynamic>;
+                    final productName = priceData['product_name'] as String? ?? '';
+
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => PriceDetailPage(price: doc),
+                          ),
+                        );
+                      },
+                      child: Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(AppTheme.paddingSmall),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Expanded(
+                                child: Icon(
+                                  Icons.shopping_bag,
+                                  size: 40,
+                                  color: AppTheme.primaryColor,
+                                ),
+                              ),
+                              const SizedBox(height: AppTheme.paddingSmall),
+                              Text(
+                                productName,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Text(
+                                'R\$ ${(priceData['price'] as num).toStringAsFixed(2)}',
+                                style: AppTheme.priceTextStyle,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
           );
         },
+            ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => AddPricePage(store: store),
+              builder: (_) => AddPricePage(store: widget.store),
             ),
           );
         },
@@ -166,7 +273,7 @@ class StorePricesPage extends ConsumerWidget {
       ),
     );
     if (confirm == true) {
-      await store.reference.delete();
+      await widget.store.reference.delete();
       if (context.mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
