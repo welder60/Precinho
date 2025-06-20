@@ -52,4 +52,27 @@ void main() {
     expect(list.items.first.price, 2.5);
     expect(list.items.first.storeId, 's1');
   });
+
+  test('clear item prices', () {
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    final notifier = container.read(shoppingListProvider.notifier);
+    final listId = notifier.createList('Teste');
+    notifier.addProductToList(
+      listId: listId,
+      productId: '1',
+      productName: 'Banana',
+      quantity: 1,
+      price: 2,
+      storeId: 's1',
+      storeName: 'Loja',
+    );
+
+    notifier.clearPrices(listId);
+
+    final list = container.read(shoppingListProvider).firstWhere((l) => l.id == listId);
+    expect(list.items.first.price, isNull);
+    expect(list.items.first.storeId, isNull);
+    expect(list.items.first.storeName, isNull);
+  });
 }
