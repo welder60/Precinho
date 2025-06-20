@@ -151,7 +151,9 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
           (store.data() as Map<String, dynamic>)['name'] ?? 'Loja';
     });
 
-    for (final item in list.items) {
+    notifier.clearPrices(widget.listId);
+
+    for (final item in list.items.where((e) => !e.isDisabled)) {
       try {
         final snap = await FirebaseFirestore.instance
             .collection('prices')
@@ -206,9 +208,18 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
           if (_selectedStoreName != null)
             Padding(
               padding: const EdgeInsets.only(bottom: AppTheme.paddingSmall),
-              child: Text(
-                'Estabelecimento: $_selectedStoreName',
-                style: Theme.of(context).textTheme.titleMedium,
+              child: Card(
+                color: AppTheme.secondaryColor,
+                child: Padding(
+                  padding: const EdgeInsets.all(AppTheme.paddingSmall),
+                  child: Text(
+                    'Estabelecimento: $_selectedStoreName',
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(color: AppTheme.textOnPrimaryColor),
+                  ),
+                ),
               ),
             ),
           ...list.items.map(
@@ -230,7 +241,26 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
                     vertical: AppTheme.paddingSmall),
                 child: Row(
                   children: [
-                    Expanded(child: Text(item.productName)),
+                    Checkbox(
+                      value: !item.isDisabled,
+                      onChanged: (_) {
+                        ref.read(shoppingListProvider.notifier).toggleItemDisabled(
+                              listId: widget.listId,
+                              itemId: item.id,
+                            );
+                      },
+                    ),
+                    Expanded(
+                      child: Text(
+                        item.productName,
+                        style: item.isDisabled
+                            ? const TextStyle(
+                                decoration: TextDecoration.lineThrough,
+                                color: Colors.grey,
+                              )
+                            : null,
+                      ),
+                    ),
                     Text(priceText),
                     const SizedBox(width: 8),
                     Text(totalText),
@@ -250,7 +280,7 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
                 style: Theme.of(context).textTheme.titleMedium,
               ),
             ),
-          const Divider(),
+          const Divider(thickness: 2),
           if (_isLoadingStores)
             const Center(child: CircularProgressIndicator())
           else if (_stores.isNotEmpty) ...[
