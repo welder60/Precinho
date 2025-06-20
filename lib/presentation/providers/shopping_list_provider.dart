@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../domain/entities/shopping_list.dart';
 import '../../core/constants/enums.dart';
 import '../../data/models/shopping_list_model.dart';
@@ -20,9 +21,10 @@ class ShoppingListNotifier extends StateNotifier<List<ShoppingList>> {
 
   String createList(String name) {
     final id = DateTime.now().millisecondsSinceEpoch.toString();
+    final userId = FirebaseAuth.instance.currentUser?.uid ?? 'local';
     final list = ShoppingList(
       id: id,
-      userId: 'local',
+      userId: userId,
       name: name,
       items: const [],
       status: ShoppingListStatus.active,

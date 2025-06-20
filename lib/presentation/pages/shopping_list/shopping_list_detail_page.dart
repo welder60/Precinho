@@ -15,7 +15,7 @@ class ShoppingListDetailPage extends ConsumerStatefulWidget {
 }
 
 class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage> {
-  String? _selectedStore;
+  final Set<String> _selectedStores = {};
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +23,6 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
     final totals = ref.read(shoppingListProvider.notifier).totalsByStore(widget.listId);
 
     final storeOptions = totals.keys.toList();
-    double totalForStore = 0;
 
     return Scaffold(
       appBar: AppBar(
@@ -32,63 +31,41 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
       body: ListView(
         padding: const EdgeInsets.all(AppTheme.paddingMedium),
         children: [
-          if (storeOptions.isNotEmpty)
-            DropdownButton<String?>(
-              isExpanded: true,
-              value: _selectedStore,
-              hint: const Text('Selecionar estabelecimento'),
-              items: [
-                const DropdownMenuItem<String?>(
-                  value: null,
-                  child: Text('Todos'),
-                ),
-                ...storeOptions.map(
-                  (s) => DropdownMenuItem<String?>(
-                    value: s,
-                    child: Text(s),
-                  ),
-                ),
-              ],
-              onChanged: (value) {
-                setState(() {
-                  _selectedStore = value;
-                });
-              },
-            ),
           ...list.items.map(
             (item) {
-              final price = _selectedStore == null
-                  ? item.price
-                  : item.storeName == _selectedStore
-                      ? item.price
-                      : null;
-              if (_selectedStore != null) {
-                totalForStore += (price ?? 0) * item.quantity;
-              }
               return ListTile(
                 title: Text(item.productName),
                 subtitle: Text(item.storeName ?? '-'),
                 trailing: Text(
-                  price != null
-                      ? '${item.quantity} x ${price.toStringAsFixed(2)}'
+                  item.price != null
+                      ? '${item.quantity} x ${item.price!.toStringAsFixed(2)}'
                       : item.quantity.toString(),
                 ),
               );
             },
           ),
           const Divider(),
-          if (_selectedStore == null)
-            ...totals.entries.map(
-              (e) => ListTile(
-                title: Text(e.key),
-                trailing: Text('R\$ ${e.value.toStringAsFixed(2)}'),
-              ),
-            )
-          else
-            ListTile(
-              title: const Text('Total'),
-              trailing: Text('R\$ ${totalForStore.toStringAsFixed(2)}'),
-            ),
+          ...storeOptions.map(
+            (s) {
+              final selected = _selectedStores.contains(s);
+              return CheckboxListTile(
+                value: selected,
+                title: Text(s),
+                secondary: selected
+                    ? Text('R\$ ${totals[s]!.toStringAsFixed(2)}')
+                    : null,
+                onChanged: (value) {
+                  setState(() {
+                    if (value ?? false) {
+                      _selectedStores.add(s);
+                    } else {
+                      _selectedStores.remove(s);
+                    }
+                  });
+                },
+              );
+            },
+          ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
