@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 
 import '../../../core/themes/app_theme.dart';
+import '../../../core/utils/formatters.dart';
 import '../../providers/shopping_list_provider.dart';
 import '../../providers/store_favorites_provider.dart';
 import '../product/product_search_page.dart';
@@ -21,6 +22,7 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
   bool _isLoadingStores = false;
   String? _selectedStoreId;
   String? _selectedStoreName;
+  final Map<String, double> _storeTotals = {};
 
   @override
   void initState() {
@@ -76,7 +78,53 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
       _stores
         ..clear()
         ..addAll(found.values);
+    });
+
+    await _calculateTotals();
+
+    setState(() {
       _isLoadingStores = false;
+    });
+  }
+
+  Future<void> _calculateTotals() async {
+    final list = ref
+        .read(shoppingListProvider)
+        .firstWhere((e) => e.id == widget.listId);
+
+    final totals = <String, double>{};
+
+    for (final store in _stores) {
+      double sum = 0;
+      for (final item in list.items) {
+        try {
+          final snap = await FirebaseFirestore.instance
+              .collection('prices')
+              .where('product_id', isEqualTo: item.productId)
+              .where('store_id', isEqualTo: store.id)
+              .where('isApproved', isEqualTo: true)
+              .orderBy('created_at', descending: true)
+              .limit(1)
+              .get();
+
+          if (snap.docs.isNotEmpty) {
+            final data = snap.docs.first.data();
+            final price = (data['price'] as num?)?.toDouble();
+            if (price != null) {
+              sum += price * item.quantity;
+            }
+          }
+        } catch (_) {}
+      }
+
+      final name = (store.data() as Map<String, dynamic>)['name'] ?? 'Loja';
+      totals[name] = sum;
+    }
+
+    setState(() {
+      _storeTotals
+        ..clear()
+        ..addAll(totals);
     });
   }
 
@@ -134,7 +182,6 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
   @override
   Widget build(BuildContext context) {
     final list = ref.watch(shoppingListProvider).firstWhere((e) => e.id == widget.listId);
-    final totals = ref.read(shoppingListProvider.notifier).totalsByStore(widget.listId);
 
     return Scaffold(
       appBar: AppBar(
@@ -170,25 +217,20 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
                 child: Text('Selecionado: $_selectedStoreName'),
               ),
             const SizedBox(height: AppTheme.paddingSmall),
-            Wrap(
-              spacing: AppTheme.paddingSmall,
-              children: _stores
-                  .map(
-                    (doc) {
-                      final name =
-                          (doc.data() as Map<String, dynamic>)['name'] ?? 'Loja';
-                      final total = totals[name];
-                      final label = total != null
-                          ? '$name - ${total.toStringAsFixed(2)}'
-                          : name;
-                      return ChoiceChip(
-                        label: Text(label),
-                        selected: doc.id == _selectedStoreId,
-                        onSelected: (_) => _applyStore(doc),
-                      );
-                    },
-                  )
-                  .toList(),
+            Column(
+              children: _stores.map((doc) {
+                final name =
+                    (doc.data() as Map<String, dynamic>)['name'] ?? 'Loja';
+                final total = _storeTotals[name];
+                return ListTile(
+                  title: Text(name),
+                  trailing: Text(
+                    total != null ? Formatters.formatPrice(total) : '-',
+                  ),
+                  selected: doc.id == _selectedStoreId,
+                  onTap: () => _applyStore(doc),
+                );
+              }).toList(),
             ),
           ],
         ],
