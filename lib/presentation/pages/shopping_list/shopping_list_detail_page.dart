@@ -22,7 +22,7 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
   bool _isLoadingStores = false;
   String? _selectedStoreId;
   String? _selectedStoreName;
-  final Map<String, double?> _storeTotals = {};
+  final Map<String, double> _storeTotals = {};
 
   @override
   void initState() {
@@ -92,10 +92,10 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
         .read(shoppingListProvider)
         .firstWhere((e) => e.id == widget.listId);
 
-    final totals = <String, double?>{};
+    final totals = <String, double>{};
 
     for (final store in _stores) {
-      double? sum = 0;
+      double sum = 0;
       for (final item in list.items.where((e) => !e.isDisabled)) {
         try {
           final snap = await FirebaseFirestore.instance
@@ -111,18 +111,11 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
             final data = snap.docs.first.data();
             final price = (data['price'] as num?)?.toDouble();
             if (price != null) {
-              sum = (sum ?? 0) + price * item.quantity;
-            } else {
-              sum = null;
-              break;
+              sum += price * item.quantity;
             }
-          } else {
-            sum = null;
-            break;
           }
         } catch (_) {
-          sum = null;
-          break;
+          // ignore
         }
       }
 
@@ -294,7 +287,7 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
           if (_selectedStoreId != null &&
               list.items
                   .where((e) => !e.isDisabled)
-                  .every((e) => e.price != null))
+                  .any((e) => e.price != null))
             Padding(
               padding:
                   const EdgeInsets.symmetric(vertical: AppTheme.paddingSmall),
@@ -318,7 +311,7 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
                 final data = doc.data() as Map<String, dynamic>;
                 final name = data['name'] ?? 'Loja';
                 final isFav = ref.watch(storeFavoritesProvider).contains(doc.id);
-                final total = _storeTotals[doc.id];
+                final total = _storeTotals[doc.id] ?? 0;
                 return Card(
                   child: ListTile(
                     leading: const Icon(
@@ -329,11 +322,7 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
-                          total != null
-                              ? Formatters.formatPrice(total)
-                              : '-',
-                        ),
+                        Text(Formatters.formatPrice(total)),
                         IconButton(
                           icon: Icon(
                             isFav ? Icons.star : Icons.star_border,
