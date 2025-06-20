@@ -10,6 +10,7 @@ import '../../../core/themes/app_theme.dart';
 import '../../../core/constants/enums.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/logging/firebase_logger.dart';
+import '../product/product_search_page.dart';
 
 class EditProductPage extends StatefulWidget {
   final DocumentSnapshot document;
@@ -32,6 +33,10 @@ class _EditProductPageState extends State<EditProductPage> {
   final List<String> _categories = [];
   final TextEditingController _categoryController = TextEditingController();
   String? _imageUrl;
+  final TextEditingController _equivalentProductController = TextEditingController();
+  DocumentSnapshot? _equivalentProduct;
+  bool _isFractional = false;
+  String? _equivalenceGroupId;
 
   @override
   void initState() {
@@ -51,6 +56,8 @@ class _EditProductPageState extends State<EditProductPage> {
       _categories.addAll(List<String>.from(data['categories'] as List));
     }
     _imageUrl = data['image_url'] as String?;
+    _isFractional = data['is_fractional'] as bool? ?? false;
+    _equivalenceGroupId = data['equivalence_group_id'] as String?;
   }
 
   @override
@@ -61,6 +68,7 @@ class _EditProductPageState extends State<EditProductPage> {
     _barcodeController.dispose();
     _descriptionController.dispose();
     _categoryController.dispose();
+    _equivalentProductController.dispose();
     super.dispose();
   }
 
@@ -83,6 +91,24 @@ class _EditProductPageState extends State<EditProductPage> {
     }
   }
 
+  Future<void> _selectEquivalentProduct() async {
+    final doc = await Navigator.push<DocumentSnapshot>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ProductSearchPage(
+          onSelected: (p) => Navigator.pop(context, p),
+        ),
+      ),
+    );
+    if (doc != null) {
+      setState(() {
+        _equivalentProduct = doc;
+        _equivalentProductController.text =
+            (doc.data() as Map<String, dynamic>)['name'] ?? '';
+      });
+    }
+  }
+
   Future<void> _submit() async {
     if (_formKey.currentState!.validate()) {
       try {
@@ -96,6 +122,20 @@ class _EditProductPageState extends State<EditProductPage> {
           FirebaseLogger.log('Image uploaded', {'url': imageUrl});
         }
 
+        String? equivalenceGroupId = _equivalenceGroupId;
+        if (_equivalentProduct != null) {
+          final dataOther = _equivalentProduct!.data() as Map<String, dynamic>;
+          final otherGroup = dataOther['equivalence_group_id'] as String?;
+          equivalenceGroupId ??= otherGroup;
+          if (equivalenceGroupId == null) {
+            equivalenceGroupId = const Uuid().v4();
+          }
+          if (otherGroup != equivalenceGroupId) {
+            await _equivalentProduct!.reference
+                .update({'equivalence_group_id': equivalenceGroupId});
+          }
+        }
+
         final data = {
           'name': _nameController.text.trim(),
           'brand': _brandController.text.trim(),
@@ -106,6 +146,9 @@ class _EditProductPageState extends State<EditProductPage> {
           'categories': _categories,
           'image_url': imageUrl,
           'updated_at': Timestamp.now(),
+          'is_fractional': _isFractional,
+          if (equivalenceGroupId != null)
+            'equivalence_group_id': equivalenceGroupId,
         };
 
         FirebaseLogger.log('Updating product', {'id': widget.document.id});
@@ -225,6 +268,17 @@ class _EditProductPageState extends State<EditProductPage> {
                     .toList(),
               ),
               const SizedBox(height: AppTheme.paddingMedium),
+              TextFormField(
+                controller: _equivalentProductController,
+                readOnly: true,
+                decoration: const InputDecoration(
+                  labelText: 'Produto equivalente',
+                  prefixIcon: Icon(Icons.link),
+                  suffixIcon: Icon(Icons.search),
+                ),
+                onTap: _selectEquivalentProduct,
+              ),
+              const SizedBox(height: AppTheme.paddingMedium),
               OutlinedButton(
                 onPressed: _pickImage,
                 child: const Text('Selecionar Foto'),
@@ -247,6 +301,12 @@ class _EditProductPageState extends State<EditProductPage> {
                     fit: BoxFit.cover,
                   ),
                 ],
+              const SizedBox(height: AppTheme.paddingMedium),
+              SwitchListTile(
+                title: const Text('Produto fracionado'),
+                value: _isFractional,
+                onChanged: (v) => setState(() => _isFractional = v),
+              ),
               const SizedBox(height: AppTheme.paddingMedium),
               TextFormField(
                 controller: _descriptionController,
