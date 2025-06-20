@@ -1,24 +1,34 @@
-import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../models/shopping_list_model.dart';
 
 class ShoppingListStorage {
-  static const _listsKey = 'shopping_lists';
+  final _firestore = FirebaseFirestore.instance;
+  final _auth = FirebaseAuth.instance;
 
   Future<List<ShoppingListModel>> loadLists() async {
-    final prefs = await SharedPreferences.getInstance();
-    final jsonString = prefs.getString(_listsKey);
-    if (jsonString == null) return [];
-    final List<dynamic> data = json.decode(jsonString) as List<dynamic>;
-    return data
-        .map((e) => ShoppingListModel.fromJson(e as Map<String, dynamic>))
+    final uid = _auth.currentUser?.uid;
+    if (uid == null) return [];
+    final snap = await _firestore
+        .collection('shopping_lists')
+        .where('user_id', isEqualTo: uid)
+        .get();
+    return snap.docs
+        .map((e) =>
+            ShoppingListModel.fromJson({...e.data(), 'id': e.id}))
         .toList();
   }
 
   Future<void> saveLists(List<ShoppingListModel> lists) async {
-    final prefs = await SharedPreferences.getInstance();
-    final data = lists.map((e) => e.toJson()).toList();
-    await prefs.setString(_listsKey, json.encode(data));
+    final uid = _auth.currentUser?.uid;
+    if (uid == null) return;
+    final batch = _firestore.batch();
+    final collection = _firestore.collection('shopping_lists');
+    for (final list in lists) {
+      final doc = collection.doc(list.id);
+      batch.set(doc, list.toJson());
+    }
+    await batch.commit();
   }
 }
