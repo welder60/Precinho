@@ -39,8 +39,7 @@ class ProductDetailPage extends ConsumerWidget {
           if (data['image_url'] != null && (data['image_url'] as String).isNotEmpty)
             Image.network(
               data['image_url'],
-              width: double.infinity,
-              height: 200,
+              height: 150,
               fit: BoxFit.cover,
             ),
           Padding(
