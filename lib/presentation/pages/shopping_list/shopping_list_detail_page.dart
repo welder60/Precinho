@@ -19,6 +19,8 @@ class ShoppingListDetailPage extends ConsumerStatefulWidget {
 class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage> {
   final List<DocumentSnapshot> _stores = [];
   bool _isLoadingStores = false;
+  String? _selectedStoreId;
+  String? _selectedStoreName;
 
   @override
   void initState() {
@@ -82,6 +84,11 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
     final notifier = ref.read(shoppingListProvider.notifier);
     final list = notifier.getList(widget.listId);
     if (list == null) return;
+    setState(() {
+      _selectedStoreId = store.id;
+      _selectedStoreName =
+          (store.data() as Map<String, dynamic>)['name'] ?? 'Loja';
+    });
 
     for (final item in list.items) {
       try {
@@ -101,10 +108,26 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
             productId: item.productId,
             price: price,
             storeId: store.id,
-            storeName: data['store_name'] ?? (store.data() as Map<String, dynamic>)['name'],
+            storeName: _selectedStoreName,
+          );
+        } else {
+          notifier.updateItemPrice(
+            listId: widget.listId,
+            productId: item.productId,
+            price: null,
+            storeId: store.id,
+            storeName: _selectedStoreName,
           );
         }
-      } catch (_) {}
+      } catch (_) {
+        notifier.updateItemPrice(
+          listId: widget.listId,
+          productId: item.productId,
+          price: null,
+          storeId: store.id,
+          storeName: _selectedStoreName,
+        );
+      }
     }
   }
 
@@ -128,7 +151,7 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
                 trailing: Text(
                   item.price != null
                       ? '${item.quantity} x ${item.price!.toStringAsFixed(2)}'
-                      : item.quantity.toString(),
+                      : '${item.quantity} x -',
                 ),
               );
             },
@@ -141,17 +164,29 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
               'Estabelecimentos',
               style: Theme.of(context).textTheme.titleMedium,
             ),
+            if (_selectedStoreName != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: AppTheme.paddingSmall),
+                child: Text('Selecionado: $_selectedStoreName'),
+              ),
             const SizedBox(height: AppTheme.paddingSmall),
             Wrap(
               spacing: AppTheme.paddingSmall,
               children: _stores
                   .map(
-                    (doc) => ActionChip(
-                      label: Text(
-                        (doc.data() as Map<String, dynamic>)['name'] ?? 'Loja',
-                      ),
-                      onPressed: () => _applyStore(doc),
-                    ),
+                    (doc) {
+                      final name =
+                          (doc.data() as Map<String, dynamic>)['name'] ?? 'Loja';
+                      final total = totals[name];
+                      final label = total != null
+                          ? '$name - ${total.toStringAsFixed(2)}'
+                          : name;
+                      return ChoiceChip(
+                        label: Text(label),
+                        selected: doc.id == _selectedStoreId,
+                        onSelected: (_) => _applyStore(doc),
+                      );
+                    },
                   )
                   .toList(),
             ),
