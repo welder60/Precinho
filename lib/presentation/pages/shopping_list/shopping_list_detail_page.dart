@@ -96,7 +96,7 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
 
     for (final store in _stores) {
       double? sum = 0;
-      for (final item in list.items) {
+      for (final item in list.items.where((e) => !e.isDisabled)) {
         try {
           final snap = await FirebaseFirestore.instance
               .collection('prices')
@@ -209,16 +209,33 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
             Padding(
               padding: const EdgeInsets.only(bottom: AppTheme.paddingSmall),
               child: Card(
-                color: AppTheme.secondaryColor,
-                child: Padding(
-                  padding: const EdgeInsets.all(AppTheme.paddingSmall),
-                  child: Text(
-                    'Estabelecimento: $_selectedStoreName',
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(color: AppTheme.textOnPrimaryColor),
+                child: ListTile(
+                  leading: const Icon(
+                    Icons.store,
+                    color: AppTheme.primaryColor,
                   ),
+                  title: Text(_selectedStoreName!),
+                  trailing: _selectedStoreId != null
+                      ? IconButton(
+                          icon: Icon(
+                            ref
+                                    .watch(storeFavoritesProvider)
+                                    .contains(_selectedStoreId)
+                                ? Icons.star
+                                : Icons.star_border,
+                            color: ref
+                                    .watch(storeFavoritesProvider)
+                                    .contains(_selectedStoreId)
+                                ? Colors.amber
+                                : AppTheme.textSecondaryColor,
+                          ),
+                          onPressed: () {
+                            ref
+                                .read(storeFavoritesProvider.notifier)
+                                .toggleFavorite(_selectedStoreId!);
+                          },
+                        )
+                      : null,
                 ),
               ),
             ),
@@ -244,10 +261,13 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
                     Checkbox(
                       value: !item.isDisabled,
                       onChanged: (_) {
-                        ref.read(shoppingListProvider.notifier).toggleItemDisabled(
+                        ref
+                            .read(shoppingListProvider.notifier)
+                            .toggleItemDisabled(
                               listId: widget.listId,
                               itemId: item.id,
                             );
+                        _calculateTotals();
                       },
                     ),
                     Expanded(
@@ -270,13 +290,15 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
             },
           ),
           if (_selectedStoreId != null &&
-              list.items.every((e) => e.price != null))
+              list.items
+                  .where((e) => !e.isDisabled)
+                  .every((e) => e.price != null))
             Padding(
               padding:
                   const EdgeInsets.symmetric(vertical: AppTheme.paddingSmall),
               child: Text(
                 'Total: '
-                '${Formatters.formatPrice(list.items.fold<double>(0, (p, e) => p + (e.price ?? 0) * e.quantity))}',
+                '${Formatters.formatPrice(list.items.where((e) => !e.isDisabled).fold<double>(0, (p, e) => p + (e.price ?? 0) * e.quantity))}',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
             ),
