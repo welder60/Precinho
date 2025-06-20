@@ -117,14 +117,18 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
         } catch (_) {}
       }
 
-      final name = (store.data() as Map<String, dynamic>)['name'] ?? 'Loja';
-      totals[name] = sum;
+      totals[store.id] = sum;
     }
 
     setState(() {
       _storeTotals
         ..clear()
         ..addAll(totals);
+      _stores.sort((a, b) {
+        final at = totals[a.id] ?? double.infinity;
+        final bt = totals[b.id] ?? double.infinity;
+        return at.compareTo(bt);
+      });
     });
   }
 
@@ -194,7 +198,6 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
             (item) {
               return ListTile(
                 title: Text(item.productName),
-                subtitle: Text(item.storeName ?? '-'),
                 trailing: Text(
                   item.price != null
                       ? '${item.quantity} x ${item.price!.toStringAsFixed(2)}'
@@ -202,6 +205,14 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
                 ),
               );
             },
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: AppTheme.paddingSmall),
+            child: Text(
+              'Total: '
+              '${Formatters.formatPrice(list.items.fold<double>(0, (p, e) => p + (e.price ?? 0) * e.quantity))}',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
           ),
           const Divider(),
           if (_isLoadingStores)
@@ -219,16 +230,42 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
             const SizedBox(height: AppTheme.paddingSmall),
             Column(
               children: _stores.map((doc) {
-                final name =
-                    (doc.data() as Map<String, dynamic>)['name'] ?? 'Loja';
-                final total = _storeTotals[name];
-                return ListTile(
-                  title: Text(name),
-                  trailing: Text(
-                    total != null ? Formatters.formatPrice(total) : '-',
+                final data = doc.data() as Map<String, dynamic>;
+                final name = data['name'] ?? 'Loja';
+                final isFav = ref.watch(storeFavoritesProvider).contains(doc.id);
+                final total = _storeTotals[doc.id];
+                return Card(
+                  child: ListTile(
+                    leading: const Icon(
+                      Icons.store,
+                      color: AppTheme.primaryColor,
+                    ),
+                    title: Text(name),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          total != null
+                              ? Formatters.formatPrice(total)
+                              : '-',
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            isFav ? Icons.star : Icons.star_border,
+                            color: isFav
+                                ? Colors.amber
+                                : AppTheme.textSecondaryColor,
+                          ),
+                          onPressed: () {
+                            ref
+                                .read(storeFavoritesProvider.notifier)
+                                .toggleFavorite(doc.id);
+                          },
+                        ),
+                      ],
+                    ),
+                    onTap: () => _applyStore(doc),
                   ),
-                  selected: doc.id == _selectedStoreId,
-                  onTap: () => _applyStore(doc),
                 );
               }).toList(),
             ),
