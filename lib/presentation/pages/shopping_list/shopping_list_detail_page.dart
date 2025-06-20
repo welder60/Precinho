@@ -243,13 +243,6 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
             ),
           ...list.items.map(
             (item) {
-              final hasPrice = _selectedStoreId != null && item.price != null;
-              final priceText = hasPrice
-                  ? '${item.quantity} x ${item.price!.toStringAsFixed(2)}'
-                  : '${item.quantity} x -';
-              final totalText = hasPrice
-                  ? Formatters.formatPrice(item.price! * item.quantity)
-                  : '-';
               return Container(
                 decoration: BoxDecoration(
                   border: Border(
@@ -283,27 +276,11 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
                             : null,
                       ),
                     ),
-                    Text(priceText),
-                    const SizedBox(width: 8),
-                    Text(totalText),
                   ],
                 ),
               );
             },
           ),
-          if (_selectedStoreId != null &&
-              list.items
-                  .where((e) => !e.isDisabled)
-                  .every((e) => e.price != null))
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: AppTheme.paddingSmall),
-              child: Text(
-                'Total: '
-                '${Formatters.formatPrice(list.items.where((e) => !e.isDisabled).fold<double>(0, (p, e) => p + (e.price ?? 0) * e.quantity))}',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-            ),
           const Divider(thickness: 2),
           if (_isLoadingStores)
             const Center(child: CircularProgressIndicator())
