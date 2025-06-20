@@ -10,6 +10,7 @@ class Product extends Equatable {
   final ProductCategory category;
   final String? barcode;
   final String? equivalenceGroupId;
+  final bool isFractional;
   final bool isApproved;
   final ModerationStatus status;
   final String createdByUserId;
@@ -28,6 +29,7 @@ class Product extends Equatable {
     required this.category,
     this.barcode,
     this.equivalenceGroupId,
+    required this.isFractional,
     required this.isApproved,
     required this.status,
     required this.createdByUserId,
@@ -47,6 +49,7 @@ class Product extends Equatable {
     ProductCategory? category,
     String? barcode,
     String? equivalenceGroupId,
+    bool? isFractional,
     bool? isApproved,
     ModerationStatus? status,
     String? createdByUserId,
@@ -65,6 +68,7 @@ class Product extends Equatable {
       category: category ?? this.category,
       barcode: barcode ?? this.barcode,
       equivalenceGroupId: equivalenceGroupId ?? this.equivalenceGroupId,
+      isFractional: isFractional ?? this.isFractional,
       isApproved: isApproved ?? this.isApproved,
       status: status ?? this.status,
       createdByUserId: createdByUserId ?? this.createdByUserId,
@@ -90,6 +94,7 @@ class Product extends Equatable {
         category,
         barcode,
         equivalenceGroupId,
+        isFractional,
         isApproved,
         status,
         createdByUserId,
@@ -102,7 +107,7 @@ class Product extends Equatable {
 
   @override
   String toString() {
-    return 'Product(id: $id, name: $name, brand: $brand, category: $category, isApproved: $isApproved)';
+    return 'Product(id: $id, name: $name, brand: $brand, category: $category, isApproved: $isApproved, fractional: $isFractional)';
   }
 }
 

@@ -10,6 +10,7 @@ import '../../../core/themes/app_theme.dart';
 import '../../../core/constants/enums.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/logging/firebase_logger.dart';
+import '../product/product_search_page.dart';
 
 class AddProductPage extends StatefulWidget {
   const AddProductPage({super.key});
@@ -30,6 +31,9 @@ class _AddProductPageState extends State<AddProductPage> {
   String? _unit;
   final List<String> _categories = [];
   final TextEditingController _categoryController = TextEditingController();
+  final TextEditingController _equivalentProductController = TextEditingController();
+  DocumentSnapshot? _equivalentProduct;
+  bool _isFractional = false;
 
   @override
   void dispose() {
@@ -39,6 +43,7 @@ class _AddProductPageState extends State<AddProductPage> {
     _barcodeController.dispose();
     _descriptionController.dispose();
     _categoryController.dispose();
+    _equivalentProductController.dispose();
     super.dispose();
   }
 
@@ -61,6 +66,24 @@ class _AddProductPageState extends State<AddProductPage> {
     }
   }
 
+  Future<void> _selectEquivalentProduct() async {
+    final doc = await Navigator.push<DocumentSnapshot>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ProductSearchPage(
+          onSelected: (p) => Navigator.pop(context, p),
+        ),
+      ),
+    );
+    if (doc != null) {
+      setState(() {
+        _equivalentProduct = doc;
+        _equivalentProductController.text =
+            (doc.data() as Map<String, dynamic>)['name'] ?? '';
+      });
+    }
+  }
+
   Future<void> _submit() async {
     if (_formKey.currentState!.validate()) {
       try {
@@ -76,6 +99,17 @@ class _AddProductPageState extends State<AddProductPage> {
           FirebaseLogger.log('Image uploaded', {'url': imageUrl});
         }
 
+        String? equivalenceGroupId;
+        if (_equivalentProduct != null) {
+          final data = _equivalentProduct!.data() as Map<String, dynamic>;
+          equivalenceGroupId = data['equivalence_group_id'] as String?;
+          if (equivalenceGroupId == null) {
+            equivalenceGroupId = const Uuid().v4();
+            await _equivalentProduct!.reference
+                .update({'equivalence_group_id': equivalenceGroupId});
+          }
+        }
+
         final data = {
           'name': _nameController.text.trim(),
           'brand': _brandController.text.trim(),
@@ -86,6 +120,9 @@ class _AddProductPageState extends State<AddProductPage> {
           'categories': _categories,
           'image_url': imageUrl,
           'created_at': Timestamp.now(),
+          'is_fractional': _isFractional,
+          if (equivalenceGroupId != null)
+            'equivalence_group_id': equivalenceGroupId,
         };
 
         FirebaseLogger.log('Adding product', data);
@@ -205,6 +242,17 @@ class _AddProductPageState extends State<AddProductPage> {
                     .toList(),
               ),
               const SizedBox(height: AppTheme.paddingMedium),
+              TextFormField(
+                controller: _equivalentProductController,
+                readOnly: true,
+                decoration: const InputDecoration(
+                  labelText: 'Produto equivalente',
+                  prefixIcon: Icon(Icons.link),
+                  suffixIcon: Icon(Icons.search),
+                ),
+                onTap: _selectEquivalentProduct,
+              ),
+              const SizedBox(height: AppTheme.paddingMedium),
               OutlinedButton(
                 onPressed: _pickImage,
                 child: const Text('Selecionar Foto'),
@@ -217,6 +265,12 @@ class _AddProductPageState extends State<AddProductPage> {
                   fit: BoxFit.cover,
                 ),
               ],
+              const SizedBox(height: AppTheme.paddingMedium),
+              SwitchListTile(
+                title: const Text('Produto fracionado'),
+                value: _isFractional,
+                onChanged: (v) => setState(() => _isFractional = v),
+              ),
               const SizedBox(height: AppTheme.paddingMedium),
               TextFormField(
                 controller: _descriptionController,
