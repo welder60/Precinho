@@ -29,4 +29,27 @@ void main() {
     final totals = notifier.totalsByStore(listId);
     expect(totals['Loja'], 6);
   });
+
+  test('update item price', () {
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    final notifier = container.read(shoppingListProvider.notifier);
+    final listId = notifier.createList('Teste');
+    notifier.addProductToList(
+      listId: listId,
+      productId: '1',
+      productName: 'Banana',
+      quantity: 1,
+    );
+    notifier.updateItemPrice(
+      listId: listId,
+      productId: '1',
+      price: 2.5,
+      storeId: 's1',
+      storeName: 'Loja',
+    );
+    final list = container.read(shoppingListProvider).firstWhere((l) => l.id == listId);
+    expect(list.items.first.price, 2.5);
+    expect(list.items.first.storeId, 's1');
+  });
 }
