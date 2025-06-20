@@ -61,6 +61,7 @@ class ShoppingListNotifier extends StateNotifier<List<ShoppingList>> {
                 storeId: storeId,
                 storeName: storeName,
                 isCompleted: false,
+                isDisabled: false,
                 createdAt: DateTime.now(),
                 updatedAt: DateTime.now(),
                 notes: null,
@@ -107,6 +108,51 @@ class ShoppingListNotifier extends StateNotifier<List<ShoppingList>> {
         .saveLists(state.map((e) => ShoppingListModel.fromEntity(e)).toList());
   }
 
+  void toggleItemDisabled({required String listId, required String itemId}) {
+    state = [
+      for (final l in state)
+        if (l.id == listId)
+          l.copyWith(
+            items: [
+              for (final item in l.items)
+                if (item.id == itemId)
+                  item.copyWith(
+                    isDisabled: !item.isDisabled,
+                    updatedAt: DateTime.now(),
+                  )
+                else
+                  item,
+            ],
+            updatedAt: DateTime.now(),
+          )
+        else
+          l
+    ];
+    _storage.saveLists(state.map((e) => ShoppingListModel.fromEntity(e)).toList());
+  }
+
+  void clearPrices(String listId) {
+    state = [
+      for (final l in state)
+        if (l.id == listId)
+          l.copyWith(
+            items: [
+              for (final item in l.items)
+                item.copyWith(
+                  price: null,
+                  storeId: null,
+                  storeName: null,
+                  updatedAt: DateTime.now(),
+                )
+            ],
+            updatedAt: DateTime.now(),
+          )
+        else
+          l
+    ];
+    _storage.saveLists(state.map((e) => ShoppingListModel.fromEntity(e)).toList());
+  }
+
   ShoppingList? getList(String id) {
     for (final list in state) {
       if (list.id == id) return list;
@@ -118,7 +164,7 @@ class ShoppingListNotifier extends StateNotifier<List<ShoppingList>> {
     final list = getList(listId);
     if (list == null) return {};
     final totals = <String, double>{};
-    for (final item in list.items) {
+    for (final item in list.items.where((e) => !e.isDisabled)) {
       final store = item.storeName ?? 'Indefinido';
       final price = item.price ?? 0;
       totals[store] = (totals[store] ?? 0) + price * item.quantity;

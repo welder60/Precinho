@@ -10,6 +10,7 @@ class ShoppingListItem extends Equatable {
   final String? storeId;
   final String? storeName;
   final bool isCompleted;
+  final bool isDisabled;
   final String? notes;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -23,6 +24,7 @@ class ShoppingListItem extends Equatable {
     this.storeId,
     this.storeName,
     required this.isCompleted,
+    this.isDisabled = false,
     this.notes,
     required this.createdAt,
     required this.updatedAt,
@@ -37,6 +39,7 @@ class ShoppingListItem extends Equatable {
     String? storeId,
     String? storeName,
     bool? isCompleted,
+    bool? isDisabled,
     String? notes,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -50,6 +53,7 @@ class ShoppingListItem extends Equatable {
       storeId: storeId ?? this.storeId,
       storeName: storeName ?? this.storeName,
       isCompleted: isCompleted ?? this.isCompleted,
+      isDisabled: isDisabled ?? this.isDisabled,
       notes: notes ?? this.notes,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -66,6 +70,7 @@ class ShoppingListItem extends Equatable {
         storeId,
         storeName,
         isCompleted,
+        isDisabled,
         notes,
         createdAt,
         updatedAt,
