@@ -154,15 +154,6 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
     notifier.clearPrices(widget.listId);
 
     for (final item in list.items.where((e) => !e.isDisabled)) {
-      // Reset value to avoid showing stale data while loading
-      notifier.updateItemPrice(
-        listId: widget.listId,
-        productId: item.productId,
-        price: null,
-        storeId: store.id,
-        storeName: _selectedStoreName,
-      );
-
       try {
         final snap = await FirebaseFirestore.instance
             .collection('prices')
@@ -175,18 +166,30 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
         if (snap.docs.isNotEmpty) {
           final data = snap.docs.first.data();
           final price = (data['price'] as num?)?.toDouble();
-          if (price != null) {
-            notifier.updateItemPrice(
-              listId: widget.listId,
-              productId: item.productId,
-              price: price,
-              storeId: store.id,
-              storeName: _selectedStoreName,
-            );
-          }
+          notifier.updateItemPrice(
+            listId: widget.listId,
+            productId: item.productId,
+            price: price,
+            storeId: store.id,
+            storeName: _selectedStoreName,
+          );
+        } else {
+          notifier.updateItemPrice(
+            listId: widget.listId,
+            productId: item.productId,
+            price: null,
+            storeId: store.id,
+            storeName: _selectedStoreName,
+          );
         }
       } catch (_) {
-        // ignore and keep previous null
+        notifier.updateItemPrice(
+          listId: widget.listId,
+          productId: item.productId,
+          price: null,
+          storeId: store.id,
+          storeName: _selectedStoreName,
+        );
       }
     }
 
