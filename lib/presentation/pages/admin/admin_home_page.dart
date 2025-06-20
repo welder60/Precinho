@@ -4,6 +4,7 @@ import 'add_product_page.dart';
 import 'manage_products_page.dart';
 import 'manage_users_page.dart';
 import 'validate_prices_page.dart';
+import 'manage_stores_page.dart';
 
 class AdminHomePage extends StatelessWidget {
   const AdminHomePage({super.key});
@@ -30,6 +31,19 @@ class AdminHomePage extends StatelessWidget {
               },
               icon: const Icon(Icons.add),
               label: const Text('Adicionar Produto'),
+            ),
+            const SizedBox(height: AppTheme.paddingMedium),
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const ManageStoresPage(),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.store),
+              label: const Text('Gerenciar Com\u00e9rcios'),
             ),
             const SizedBox(height: AppTheme.paddingMedium),
             ElevatedButton.icon(
