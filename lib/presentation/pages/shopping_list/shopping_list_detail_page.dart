@@ -192,6 +192,8 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
         );
       }
     }
+
+    await _calculateTotals();
   }
 
   @override
