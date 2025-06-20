@@ -30,12 +30,14 @@ class ShoppingListItem extends Equatable {
     required this.updatedAt,
   });
 
+  static const _undefined = Object();
+
   ShoppingListItem copyWith({
     String? id,
     String? productId,
     String? productName,
     double? quantity,
-    double? price,
+    Object? price = _undefined,
     String? storeId,
     String? storeName,
     bool? isCompleted,
@@ -49,7 +51,7 @@ class ShoppingListItem extends Equatable {
       productId: productId ?? this.productId,
       productName: productName ?? this.productName,
       quantity: quantity ?? this.quantity,
-      price: price ?? this.price,
+      price: identical(price, _undefined) ? this.price : price as double?,
       storeId: storeId ?? this.storeId,
       storeName: storeName ?? this.storeName,
       isCompleted: isCompleted ?? this.isCompleted,
