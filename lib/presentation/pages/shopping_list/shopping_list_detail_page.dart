@@ -276,6 +276,18 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
                             : null,
                       ),
                     ),
+                    if (_selectedStoreId != null)
+                      Text(
+                        item.price != null
+                            ? Formatters.formatPrice(item.price!)
+                            : '-',
+                        style: item.isDisabled
+                            ? const TextStyle(
+                                decoration: TextDecoration.lineThrough,
+                                color: Colors.grey,
+                              )
+                            : AppTheme.priceTextStyle,
+                      ),
                   ],
                 ),
               );
