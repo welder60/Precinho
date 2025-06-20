@@ -22,7 +22,7 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
   bool _isLoadingStores = false;
   String? _selectedStoreId;
   String? _selectedStoreName;
-  final Map<String, double> _storeTotals = {};
+  final Map<String, double?> _storeTotals = {};
 
   @override
   void initState() {
@@ -92,10 +92,10 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
         .read(shoppingListProvider)
         .firstWhere((e) => e.id == widget.listId);
 
-    final totals = <String, double>{};
+    final totals = <String, double?>{};
 
     for (final store in _stores) {
-      double sum = 0;
+      double? sum = 0;
       for (final item in list.items) {
         try {
           final snap = await FirebaseFirestore.instance
@@ -111,10 +111,19 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
             final data = snap.docs.first.data();
             final price = (data['price'] as num?)?.toDouble();
             if (price != null) {
-              sum += price * item.quantity;
+              sum = (sum ?? 0) + price * item.quantity;
+            } else {
+              sum = null;
+              break;
             }
+          } else {
+            sum = null;
+            break;
           }
-        } catch (_) {}
+        } catch (_) {
+          sum = null;
+          break;
+        }
       }
 
       totals[store.id] = sum;
@@ -194,26 +203,53 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
       body: ListView(
         padding: const EdgeInsets.all(AppTheme.paddingMedium),
         children: [
+          if (_selectedStoreName != null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: AppTheme.paddingSmall),
+              child: Text(
+                'Estabelecimento: $_selectedStoreName',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ),
           ...list.items.map(
             (item) {
-              return ListTile(
-                title: Text(item.productName),
-                trailing: Text(
-                  item.price != null
-                      ? '${item.quantity} x ${item.price!.toStringAsFixed(2)}'
-                      : '${item.quantity} x -',
+              final hasPrice = _selectedStoreId != null && item.price != null;
+              final priceText = hasPrice
+                  ? '${item.quantity} x ${item.price!.toStringAsFixed(2)}'
+                  : '${item.quantity} x -';
+              final totalText = hasPrice
+                  ? Formatters.formatPrice(item.price! * item.quantity)
+                  : '-';
+              return Container(
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(color: Colors.grey.shade300),
+                  ),
+                ),
+                padding: const EdgeInsets.symmetric(
+                    vertical: AppTheme.paddingSmall),
+                child: Row(
+                  children: [
+                    Expanded(child: Text(item.productName)),
+                    Text(priceText),
+                    const SizedBox(width: 8),
+                    Text(totalText),
+                  ],
                 ),
               );
             },
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: AppTheme.paddingSmall),
-            child: Text(
-              'Total: '
-              '${Formatters.formatPrice(list.items.fold<double>(0, (p, e) => p + (e.price ?? 0) * e.quantity))}',
-              style: Theme.of(context).textTheme.titleMedium,
+          if (_selectedStoreId != null &&
+              list.items.every((e) => e.price != null))
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(vertical: AppTheme.paddingSmall),
+              child: Text(
+                'Total: '
+                '${Formatters.formatPrice(list.items.fold<double>(0, (p, e) => p + (e.price ?? 0) * e.quantity))}',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
             ),
-          ),
           const Divider(),
           if (_isLoadingStores)
             const Center(child: CircularProgressIndicator())
@@ -222,11 +258,6 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
               'Estabelecimentos',
               style: Theme.of(context).textTheme.titleMedium,
             ),
-            if (_selectedStoreName != null)
-              Padding(
-                padding: const EdgeInsets.only(bottom: AppTheme.paddingSmall),
-                child: Text('Selecionado: $_selectedStoreName'),
-              ),
             const SizedBox(height: AppTheme.paddingSmall),
             Column(
               children: _stores.map((doc) {
