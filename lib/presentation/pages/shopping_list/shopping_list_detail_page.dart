@@ -88,9 +88,9 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
   }
 
   Future<void> _calculateTotals() async {
-    final list = ref
-        .read(shoppingListProvider)
-        .firstWhere((e) => e.id == widget.listId);
+    final notifier = ref.read(shoppingListProvider.notifier);
+    final list = notifier.getList(widget.listId);
+    if (list == null) return;
 
     final totals = <String, double?>{};
 
@@ -112,6 +112,18 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
             final price = (data['price'] as num?)?.toDouble();
             if (price != null) {
               sum = (sum ?? 0) + price * item.quantity;
+
+              // Synchronize item price with the list state
+              if (item.price != price || item.storeId != store.id) {
+                notifier.updateItemPrice(
+                  listId: widget.listId,
+                  productId: item.productId,
+                  price: price,
+                  storeId: store.id,
+                  storeName:
+                      (store.data() as Map<String, dynamic>)['name'] ?? 'Loja',
+                );
+              }
             } else {
               sum = null;
               break;
