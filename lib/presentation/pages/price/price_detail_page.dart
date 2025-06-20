@@ -84,7 +84,7 @@ class PriceDetailPage extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
 
-          return Padding(
+          return SingleChildScrollView(
             padding: const EdgeInsets.all(AppTheme.paddingLarge),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
