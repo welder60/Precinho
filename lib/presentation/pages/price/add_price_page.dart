@@ -174,7 +174,7 @@ class _AddPricePageState extends State<AddPricePage> {
           for (final doc in snap.docs) {
             final prev = (doc.data()['price'] as num?)?.toDouble();
             if (prev != null && prev != priceValue) {
-              variation = ((priceValue - prev) / prev) * 100;
+              variation = (((priceValue ?? 0.0) - (prev ?? 0.0)) / (prev ?? 1.0)) * 100;
               break;
             }
           }
