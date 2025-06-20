@@ -73,27 +73,24 @@ lib/
 ├── core/                    # Núcleo da aplicação
 │   ├── constants/          # Constantes e enums
 │   ├── errors/             # Classes de erro
-│   ├── utils/              # Utilitários e validadores
-│   └── themes/             # Temas e estilos
+│   ├── logging/            # Utilitários de log
+│   ├── themes/             # Temas e estilos
+│   └── utils/              # Funções auxiliares
 ├── data/                   # Camada de dados
 │   ├── datasources/        # Fontes de dados (API, local)
-│   ├── models/             # Modelos de dados
-│   └── repositories/       # Implementação de repositórios
+│   └── models/             # Modelos de dados
 ├── domain/                 # Camada de domínio
-│   ├── entities/           # Entidades de negócio
-│   ├── repositories/       # Contratos de repositórios
-│   └── usecases/           # Casos de uso
+│   └── entities/           # Entidades de negócio
 └── presentation/           # Camada de apresentação
     ├── pages/              # Telas da aplicação
-    ├── widgets/            # Widgets reutilizáveis
     └── providers/          # Gerenciamento de estado
 ```
 
 ## 🛠️ Tecnologias Utilizadas
 
 ### Framework e Linguagem
-- **Flutter 3.16.5**
-- **Dart 3.2.3**
+- **Flutter 3.32.4**
+- **Dart 3.8.1**
 
 ### Gerenciamento de Estado
 - **Riverpod 2.4.9** - Gerenciamento de estado reativo
@@ -105,15 +102,12 @@ lib/
 - **Firebase Auth 4.15.3** - Autenticação
 - **Firebase Storage 11.5.6** - Armazenamento de imagens
 
-### Geolocalização e Mapas
+### Geolocalização
 - **Geolocator 10.1.0** - Serviços de localização
-- **Geocoding 2.1.1** - Conversão de coordenadas
-- **Google Maps Flutter 2.5.0** - Mapas interativos
+- **flutter_google_places_sdk 0.3.0** - Sugestões de locais
 
 ### Câmera e Imagens
-- **Camera 0.10.5+5** - Acesso à câmera
 - **Image Picker 1.0.4** - Seleção de imagens
-- **Google ML Kit Text Recognition 0.10.0** - OCR para notas fiscais
 
 ### Networking
 - **Dio 5.3.2** - Cliente HTTP avançado
@@ -123,13 +117,13 @@ lib/
 - **Intl 0.18.1** - Internacionalização
 - **UUID 4.2.1** - Geração de identificadores únicos
 - **Cached Network Image 3.3.0** - Cache de imagens
-- **Permission Handler 11.1.0** - Gerenciamento de permissões
+- **url_launcher 6.2.1** - Abertura de links externos
 
 ## 🚀 Como Executar
 
 ### Pré-requisitos
-- Flutter SDK 3.16.5 ou superior
-- Dart SDK 3.2.3 ou superior
+- Flutter SDK 3.32.4 ou superior
+- Dart SDK 3.8.1 ou superior
 - Android Studio ou VS Code
 - Dispositivo Android/iOS ou emulador
 
@@ -138,7 +132,7 @@ lib/
 1. **Clone o repositório:**
 ```bash
 git clone <url-do-repositorio>
-cd precinho_app
+cd Precinho
 ```
 
 2. **Instale as dependências:**
@@ -148,12 +142,11 @@ flutter pub get
 
 3. **Configure o Firebase:**
    - Crie um projeto no [Firebase Console](https://console.firebase.google.com)
-   - Baixe os arquivos de configuração e **adicione-os localmente** (eles não fazem parte do repositório):
-     - `android/app/google-services.json` (Android)
-     - `ios/Runner/GoogleService-Info.plist` (iOS)
-   - Execute `flutterfire configure` para gerar o arquivo `lib/firebase_options.dart`
-   - Para a versão web, substitua os valores em `web/index.html` caso utilize outro projeto Firebase.
-     O arquivo já contém as credenciais de exemplo usadas neste repositório (`precinho-dd1c9`).
+    - Baixe os arquivos de configuração e **adicione-os localmente** (eles não fazem parte do repositório):
+      - `android/app/google-services.json` (Android)
+      - `ios/Runner/GoogleService-Info.plist` (iOS)
+    - O projeto já possui um `lib/firebase_options.dart` de exemplo. Caso crie seu próprio projeto Firebase, rode `flutterfire configure` para gerar um novo arquivo.
+    - Para a versão web, substitua os valores em `web/index.html` caso utilize outro projeto Firebase. O arquivo atual traz credenciais de demonstração (`precinho-dd1c9`).
 
 4. **Configure as APIs:**
    - Google Maps API Key
@@ -340,7 +333,7 @@ Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalh
 Para suporte e dúvidas:
 - Email: suporte@precinho.com
 - Website: https://precinho.com
-- Issues: [GitHub Issues](link-para-issues)
+- Issues: [GitHub Issues](https://github.com/welder60/Precinho/issues)
 
 ## 🔄 Changelog
 

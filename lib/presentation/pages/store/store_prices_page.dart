@@ -206,7 +206,7 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
                     crossAxisCount: 3,
                     crossAxisSpacing: AppTheme.paddingMedium,
                     mainAxisSpacing: AppTheme.paddingMedium,
-                    childAspectRatio: 1.4,
+                    childAspectRatio: 0.8,
                   ),
                   itemCount: prices.length,
                   itemBuilder: (context, index) {
@@ -246,7 +246,7 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
                                             AppTheme.radiusSmall),
                                         child: Image.network(
                                           imageUrl,
-                                          fit: BoxFit.cover,
+                                          fit: BoxFit.contain,
                                           width: double.infinity,
                                         ),
                                       )
