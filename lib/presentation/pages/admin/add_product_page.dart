@@ -31,8 +31,7 @@ class _AddProductPageState extends State<AddProductPage> {
   String? _unit;
   final List<String> _categories = [];
   final TextEditingController _categoryController = TextEditingController();
-  final TextEditingController _equivalentProductController = TextEditingController();
-  DocumentSnapshot? _equivalentProduct;
+  final List<DocumentSnapshot> _equivalentProducts = [];
   bool _isFractional = false;
 
   @override
@@ -43,7 +42,6 @@ class _AddProductPageState extends State<AddProductPage> {
     _barcodeController.dispose();
     _descriptionController.dispose();
     _categoryController.dispose();
-    _equivalentProductController.dispose();
     super.dispose();
   }
 
@@ -75,11 +73,9 @@ class _AddProductPageState extends State<AddProductPage> {
         ),
       ),
     );
-    if (doc != null) {
+    if (doc != null && !_equivalentProducts.any((p) => p.id == doc.id)) {
       setState(() {
-        _equivalentProduct = doc;
-        _equivalentProductController.text =
-            (doc.data() as Map<String, dynamic>)['name'] ?? '';
+        _equivalentProducts.add(doc);
       });
     }
   }
@@ -99,16 +95,7 @@ class _AddProductPageState extends State<AddProductPage> {
           FirebaseLogger.log('Image uploaded', {'url': imageUrl});
         }
 
-        String? equivalenceGroupId;
-        if (_equivalentProduct != null) {
-          final data = _equivalentProduct!.data() as Map<String, dynamic>;
-          equivalenceGroupId = data['equivalence_group_id'] as String?;
-          if (equivalenceGroupId == null) {
-            equivalenceGroupId = const Uuid().v4();
-            await _equivalentProduct!.reference
-                .update({'equivalence_group_id': equivalenceGroupId});
-          }
-        }
+        final equivalentIds = _equivalentProducts.map((e) => e.id).toList();
 
         final data = {
           'name': _nameController.text.trim(),
@@ -121,12 +108,17 @@ class _AddProductPageState extends State<AddProductPage> {
           'image_url': imageUrl,
           'created_at': Timestamp.now(),
           'is_fractional': _isFractional,
-          if (equivalenceGroupId != null)
-            'equivalence_group_id': equivalenceGroupId,
+          'equivalent_product_ids': equivalentIds,
         };
 
         FirebaseLogger.log('Adding product', data);
-        await FirebaseFirestore.instance.collection('products').add(data);
+        final ref = FirebaseFirestore.instance.collection('products').doc();
+        await ref.set(data);
+        for (final doc in _equivalentProducts) {
+          await doc.reference.update({
+            'equivalent_product_ids': FieldValue.arrayUnion([ref.id])
+          });
+        }
         FirebaseLogger.log('Product added', {'name': data['name']});
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -242,15 +234,23 @@ class _AddProductPageState extends State<AddProductPage> {
                     .toList(),
               ),
               const SizedBox(height: AppTheme.paddingMedium),
-              TextFormField(
-                controller: _equivalentProductController,
-                readOnly: true,
-                decoration: const InputDecoration(
-                  labelText: 'Produto equivalente',
-                  prefixIcon: Icon(Icons.link),
-                  suffixIcon: Icon(Icons.search),
-                ),
-                onTap: _selectEquivalentProduct,
+              ElevatedButton(
+                onPressed: _selectEquivalentProduct,
+                child: const Text('Adicionar Produto Equivalente'),
+              ),
+              Wrap(
+                spacing: 8,
+                children: _equivalentProducts
+                    .map((doc) => InputChip(
+                          label: Text(
+                              (doc.data() as Map<String, dynamic>)['name'] ?? ''),
+                          onDeleted: () {
+                            setState(() {
+                              _equivalentProducts.remove(doc);
+                            });
+                          },
+                        ))
+                    .toList(),
               ),
               const SizedBox(height: AppTheme.paddingMedium),
               OutlinedButton(

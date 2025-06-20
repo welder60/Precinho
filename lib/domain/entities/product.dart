@@ -9,7 +9,7 @@ class Product extends Equatable {
   final String? imageUrl;
   final ProductCategory category;
   final String? barcode;
-  final String? equivalenceGroupId;
+  final List<String> equivalentProductIds;
   final bool isFractional;
   final bool isApproved;
   final ModerationStatus status;
@@ -28,7 +28,7 @@ class Product extends Equatable {
     this.imageUrl,
     required this.category,
     this.barcode,
-    this.equivalenceGroupId,
+    this.equivalentProductIds = const [],
     required this.isFractional,
     required this.isApproved,
     required this.status,
@@ -48,7 +48,7 @@ class Product extends Equatable {
     String? imageUrl,
     ProductCategory? category,
     String? barcode,
-    String? equivalenceGroupId,
+    List<String>? equivalentProductIds,
     bool? isFractional,
     bool? isApproved,
     ModerationStatus? status,
@@ -67,7 +67,8 @@ class Product extends Equatable {
       imageUrl: imageUrl ?? this.imageUrl,
       category: category ?? this.category,
       barcode: barcode ?? this.barcode,
-      equivalenceGroupId: equivalenceGroupId ?? this.equivalenceGroupId,
+      equivalentProductIds:
+          equivalentProductIds ?? this.equivalentProductIds,
       isFractional: isFractional ?? this.isFractional,
       isApproved: isApproved ?? this.isApproved,
       status: status ?? this.status,
@@ -93,7 +94,7 @@ class Product extends Equatable {
         imageUrl,
         category,
         barcode,
-        equivalenceGroupId,
+        equivalentProductIds,
         isFractional,
         isApproved,
         status,

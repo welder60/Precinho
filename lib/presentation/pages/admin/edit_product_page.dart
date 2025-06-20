@@ -33,10 +33,9 @@ class _EditProductPageState extends State<EditProductPage> {
   final List<String> _categories = [];
   final TextEditingController _categoryController = TextEditingController();
   String? _imageUrl;
-  final TextEditingController _equivalentProductController = TextEditingController();
-  DocumentSnapshot? _equivalentProduct;
+  final List<DocumentSnapshot> _equivalentProducts = [];
+  final List<DocumentSnapshot> _initialEquivalentProducts = [];
   bool _isFractional = false;
-  String? _equivalenceGroupId;
 
   @override
   void initState() {
@@ -57,7 +56,21 @@ class _EditProductPageState extends State<EditProductPage> {
     }
     _imageUrl = data['image_url'] as String?;
     _isFractional = data['is_fractional'] as bool? ?? false;
-    _equivalenceGroupId = data['equivalence_group_id'] as String?;
+    final ids = (data['equivalent_product_ids'] as List?)?.cast<String>() ?? [];
+    for (final id in ids) {
+      FirebaseFirestore.instance
+          .collection('products')
+          .doc(id)
+          .get()
+          .then((doc) {
+        if (mounted) {
+          setState(() {
+            _equivalentProducts.add(doc);
+            _initialEquivalentProducts.add(doc);
+          });
+        }
+      });
+    }
   }
 
   @override
@@ -68,7 +81,6 @@ class _EditProductPageState extends State<EditProductPage> {
     _barcodeController.dispose();
     _descriptionController.dispose();
     _categoryController.dispose();
-    _equivalentProductController.dispose();
     super.dispose();
   }
 
@@ -100,11 +112,9 @@ class _EditProductPageState extends State<EditProductPage> {
         ),
       ),
     );
-    if (doc != null) {
+    if (doc != null && !_equivalentProducts.any((p) => p.id == doc.id)) {
       setState(() {
-        _equivalentProduct = doc;
-        _equivalentProductController.text =
-            (doc.data() as Map<String, dynamic>)['name'] ?? '';
+        _equivalentProducts.add(doc);
       });
     }
   }
@@ -122,19 +132,10 @@ class _EditProductPageState extends State<EditProductPage> {
           FirebaseLogger.log('Image uploaded', {'url': imageUrl});
         }
 
-        String? equivalenceGroupId = _equivalenceGroupId;
-        if (_equivalentProduct != null) {
-          final dataOther = _equivalentProduct!.data() as Map<String, dynamic>;
-          final otherGroup = dataOther['equivalence_group_id'] as String?;
-          equivalenceGroupId ??= otherGroup;
-          if (equivalenceGroupId == null) {
-            equivalenceGroupId = const Uuid().v4();
-          }
-          if (otherGroup != equivalenceGroupId) {
-            await _equivalentProduct!.reference
-                .update({'equivalence_group_id': equivalenceGroupId});
-          }
-        }
+        final newIds = _equivalentProducts.map((e) => e.id).toSet();
+        final oldIds = _initialEquivalentProducts.map((e) => e.id).toSet();
+        final toAdd = newIds.difference(oldIds);
+        final toRemove = oldIds.difference(newIds);
 
         final data = {
           'name': _nameController.text.trim(),
@@ -147,9 +148,25 @@ class _EditProductPageState extends State<EditProductPage> {
           'image_url': imageUrl,
           'updated_at': Timestamp.now(),
           'is_fractional': _isFractional,
-          if (equivalenceGroupId != null)
-            'equivalence_group_id': equivalenceGroupId,
+          'equivalent_product_ids': newIds.toList(),
         };
+
+        for (final id in toAdd) {
+          await FirebaseFirestore.instance
+              .collection('products')
+              .doc(id)
+              .update({
+            'equivalent_product_ids': FieldValue.arrayUnion([widget.document.id])
+          });
+        }
+        for (final id in toRemove) {
+          await FirebaseFirestore.instance
+              .collection('products')
+              .doc(id)
+              .update({
+            'equivalent_product_ids': FieldValue.arrayRemove([widget.document.id])
+          });
+        }
 
         FirebaseLogger.log('Updating product', {'id': widget.document.id});
         await widget.document.reference.update(data);
@@ -268,15 +285,23 @@ class _EditProductPageState extends State<EditProductPage> {
                     .toList(),
               ),
               const SizedBox(height: AppTheme.paddingMedium),
-              TextFormField(
-                controller: _equivalentProductController,
-                readOnly: true,
-                decoration: const InputDecoration(
-                  labelText: 'Produto equivalente',
-                  prefixIcon: Icon(Icons.link),
-                  suffixIcon: Icon(Icons.search),
-                ),
-                onTap: _selectEquivalentProduct,
+              ElevatedButton(
+                onPressed: _selectEquivalentProduct,
+                child: const Text('Adicionar Produto Equivalente'),
+              ),
+              Wrap(
+                spacing: 8,
+                children: _equivalentProducts
+                    .map((doc) => InputChip(
+                          label: Text(
+                              (doc.data() as Map<String, dynamic>)['name'] ?? ''),
+                          onDeleted: () {
+                            setState(() {
+                              _equivalentProducts.remove(doc);
+                            });
+                          },
+                        ))
+                    .toList(),
               ),
               const SizedBox(height: AppTheme.paddingMedium),
               OutlinedButton(
