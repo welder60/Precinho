@@ -21,13 +21,13 @@ void main() {
       productName: 'Banana',
       quantity: 2,
       price: 3,
-      storeName: 'Loja',
+      storeName: 'Comércio',
     );
     final list = container.read(shoppingListProvider).firstWhere((l) => l.id == listId);
     expect(list.items.length, 1);
     expect(list.items.first.quantity, 2);
     final totals = notifier.totalsByStore(listId);
-    expect(totals['Loja'], 6);
+    expect(totals['Comércio'], 6);
   });
 
   test('update item price', () {
@@ -46,7 +46,7 @@ void main() {
       productId: '1',
       price: 2.5,
       storeId: 's1',
-      storeName: 'Loja',
+      storeName: 'Comércio',
     );
     final list = container.read(shoppingListProvider).firstWhere((l) => l.id == listId);
     expect(list.items.first.price, 2.5);
@@ -65,7 +65,7 @@ void main() {
       quantity: 1,
       price: 2,
       storeId: 's1',
-      storeName: 'Loja',
+      storeName: 'Comércio',
     );
 
     notifier.clearPrices(listId);

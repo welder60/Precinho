@@ -49,7 +49,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               items: const [
                 BottomNavigationBarItem(
                   icon: Icon(Icons.store),
-                  label: 'Lojas',
+                  label: 'Comércios',
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.search),

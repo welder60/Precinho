@@ -84,10 +84,10 @@ class Validators {
     return null;
   }
 
-  // Validação de nome da loja
+  // Validação de nome do comércio
   static String? validateStoreName(String? name) {
     if (name == null || name.isEmpty) {
-      return 'Nome da loja é obrigatório';
+      return 'Nome do comércio é obrigatório';
     }
     
     if (name.length < 2) {

@@ -79,7 +79,7 @@ class _StoreSearchPageState extends ConsumerState<StoreSearchPage> {
                           Icons.store,
                           color: AppTheme.primaryColor,
                         ),
-                        title: Text(data['name'] ?? 'Loja'),
+                        title: Text(data['name'] ?? 'Comércio'),
                         subtitle: Text(data['address'] ?? ''),
                         trailing: IconButton(
                           icon: Icon(

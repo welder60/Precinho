@@ -95,7 +95,7 @@ enum ShoppingListStatus {
 // Tipo de notificação
 enum NotificationType {
   priceAlert('price_alert', 'Alerta de Preço'),
-  newStore('new_store', 'Nova Loja'),
+  newStore('new_store', 'Novo Comércio'),
   moderationResult('moderation_result', 'Resultado da Moderação'),
   achievement('achievement', 'Conquista'),
   system('system', 'Sistema');
@@ -109,7 +109,7 @@ enum NotificationType {
 enum AchievementType {
   firstPrice('first_price', 'Primeiro Preço'),
   priceHunter('price_hunter', 'Caçador de Preços'),
-  storeExplorer('store_explorer', 'Explorador de Lojas'),
+  storeExplorer('store_explorer', 'Explorador de Comércios'),
   topContributor('top_contributor', 'Top Contribuidor'),
   moderatorHelper('moderator_helper', 'Ajudante de Moderador'),
   loyalUser('loyal_user', 'Usuário Fiel');
