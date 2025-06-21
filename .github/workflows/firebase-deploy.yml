@@ -23,20 +23,9 @@ jobs:
       - name: Gerar build web
         run: flutter build web --release
 
-      - name: Configurar Node.js
-        uses: actions/setup-node@v3
+      - name: Fazer deploy para o Firebase Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
         with:
-          node-version: '20'
-
-      - name: Instalar Firebase CLI
-        run: npm install -g firebase-tools
-
-      - name: Criar arquivo da conta de serviço
-        run: |
-          echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" > serviceAccountKey.json
-
-      - name: Fazer deploy para o Firebase
-        run: |
-          firebase deploy --only hosting --project precinho-dd1c9 --token "$(jq -r .private_key < serviceAccountKey.json)" || echo "Token de chave privada usado diretamente"
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: serviceAccountKey.json
+          repoToken: "${{ secrets.GITHUB_TOKEN }}"
+          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}"
+          projectId: precinho-dd1c9
