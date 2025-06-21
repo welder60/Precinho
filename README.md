@@ -131,7 +131,7 @@ lib/
 
 1. **Clone o repositório:**
 ```bash
-git clone <url-do-repositorio>
+git clone github.com/welder60/Precinho
 cd Precinho
 ```
 
