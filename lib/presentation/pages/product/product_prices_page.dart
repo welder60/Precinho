@@ -130,7 +130,7 @@ class _ProductPricesPageState extends ConsumerState<ProductPricesPage> {
               final doc = prices[index];
               final priceData = doc.data() as Map<String, dynamic>;
               final storeId = priceData['store_id'] as String?;
-              final storeName = priceData['store_name'] as String? ?? 'Loja desconhecida';
+              final storeName = priceData['store_name'] as String? ?? 'Comércio desconhecido';
               final isFav = storeId != null && favorites.contains(storeId);
 
                   print('[DEBUG] Exibindo preço de ${storeName} -> '

@@ -285,7 +285,7 @@ class ApiService {
     return await post('/prices', data: priceData);
   }
 
-  // Lojas
+  // Comércios
   Future<Map<String, dynamic>> getStores({
     required double latitude,
     required double longitude,

@@ -228,7 +228,7 @@ service cloud.firestore {
       allow write: if request.auth != null;
     }
     
-    // Lojas aprovadas são públicas para leitura
+    // Comércios aprovados são públicos para leitura
     match /stores/{storeId} {
       allow read: if resource.data.isApproved == true;
       allow write: if request.auth != null;

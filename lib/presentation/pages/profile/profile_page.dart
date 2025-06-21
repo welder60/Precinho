@@ -152,7 +152,7 @@ class ProfilePage extends ConsumerWidget {
                 Expanded(
                   child: _buildStatItem(
                     context,
-                    'Lojas Visitadas',
+                    'Comércios Visitados',
                     '15', // Placeholder
                     Icons.store,
                   ),
@@ -229,7 +229,7 @@ class ProfilePage extends ConsumerWidget {
         _buildMenuItem(
           context,
           'Minhas Contribuições',
-          'Preços e lojas cadastrados',
+          'Preços e comércios cadastrados',
           Icons.history,
           () {
             // TODO: Navegar para contribuições

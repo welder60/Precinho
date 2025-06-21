@@ -43,7 +43,7 @@ O aplicativo segue uma identidade visual inspirada em economia colaborativa e si
 ### 🛒 Listas de Compras
 - Criação de múltiplas listas
 - Cálculo de valor total por comércio
-- Sugestão de melhor combinação de lojas
+- Sugestão de melhor combinação de comércios
 - Acompanhamento de progresso
 
 ### 🏆 Gamificação
@@ -258,7 +258,7 @@ class Price {
 
 Os registros de preços armazenam suas próprias coordenadas geográficas e
 também mantêm o nome do produto e do comércio. Essa redundância permite
-consultas mais rápidas mesmo que as informações de produto ou loja sejam
+consultas mais rápidas mesmo que as informações de produto ou comércio sejam
 alteradas posteriormente e abre caminho para anexar fotos no futuro.
 
 ## 🎯 Funcionalidades Implementadas
@@ -266,7 +266,7 @@ alteradas posteriormente e abre caminho para anexar fotos no futuro.
 ### ✅ Concluído
 - [x] Estrutura base da aplicação
 - [x] Sistema de autenticação completo
-- [x] Telas principais (Login, Home, Lojas, Produtos, Listas, Perfil)
+- [x] Telas principais (Login, Home, Comércios, Produtos, Listas, Perfil)
 - [x] Modelos de dados e entidades
 - [x] Serviços de API e autenticação
 - [x] Gerenciamento de estado com Riverpod

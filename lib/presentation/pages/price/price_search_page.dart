@@ -73,7 +73,7 @@ class _PriceSearchPageState extends State<PriceSearchPage> {
                     return Card(
                       child: ListTile(
                         title: Text(productName.isNotEmpty ? productName : 'Produto'),
-                        subtitle: Text(storeName.isNotEmpty ? storeName : 'Loja'),
+                        subtitle: Text(storeName.isNotEmpty ? storeName : 'Comércio'),
                         trailing: Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           mainAxisSize: MainAxisSize.min,

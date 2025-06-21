@@ -12,7 +12,7 @@ void main() {
       userId: 'u1',
       value: 10,
       productName: 'Banana',
-      storeName: 'Loja',
+      storeName: 'Comércio',
       createdAt: now.subtract(const Duration(days: 2)),
       isApproved: true,
       status: ModerationStatus.approved,

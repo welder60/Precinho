@@ -149,7 +149,7 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
     setState(() {
       _selectedStoreId = store.id;
       _selectedStoreName =
-          (store.data() as Map<String, dynamic>)['name'] ?? 'Loja';
+          (store.data() as Map<String, dynamic>)['name'] ?? 'Comércio';
     });
 
     notifier.clearPrices(widget.listId);
@@ -167,7 +167,7 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
 			
 			
         if (snap.docs.isNotEmpty) {
-		print('Consultando ${item.productName} na loja ${store.id}');
+		print('Consultando ${item.productName} na comércio ${store.id}');
 		print('Qtd docs retornados: ${snap.docs.length}');
 		if (snap.docs.isNotEmpty) {
 		  final data = snap.docs.first.data();
@@ -314,14 +314,14 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
             const Center(child: CircularProgressIndicator())
           else if (_stores.isNotEmpty) ...[
             Text(
-              'Estabelecimentos',
+              'Comércios',
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: AppTheme.paddingSmall),
             Column(
               children: _stores.map((doc) {
                 final data = doc.data() as Map<String, dynamic>;
-                final name = data['name'] ?? 'Loja';
+                final name = data['name'] ?? 'Comércio';
                 final isFav = ref.watch(storeFavoritesProvider).contains(doc.id);
                 final total = _storeTotals[doc.id];
                 return Card(
