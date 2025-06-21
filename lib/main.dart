@@ -9,9 +9,12 @@ import 'presentation/pages/home/home_page.dart';
 import 'presentation/providers/auth_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'core/config/app_config.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await AppConfig.load();
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,

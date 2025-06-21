@@ -30,9 +30,13 @@
     }
   </style>
 
+  <script src="env.js"></script>
   <!-- Google Sign-In client ID (necessário para autenticação Web) -->
-  <!-- Substitua o valor abaixo pelo client ID gerado no Google Cloud Console -->
-  <meta name="google-signin-client_id" content="827176675042-qp8l76ibu998u0118696sd2iv0habpkl.apps.googleusercontent.com">
+  <meta name="google-signin-client_id" content="">
+  <script>
+    document.querySelector('meta[name="google-signin-client_id"]').content =
+      window.env.GOOGLE_SIGNIN_CLIENT_ID;
+  </script>
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
@@ -52,8 +56,10 @@
   </script>
   <!-- This script adds the flutter initialization JS code -->
   <script src="flutter.js" defer></script>
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDnD2wwkgEE7t4IdXGHPvdEQ9y323wFHe8&libraries=places"></script>
+  <script id="google-maps" src=""></script>
   <script>
+    document.getElementById('google-maps').src =
+      `https://maps.googleapis.com/maps/api/js?key=${window.env.GOOGLE_MAPS_API_KEY}&libraries=places`;
     window.searchPlaces = function(query, lat, lng, radius) {
       return new Promise(function(resolve, reject) {
         const service = new google.maps.places.PlacesService(document.createElement('div'));
@@ -81,13 +87,13 @@
     // Your web app's Firebase configuration
     // Valores gerados pelo Firebase para o projeto precinho-dd1c9
     const firebaseConfig = {
-      apiKey: "AIzaSyDR42GFH7gszEWMOfzmLWmOYatvBBYj-B0",
-      authDomain: "precinho-dd1c9.firebaseapp.com",
-      projectId: "precinho-dd1c9",
-      storageBucket: "precinho-dd1c9.firebasestorage.app",
-      messagingSenderId: "827176675042",
-      appId: "1:827176675042:web:c132fef088db2bd7e9a0bb",
-      measurementId: "G-LDPX19149Y"
+      apiKey: window.env.FIREBASE_WEB_API_KEY,
+      authDomain: window.env.FIREBASE_WEB_AUTH_DOMAIN,
+      projectId: window.env.FIREBASE_PROJECT_ID,
+      storageBucket: window.env.FIREBASE_STORAGE_BUCKET,
+      messagingSenderId: window.env.FIREBASE_WEB_MESSAGING_SENDER_ID,
+      appId: window.env.FIREBASE_WEB_APP_ID,
+      measurementId: window.env.FIREBASE_MEASUREMENT_ID
     };
 
     // Initialize Firebase

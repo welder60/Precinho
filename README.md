@@ -149,16 +149,20 @@ flutter pub get
     - Para a versão web, substitua os valores em `web/index.html` caso utilize outro projeto Firebase. O arquivo atual traz credenciais de demonstração (`precinho-dd1c9`).
     - O arquivo `firebase.json` presente no repositório é utilizado apenas para configurar o Firebase Hosting.
 
-4. **Configure as APIs:**
-   - Google Maps API Key
-   - Google Sign-In (se necessário)
-     - Para autenticação na web é preciso adicionar o *client ID* do tipo **Web application** no arquivo `web/index.html`:
+4. **Configure as APIs e variáveis de ambiente:**
+   - Copie `.env.example` para `.env` e preencha suas chaves.
+   - Para a versão web, copie `web/env.js.example` para `web/env.js` com os mesmos valores.
+   - As principais variáveis são:
+     - `GOOGLE_MAPS_API_KEY`
+     - `GOOGLE_SIGNIN_CLIENT_ID`
+     - Chaves do Firebase (veja `.env.example`)
+   - Durante o desenvolvimento execute:
 
-       ```html
-       <meta name="google-signin-client_id" content="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com">
-       ```
+     ```bash
+     flutter run --dart-define-from-file=.env
+     ```
 
-       Substitua `YOUR_GOOGLE_CLIENT_ID` pelo ID gerado no Google Cloud Console.
+   - Para autenticação na web a tag `<meta name="google-signin-client_id">` será preenchida automaticamente a partir das variáveis de ambiente.
 
 5. **Execute a aplicação:**
 ```bash
