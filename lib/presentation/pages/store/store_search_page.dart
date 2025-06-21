@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
 
 import '../../../core/themes/app_theme.dart';
+import '../../../core/utils/formatters.dart';
 import '../../providers/store_favorites_provider.dart';
 import 'store_prices_page.dart';
 
@@ -17,6 +19,30 @@ class StoreSearchPage extends ConsumerStatefulWidget {
 
 class _StoreSearchPageState extends ConsumerState<StoreSearchPage> {
   final TextEditingController _controller = TextEditingController();
+  Position? _position;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLocation();
+  }
+
+  Future<void> _loadLocation() async {
+    try {
+      final permission = await Geolocator.requestPermission();
+      if (permission != LocationPermission.denied &&
+          permission != LocationPermission.deniedForever) {
+        final pos = await Geolocator.getCurrentPosition();
+        if (mounted) {
+          setState(() {
+            _position = pos;
+          });
+        } else {
+          _position = pos;
+        }
+      }
+    } catch (_) {}
+  }
 
   @override
   void dispose() {
@@ -60,19 +86,48 @@ class _StoreSearchPageState extends ConsumerState<StoreSearchPage> {
                 if (docs.isEmpty) {
                   return const Center(child: Text('Nenhum com\u00e9rcio encontrado'));
                 }
-                final sortedDocs = docs.toList()
-                  ..sort((a, b) {
-                    final aFav = favorites.contains(a.id) ? 0 : 1;
-                    final bFav = favorites.contains(b.id) ? 0 : 1;
+                final items = docs.map((doc) {
+                  final data = doc.data() as Map<String, dynamic>;
+                  final lat = (data['latitude'] as num?)?.toDouble();
+                  final lng = (data['longitude'] as num?)?.toDouble();
+                  double? distance;
+                  if (_position != null && lat != null && lng != null) {
+                    distance = Geolocator.distanceBetween(
+                          _position!.latitude,
+                          _position!.longitude,
+                          lat,
+                          lng,
+                        ) /
+                        1000.0;
+                  }
+                  return {'doc': doc, 'distance': distance};
+                }).toList();
+
+                if (_position != null) {
+                  items.sort((a, b) {
+                    final da = a['distance'] as double? ?? double.infinity;
+                    final db = b['distance'] as double? ?? double.infinity;
+                    return da.compareTo(db);
+                  });
+                } else {
+                  items.sort((a, b) {
+                    final aDoc = a['doc'] as DocumentSnapshot;
+                    final bDoc = b['doc'] as DocumentSnapshot;
+                    final aFav = favorites.contains(aDoc.id) ? 0 : 1;
+                    final bFav = favorites.contains(bDoc.id) ? 0 : 1;
                     return aFav.compareTo(bFav);
                   });
+                }
+
                 return ListView.builder(
-                  itemCount: sortedDocs.length,
+                  itemCount: items.length,
                   padding: const EdgeInsets.all(AppTheme.paddingMedium),
                   itemBuilder: (context, index) {
-                    final doc = sortedDocs[index];
+                    final item = items[index];
+                    final doc = item['doc'] as DocumentSnapshot;
                     final data = doc.data() as Map<String, dynamic>;
                     final isFav = favorites.contains(doc.id);
+                    final distance = item['distance'] as double?;
                     return Card(
                       child: ListTile(
                         leading: const Icon(
@@ -80,7 +135,14 @@ class _StoreSearchPageState extends ConsumerState<StoreSearchPage> {
                           color: AppTheme.primaryColor,
                         ),
                         title: Text(data['name'] ?? 'Comércio'),
-                        subtitle: Text(data['address'] ?? ''),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(data['address'] ?? ''),
+                            if (distance != null)
+                              Text(Formatters.formatDistance(distance)),
+                          ],
+                        ),
                         trailing: IconButton(
                           icon: Icon(
                             isFav ? Icons.star : Icons.star_border,
