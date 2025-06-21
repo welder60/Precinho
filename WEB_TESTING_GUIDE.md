@@ -147,6 +147,7 @@ firebase init hosting
 firebase deploy
 ```
 
+> O arquivo `firebase.json` do repositório já está configurado apontando para `build/web`.
 ## 📱 Teste em Diferentes Dispositivos
 
 ### Desktop:
