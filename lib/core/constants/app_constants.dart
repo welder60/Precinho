@@ -1,4 +1,6 @@
 // Constantes da aplicação Precinho
+import '../config/app_config.dart';
+
 class AppConstants {
   // Configurações gerais
   static const String appName = 'Precinho';
@@ -7,7 +9,8 @@ class AppConstants {
   // Configurações de API
   static const String baseUrl = 'https://api.precinho.com';
   static const int timeoutDuration = 30000; // 30 segundos
-  static const String googleMapsApiKey = 'AIzaSyDnD2wwkgEE7t4IdXGHPvdEQ9y323wFHe8';
+  static String get googleMapsApiKey =>
+      AppConfig.get('GOOGLE_MAPS_API_KEY');
   
   // Configurações de geolocalização
   static const double defaultSearchRadius = 5.0; // 5km
