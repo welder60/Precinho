@@ -89,8 +89,7 @@ class ShoppingListNotifier extends StateNotifier<List<ShoppingList>> {
           l.copyWith(
             items: [
               for (final item in l.items)
-                if (item.productId == productId &&
-                    (item.storeId == storeId || item.storeId == null))
+                if (item.productId == productId )
                   item.copyWith(
                     price: price,
                     storeId: storeId,

@@ -112,18 +112,6 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
             final price = (data['price'] as num?)?.toDouble();
             if (price != null) {
               sum = (sum ?? 0) + price * item.quantity;
-
-              // Synchronize item price with the list state
-              if (item.price != price || item.storeId != store.id) {
-                notifier.updateItemPrice(
-                  listId: widget.listId,
-                  productId: item.productId,
-                  price: price,
-                  storeId: store.id,
-                  storeName:
-                      (store.data() as Map<String, dynamic>)['name'] ?? 'Loja',
-                );
-              }
             } else {
               sum = null;
               break;
@@ -154,6 +142,7 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
   }
 
   Future<void> _applyStore(DocumentSnapshot store) async {
+	if (_selectedStoreId == store.id) return; // já está selecionada, não faz nada
     final notifier = ref.read(shoppingListProvider.notifier);
     final list = notifier.getList(widget.listId);
     if (list == null) return;
@@ -175,7 +164,19 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
             .orderBy('created_at', descending: true)
             .limit(1)
             .get();
+			
+			
         if (snap.docs.isNotEmpty) {
+		print('Consultando ${item.productName} na loja ${store.id}');
+		print('Qtd docs retornados: ${snap.docs.length}');
+		if (snap.docs.isNotEmpty) {
+		  final data = snap.docs.first.data();
+		  final price = (data['price'] as num?)?.toDouble();
+		  print('Preço encontrado: $price');
+		} else {
+		  print('Nenhum preço encontrado para ${item.productName}');
+		}
+
           final data = snap.docs.first.data();
           final price = (data['price'] as num?)?.toDouble();
           notifier.updateItemPrice(
@@ -203,8 +204,9 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
           storeName: _selectedStoreName,
         );
       }
+	  
     }
-
+	
     await _calculateTotals();
   }
 
@@ -288,18 +290,20 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
                             : null,
                       ),
                     ),
-                    if (_selectedStoreId != null)
-                      Text(
-                        item.price != null
-                            ? Formatters.formatPrice(item.price!)
-                            : '-',
-                        style: item.isDisabled
-                            ? const TextStyle(
-                                decoration: TextDecoration.lineThrough,
-                                color: Colors.grey,
-                              )
-                            : AppTheme.priceTextStyle,
-                      ),
+                    if (_selectedStoreId != null && item.storeId == _selectedStoreId)
+					  Text(
+						item.price != null
+							? Formatters.formatPrice(item.price!)
+							: '-',
+						style: item.isDisabled
+							? const TextStyle(
+								decoration: TextDecoration.lineThrough,
+								color: Colors.grey,
+							  )
+							: AppTheme.priceTextStyle,
+					  )
+					else
+					  const Text('-'),
                   ],
                 ),
               );
