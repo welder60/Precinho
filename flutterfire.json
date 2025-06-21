@@ -1,0 +1,25 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "precinho-dd1c9",
+          "appId": "1:827176675042:android:00781a4ec7162b73e9a0bb",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "precinho-dd1c9",
+          "configurations": {
+            "android": "1:827176675042:android:00781a4ec7162b73e9a0bb",
+            "ios": "1:827176675042:ios:278a838c2e9fdff0e9a0bb",
+            "macos": "1:827176675042:ios:278a838c2e9fdff0e9a0bb",
+            "web": "1:827176675042:web:c132fef088db2bd7e9a0bb",
+            "windows": "1:827176675042:web:8bc7d1410ddaa855e9a0bb"
+          }
+        }
+      }
+    }
+  }
+}
