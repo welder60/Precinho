@@ -317,6 +317,19 @@ flutter analyze
 - Lógica de negócio
 - Widgets principais
 
+## 📦 Publicação para Android
+
+1. Gere um keystore para assinar o aplicativo:
+   ```bash
+   keytool -genkey -v -keystore keystore.jks -alias upload -keyalg RSA -keysize 2048 -validity 10000
+   ```
+2. Copie `android/key.properties.example` para `android/key.properties` e informe as senhas e o caminho do keystore.
+3. Crie o pacote de lançamento:
+   ```bash
+   flutter build appbundle --release
+   ```
+4. Envie o arquivo `.aab` de `build/app/outputs/bundle/release/` para a Google Play Console.
+
 ## 📱 Capturas de Tela
 
 *As capturas de tela serão adicionadas após a implementação completa da UI*

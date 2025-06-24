@@ -1,0 +1,5 @@
+# Example signing configuration for release builds
+storePassword=YOUR_STORE_PASSWORD
+keyPassword=YOUR_KEY_PASSWORD
+keyAlias=upload
+storeFile=../keystore.jks
