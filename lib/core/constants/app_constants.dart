@@ -26,6 +26,8 @@ class AppConstants {
   static const int pointsForStoreSubmission = 15;
   static const int pointsForProductSubmission = 5;
   static const int pointsForReview = 2;
+  static const int pointsForPricePhoto = 8;
+  static const int pointsForInvoice = 12;
 
   // Contas de administrador
   static const List<String> adminEmails = [

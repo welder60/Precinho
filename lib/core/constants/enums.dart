@@ -133,3 +133,12 @@ enum ErrorType {
   final String displayName;
 }
 
+enum ContributionType {
+  pricePhoto('price_photo', 'Foto de Preço'),
+  invoice('invoice', 'Nota Fiscal');
+
+  const ContributionType(this.value, this.displayName);
+  final String value;
+  final String displayName;
+}
+
