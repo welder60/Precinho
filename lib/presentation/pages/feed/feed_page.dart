@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../core/themes/app_theme.dart';
 import '../../../core/utils/formatters.dart';
 import '../price/price_detail_page.dart';
+import '../price/price_photo_page.dart';
+import '../invoice/invoice_qr_page.dart';
 
 class FeedPage extends StatefulWidget {
   const FeedPage({super.key});
@@ -114,6 +116,26 @@ class _FeedPageState extends State<FeedPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('In\u00edcio'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.camera_alt),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const PricePhotoPage()),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.qr_code),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const InvoiceQrPage()),
+              );
+            },
+          ),
+        ],
       ),
       body: _docs.isEmpty && _isLoading
           ? const Center(child: CircularProgressIndicator())
