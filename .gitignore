@@ -42,6 +42,12 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
+# Arquivo de configuração da chave
+android/key.properties
+
+# Arquivo de chave de assinatura
+**/*.jks
+
 # Firebase configuration files
 android/app/google-services.json
 ios/Runner/GoogleService-Info.plist
