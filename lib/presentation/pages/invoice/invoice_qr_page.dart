@@ -39,9 +39,10 @@ class _InvoiceQrPageState extends ConsumerState<InvoiceQrPage> {
   Future<void> _scanQr(File file) async {
     final scanner = MobileScannerController();
     try {
-      final BarcodeCapture? result = await scanner.analyzeImage(file.path);
-      if (result != null && result.barcodes.isNotEmpty) {
-        _qrLink = result.barcodes.first.rawValue;
+      final bool success = await scanner.analyzeImage(file.path);
+      if (success &&
+          scanner.barcodes.value.barcodes.isNotEmpty) {
+        _qrLink = scanner.barcodes.value.barcodes.first.rawValue;
       }
     } catch (e) {
       FirebaseLogger.log('qr_scan_error', {'error': e.toString()});

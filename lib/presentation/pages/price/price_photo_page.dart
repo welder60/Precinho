@@ -57,9 +57,11 @@ class _PricePhotoPageState extends ConsumerState<PricePhotoPage> {
         accuracy: 0,
         altitude: 0,
         heading: 0,
+        headingAccuracy: 0,
         speed: 0,
         speedAccuracy: 0,
         altitudeAccuracy: 0,
+        isMocked: false,
       );
     } else {
       final permission = await Geolocator.requestPermission();
