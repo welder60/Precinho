@@ -41,15 +41,26 @@ class _PricePhotoPageState extends ConsumerState<PricePhotoPage> {
       }
       final latValues = tags['GPS GPSLatitude']!.values;
       final lonValues = tags['GPS GPSLongitude']!.values;
-      double _convert(List values) {
-        final d = values[0].toDouble();
-        final m = values[1].toDouble();
-        final s = values[2].toDouble();
+      double _convert(dynamic values) {
+        final list = values is List ? values : values.toList();
+        final d = list[0].toDouble();
+        final m = list[1].toDouble();
+        final s = list[2].toDouble();
         return d + m / 60 + s / 3600;
       }
       final lat = _convert(latValues);
       final lon = _convert(lonValues);
-      _position = Position(latitude: lat, longitude: lon, timestamp: DateTime.now(), accuracy: 0, altitude: 0, heading: 0, speed: 0, speedAccuracy: 0);
+      _position = Position(
+        latitude: lat,
+        longitude: lon,
+        timestamp: DateTime.now(),
+        accuracy: 0,
+        altitude: 0,
+        heading: 0,
+        speed: 0,
+        speedAccuracy: 0,
+        altitudeAccuracy: 0,
+      );
     } else {
       final permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
