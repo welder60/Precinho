@@ -9,6 +9,9 @@ class AppConfig {
   }
 
   static String get(String key, {String defaultValue = ''}) {
-    return dotenv.env[key] ?? Platform.environment[key] ?? defaultValue;
+    if (dotenv.isInitialized && dotenv.env.containsKey(key)) {
+      return dotenv.env[key]!;
+    }
+    return Platform.environment[key] ?? defaultValue;
   }
 }
