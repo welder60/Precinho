@@ -153,9 +153,9 @@ class ProfilePage extends ConsumerWidget {
                 Expanded(
                   child: _buildStatItem(
                     context,
-                    'Listas Criadas',
+                    'Notas Fiscais Enviadas',
                     '8', // Placeholder
-                    Icons.list,
+                    Icons.receipt,
                   ),
                 ),
               ],
