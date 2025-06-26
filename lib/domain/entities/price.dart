@@ -20,6 +20,13 @@ class Price extends Equatable {
   final String? notes;
   final bool isPromotional;
   final DateTime? promotionalUntil;
+  final String? ncmCode;
+  final String? eanCode;
+  final String? cnpj;
+  final DateTime? validUntil;
+  final bool promotion;
+  final bool loyaltyProgramOnly;
+  final String? loyaltyProgramName;
   final Map<String, dynamic>? metadata;
   final double? variation;
 
@@ -42,6 +49,13 @@ class Price extends Equatable {
     this.notes,
     required this.isPromotional,
     this.promotionalUntil,
+    this.ncmCode,
+    this.eanCode,
+    this.cnpj,
+    this.validUntil,
+    this.promotion = false,
+    this.loyaltyProgramOnly = false,
+    this.loyaltyProgramName,
     this.metadata,
     this.variation,
   });
@@ -65,6 +79,13 @@ class Price extends Equatable {
     String? notes,
     bool? isPromotional,
     DateTime? promotionalUntil,
+    String? ncmCode,
+    String? eanCode,
+    String? cnpj,
+    DateTime? validUntil,
+    bool? promotion,
+    bool? loyaltyProgramOnly,
+    String? loyaltyProgramName,
     Map<String, dynamic>? metadata,
     double? variation,
   }) {
@@ -87,6 +108,13 @@ class Price extends Equatable {
       notes: notes ?? this.notes,
       isPromotional: isPromotional ?? this.isPromotional,
       promotionalUntil: promotionalUntil ?? this.promotionalUntil,
+      ncmCode: ncmCode ?? this.ncmCode,
+      eanCode: eanCode ?? this.eanCode,
+      cnpj: cnpj ?? this.cnpj,
+      validUntil: validUntil ?? this.validUntil,
+      promotion: promotion ?? this.promotion,
+      loyaltyProgramOnly: loyaltyProgramOnly ?? this.loyaltyProgramOnly,
+      loyaltyProgramName: loyaltyProgramName ?? this.loyaltyProgramName,
       metadata: metadata ?? this.metadata,
       variation: variation ?? this.variation,
     );
@@ -128,6 +156,13 @@ class Price extends Equatable {
         notes,
         isPromotional,
         promotionalUntil,
+        ncmCode,
+        eanCode,
+        cnpj,
+        validUntil,
+        promotion,
+        loyaltyProgramOnly,
+        loyaltyProgramName,
         metadata,
         variation,
       ];
