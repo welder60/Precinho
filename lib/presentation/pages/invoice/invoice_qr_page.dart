@@ -20,37 +20,33 @@ class InvoiceQrPage extends ConsumerStatefulWidget {
 
 class _InvoiceQrPageState extends ConsumerState<InvoiceQrPage> {
   final _picker = ImagePicker();
+  final MobileScannerController _controller = MobileScannerController();
   File? _image;
   String? _qrLink;
+
+  void _onDetect(BarcodeCapture capture) {
+    if (_qrLink != null) return;
+    if (capture.barcodes.isNotEmpty) {
+      final value = capture.barcodes.first.rawValue;
+      if (value != null) {
+        setState(() {
+          _qrLink = value;
+        });
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   Future<void> _pickImage(ImageSource source) async {
     final picked = await _picker.pickImage(source: source, imageQuality: AppConstants.imageQuality);
     if (picked == null) return;
-    if (source == ImageSource.camera) {
-      _image = File(picked.path);
-      await _scanQr(File(picked.path));
-    } else {
-      _image = File(picked.path);
-      await _scanQr(File(picked.path));
-    }
+    _image = File(picked.path);
     setState(() {});
-  }
-
-  Future<void> _scanQr(File file) async {
-    final scanner = MobileScannerController();
-    try {
-      final bool success = await scanner.analyzeImage(file.path);
-      if (success) {
-        final capture = await scanner.barcodes.first;
-        if (capture.barcodes.isNotEmpty) {
-          _qrLink = capture.barcodes.first.rawValue;
-        }
-      }
-    } catch (e) {
-      FirebaseLogger.log('qr_scan_error', {'error': e.toString()});
-    } finally {
-      scanner.dispose();
-    }
   }
 
   Future<void> _submit() async {
@@ -82,6 +78,17 @@ class _InvoiceQrPageState extends ConsumerState<InvoiceQrPage> {
         padding: const EdgeInsets.all(AppTheme.paddingLarge),
         child: Column(
           children: [
+            Expanded(
+              child: MobileScanner(
+                controller: _controller,
+                onDetect: _onDetect,
+              ),
+            ),
+            if (_qrLink != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: AppTheme.paddingMedium),
+                child: Text(_qrLink!),
+              ),
             if (_image != null)
               Image.file(_image!, height: 200),
             const SizedBox(height: AppTheme.paddingMedium),
@@ -90,8 +97,8 @@ class _InvoiceQrPageState extends ConsumerState<InvoiceQrPage> {
               children: [
                 ElevatedButton.icon(
                   onPressed: () => _pickImage(ImageSource.camera),
-                  icon: const Icon(Icons.qr_code_scanner),
-                  label: const Text('Escanear'),
+                  icon: const Icon(Icons.camera_alt),
+                  label: const Text('Foto'),
                 ),
                 ElevatedButton.icon(
                   onPressed: () => _pickImage(ImageSource.gallery),
@@ -102,7 +109,7 @@ class _InvoiceQrPageState extends ConsumerState<InvoiceQrPage> {
             ),
             const SizedBox(height: AppTheme.paddingLarge),
             ElevatedButton(
-              onPressed: _image != null && _qrLink != null ? _submit : null,
+              onPressed: _qrLink != null && _image != null ? _submit : null,
               child: const Text('Enviar'),
             ),
           ],

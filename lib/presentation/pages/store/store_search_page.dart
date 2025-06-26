@@ -135,22 +135,26 @@ class _StoreSearchPageState extends ConsumerState<StoreSearchPage> {
                           color: AppTheme.primaryColor,
                         ),
                         title: Text(data['name'] ?? 'Comércio'),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        subtitle: Text(data['address'] ?? ''),
+                        trailing: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Text(data['address'] ?? ''),
                             if (distance != null)
-                              Text(Formatters.formatDistance(distance)),
+                              Text(
+                                Formatters.formatDistance(distance),
+                                style: const TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            IconButton(
+                              icon: Icon(
+                                isFav ? Icons.star : Icons.star_border,
+                                color: isFav ? Colors.amber : AppTheme.textSecondaryColor,
+                              ),
+                              onPressed: () {
+                                ref.read(storeFavoritesProvider.notifier).toggleFavorite(doc.id);
+                              },
+                            ),
                           ],
-                        ),
-                        trailing: IconButton(
-                          icon: Icon(
-                            isFav ? Icons.star : Icons.star_border,
-                            color: isFav ? Colors.amber : AppTheme.textSecondaryColor,
-                          ),
-                          onPressed: () {
-                            ref.read(storeFavoritesProvider.notifier).toggleFavorite(doc.id);
-                          },
                         ),
                         onTap: () {
                           if (widget.onSelected != null) {

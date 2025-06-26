@@ -112,7 +112,7 @@ class _ProductSearchPageState extends ConsumerState<ProductSearchPage> {
                             const EdgeInsets.all(AppTheme.paddingMedium),
                         gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
+                          crossAxisCount: 2,
                           crossAxisSpacing: AppTheme.paddingMedium,
                           mainAxisSpacing: AppTheme.paddingMedium,
                           childAspectRatio: 0.8,
@@ -165,12 +165,6 @@ class _ProductSearchPageState extends ConsumerState<ProductSearchPage> {
                                     Text(
                                       _buildLabel(data),
                                       maxLines: 2,
-                                      textAlign: TextAlign.center,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    Text(
-                                      data['brand'] ?? '',
-                                      maxLines: 1,
                                       textAlign: TextAlign.center,
                                       overflow: TextOverflow.ellipsis,
                                     ),
