@@ -181,28 +181,6 @@ class _FeedPageState extends State<FeedPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(data['store_name'] ?? ''),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          if (userPhoto != null && userPhoto.isNotEmpty)
-                            CircleAvatar(
-                              radius: 10,
-                              backgroundImage: NetworkImage(userPhoto),
-                            )
-                          else
-                            const CircleAvatar(
-                              radius: 10,
-                              child: Icon(Icons.person, size: 12),
-                            ),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: Text(
-                              userName,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
                     ],
                   ),
                   trailing: Column(

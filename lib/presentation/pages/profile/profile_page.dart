@@ -4,6 +4,7 @@ import '../../../core/themes/app_theme.dart';
 import '../../../core/utils/formatters.dart';
 import '../../providers/auth_provider.dart';
 import '../admin/admin_home_page.dart';
+import 'contributions_page.dart';
 
 class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
@@ -152,30 +153,9 @@ class ProfilePage extends ConsumerWidget {
                 Expanded(
                   child: _buildStatItem(
                     context,
-                    'Comércios Visitados',
-                    '15', // Placeholder
-                    Icons.store,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: AppTheme.paddingMedium),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildStatItem(
-                    context,
                     'Listas Criadas',
                     '8', // Placeholder
                     Icons.list,
-                  ),
-                ),
-                Expanded(
-                  child: _buildStatItem(
-                    context,
-                    'Ranking',
-                    '#127', // Placeholder
-                    Icons.leaderboard,
                   ),
                 ),
               ],
@@ -232,29 +212,12 @@ class ProfilePage extends ConsumerWidget {
           'Preços e comércios cadastrados',
           Icons.history,
           () {
-            // TODO: Navegar para contribuições
-          },
-        ),
-
-        // Conquistas
-        _buildMenuItem(
-          context,
-          'Conquistas',
-          'Badges e marcos alcançados',
-          Icons.emoji_events,
-          () {
-            // TODO: Navegar para conquistas
-          },
-        ),
-
-        // Ranking
-        _buildMenuItem(
-          context,
-          'Ranking',
-          'Veja sua posição no ranking',
-          Icons.leaderboard,
-          () {
-            // TODO: Navegar para ranking
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const ContributionsPage(),
+              ),
+            );
           },
         ),
 

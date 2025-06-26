@@ -132,6 +132,12 @@ class FirebaseAuthService implements AuthService {
       }
       FirebaseLogger.log('Google sign in success', {'uid': userCredential.user!.uid});
       return _mapFirebaseUserToUserModel(userCredential.user!);
+    } on firebase_auth.FirebaseAuthException catch (e) {
+      FirebaseLogger.log('Google oauth error', {'code': e.code});
+      throw AuthenticationFailure(
+        message: _getAuthErrorMessage(e.code),
+        code: e.hashCode,
+      );
     } catch (e) {
       if (e is AuthenticationFailure) rethrow;
       FirebaseLogger.log('Google sign in error', {'error': e.toString()});
