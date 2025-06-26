@@ -1,11 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/constants/app_constants.dart';
 import '../../../core/themes/app_theme.dart';
 import '../../../core/logging/firebase_logger.dart';
 import '../../providers/auth_provider.dart';
@@ -19,21 +15,51 @@ class InvoiceQrPage extends ConsumerStatefulWidget {
 }
 
 class _InvoiceQrPageState extends ConsumerState<InvoiceQrPage> {
-  final _picker = ImagePicker();
   final MobileScannerController _controller = MobileScannerController();
-  File? _image;
   String? _qrLink;
+  bool _isProcessing = false;
 
-  void _onDetect(BarcodeCapture capture) {
-    if (_qrLink != null) return;
-    if (capture.barcodes.isNotEmpty) {
-      final value = capture.barcodes.first.rawValue;
-      if (value != null) {
-        setState(() {
-          _qrLink = value;
-        });
-      }
+  String? _extractAccessKey(String data) {
+    final match = RegExp(r'(\d{44})').firstMatch(data);
+    if (match == null) return null;
+    final key = match.group(0)!;
+    if (_validateAccessKey(key)) return key;
+    return null;
+  }
+
+  bool _validateAccessKey(String key) {
+    if (key.length != 44) return false;
+    final digits = key.split('').map(int.parse).toList();
+    var weight = 2;
+    var sum = 0;
+    for (var i = digits.length - 2; i >= 0; i--) {
+      sum += digits[i] * weight;
+      weight = weight == 9 ? 2 : weight + 1;
     }
+    final mod = sum % 11;
+    final dv = mod == 0 || mod == 1 ? 0 : 11 - mod;
+    return dv == digits.last;
+  }
+
+  Future<void> _onDetect(BarcodeCapture capture) async {
+    if (_isProcessing) return;
+    if (capture.barcodes.isEmpty) return;
+    final value = capture.barcodes.first.rawValue;
+    if (value == null) return;
+    final key = _extractAccessKey(value);
+    if (key == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('QR Code n\u00e3o \u00e9 uma Nota Fiscal')),
+        );
+      }
+      return;
+    }
+    setState(() {
+      _qrLink = value;
+      _isProcessing = true;
+    });
+    await _submit(key);
   }
 
   @override
@@ -42,24 +68,21 @@ class _InvoiceQrPageState extends ConsumerState<InvoiceQrPage> {
     super.dispose();
   }
 
-  Future<void> _pickImage(ImageSource source) async {
-    final picked = await _picker.pickImage(source: source, imageQuality: AppConstants.imageQuality);
-    if (picked == null) return;
-    _image = File(picked.path);
-    setState(() {});
-  }
-
-  Future<void> _submit() async {
+  Future<void> _submit(String key) async {
     final user = ref.read(currentUserProvider);
-    if (_image == null || _qrLink == null || user == null) return;
+    if (_qrLink == null || user == null) return;
+    final cnpj = key.substring(6, 20);
     try {
       await ContributionService().submitInvoice(
-        image: _image!,
         qrLink: _qrLink!,
+        accessKey: key,
+        cnpj: cnpj,
         userId: user.id,
       );
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Enviado para análise')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Nota fiscal cadastrada com sucesso')),
+        );
         Navigator.pop(context);
       }
     } catch (e) {
@@ -67,6 +90,8 @@ class _InvoiceQrPageState extends ConsumerState<InvoiceQrPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erro: $e')));
       }
+    } finally {
+      if (mounted) setState(() => _isProcessing = false);
     }
   }
 
@@ -89,29 +114,9 @@ class _InvoiceQrPageState extends ConsumerState<InvoiceQrPage> {
                 padding: const EdgeInsets.symmetric(vertical: AppTheme.paddingMedium),
                 child: Text(_qrLink!),
               ),
-            if (_image != null)
-              Image.file(_image!, height: 200),
-            const SizedBox(height: AppTheme.paddingMedium),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton.icon(
-                  onPressed: () => _pickImage(ImageSource.camera),
-                  icon: const Icon(Icons.camera_alt),
-                  label: const Text('Foto'),
-                ),
-                ElevatedButton.icon(
-                  onPressed: () => _pickImage(ImageSource.gallery),
-                  icon: const Icon(Icons.photo),
-                  label: const Text('Galeria'),
-                ),
-              ],
-            ),
             const SizedBox(height: AppTheme.paddingLarge),
-            ElevatedButton(
-              onPressed: _qrLink != null && _image != null ? _submit : null,
-              child: const Text('Enviar'),
-            ),
+            if (_isProcessing)
+              const CircularProgressIndicator(),
           ],
         ),
       ),

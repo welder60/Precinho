@@ -42,19 +42,27 @@ class ContributionService {
   }
 
   Future<void> submitInvoice({
-    required File image,
     required String qrLink,
+    required String accessKey,
+    required String cnpj,
     required String userId,
   }) async {
-    final path = 'invoices/${DateTime.now().millisecondsSinceEpoch}.jpg';
-    final ref = _storage.ref().child(path);
-    await ref.putFile(image);
-    final url = await ref.getDownloadURL();
+    final existing = await _firestore
+        .collection('contributions')
+        .where('type', isEqualTo: ContributionType.invoice.value)
+        .where('access_key', isEqualTo: accessKey)
+        .limit(1)
+        .get();
+    if (existing.docs.isNotEmpty) {
+      throw Exception('Nota fiscal j\u00e1 cadastrada');
+    }
+
     final data = {
       'type': ContributionType.invoice.value,
       'user_id': userId,
-      'image_url': url,
       'qr_link': qrLink,
+      'access_key': accessKey,
+      'cnpj': cnpj,
       'created_at': Timestamp.now(),
       'status': ModerationStatus.pending.value,
       'points': AppConstants.pointsForInvoice,
