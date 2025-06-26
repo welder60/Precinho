@@ -18,6 +18,7 @@ void main() async {
 
   if (Firebase.apps.isEmpty) {
     await Firebase.initializeApp(
+      name: 'Precinho',
       options: DefaultFirebaseOptions.currentPlatform,
     );
   }
