@@ -152,6 +152,7 @@ flutter pub get
 4. **Configure as APIs e variáveis de ambiente:**
    - Copie `.env.example` para `.env` e preencha suas chaves.
    - Para a versão web, copie `web/env.js.example` para `web/env.js` com os mesmos valores.
+   - Em ambientes de CI (como o GitHub Actions), esses arquivos são gerados automaticamente a partir de **Secrets** configurados no repositório (utilizando os mesmos nomes de variáveis definidos em `.env.example`).
    - As principais variáveis são:
      - `GOOGLE_MAPS_API_KEY`
      - `GOOGLE_SIGNIN_CLIENT_ID`
