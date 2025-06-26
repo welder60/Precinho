@@ -1,6 +1,6 @@
 {
-    "name": "precinho_app",
-    "short_name": "precinho_app",
+    "name": "Precinho",
+    "short_name": "Precinho",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
