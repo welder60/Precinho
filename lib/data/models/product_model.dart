@@ -10,6 +10,7 @@ class ProductModel extends Product {
     super.imageUrl,
     required super.category,
     super.barcode,
+    super.ncmCode,
     super.equivalentProductIds = const [],
     required super.isFractional,
     required super.isApproved,
@@ -34,6 +35,7 @@ class ProductModel extends Product {
         orElse: () => ProductCategory.other,
       ),
       barcode: json['barcode'] as String?,
+      ncmCode: json['ncm_code'] as String?,
       equivalentProductIds: (json['equivalent_product_ids'] as List?)
               ?.cast<String>() ??
           const [],
@@ -61,6 +63,7 @@ class ProductModel extends Product {
       'image_url': imageUrl,
       'category': category.value,
       'barcode': barcode,
+      'ncm_code': ncmCode,
       'equivalent_product_ids': equivalentProductIds,
       'is_fractional': isFractional,
       'is_approved': isApproved,
@@ -83,6 +86,7 @@ class ProductModel extends Product {
       imageUrl: product.imageUrl,
       category: product.category,
       barcode: product.barcode,
+      ncmCode: product.ncmCode,
       equivalentProductIds: product.equivalentProductIds,
       isFractional: product.isFractional,
       isApproved: product.isApproved,
@@ -104,6 +108,7 @@ class ProductModel extends Product {
     String? imageUrl,
     ProductCategory? category,
     String? barcode,
+    String? ncmCode,
     List<String>? equivalentProductIds,
     bool? isFractional,
     bool? isApproved,
@@ -123,6 +128,7 @@ class ProductModel extends Product {
       imageUrl: imageUrl ?? this.imageUrl,
       category: category ?? this.category,
       barcode: barcode ?? this.barcode,
+      ncmCode: ncmCode ?? this.ncmCode,
       equivalentProductIds:
           equivalentProductIds ?? this.equivalentProductIds,
       isFractional: isFractional ?? this.isFractional,

@@ -9,6 +9,7 @@ class Product extends Equatable {
   final String? imageUrl;
   final ProductCategory category;
   final String? barcode;
+  final String? ncmCode;
   final List<String> equivalentProductIds;
   final bool isFractional;
   final bool isApproved;
@@ -28,6 +29,7 @@ class Product extends Equatable {
     this.imageUrl,
     required this.category,
     this.barcode,
+    this.ncmCode,
     this.equivalentProductIds = const [],
     required this.isFractional,
     required this.isApproved,
@@ -48,6 +50,7 @@ class Product extends Equatable {
     String? imageUrl,
     ProductCategory? category,
     String? barcode,
+    String? ncmCode,
     List<String>? equivalentProductIds,
     bool? isFractional,
     bool? isApproved,
@@ -67,6 +70,7 @@ class Product extends Equatable {
       imageUrl: imageUrl ?? this.imageUrl,
       category: category ?? this.category,
       barcode: barcode ?? this.barcode,
+      ncmCode: ncmCode ?? this.ncmCode,
       equivalentProductIds:
           equivalentProductIds ?? this.equivalentProductIds,
       isFractional: isFractional ?? this.isFractional,
@@ -94,6 +98,7 @@ class Product extends Equatable {
         imageUrl,
         category,
         barcode,
+        ncmCode,
         equivalentProductIds,
         isFractional,
         isApproved,

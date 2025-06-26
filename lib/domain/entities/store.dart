@@ -20,6 +20,8 @@ class Store extends Equatable {
   final double? rating;
   final int reviewCount;
   final Map<String, dynamic>? metadata;
+  final bool hasLoyaltyProgram;
+  final String? loyaltyProgramName;
 
   const Store({
     required this.id,
@@ -40,6 +42,8 @@ class Store extends Equatable {
     this.rating,
     required this.reviewCount,
     this.metadata,
+    this.hasLoyaltyProgram = false,
+    this.loyaltyProgramName,
   });
 
   Store copyWith({
@@ -61,6 +65,8 @@ class Store extends Equatable {
     double? rating,
     int? reviewCount,
     Map<String, dynamic>? metadata,
+    bool? hasLoyaltyProgram,
+    String? loyaltyProgramName,
   }) {
     return Store(
       id: id ?? this.id,
@@ -81,6 +87,8 @@ class Store extends Equatable {
       rating: rating ?? this.rating,
       reviewCount: reviewCount ?? this.reviewCount,
       metadata: metadata ?? this.metadata,
+      hasLoyaltyProgram: hasLoyaltyProgram ?? this.hasLoyaltyProgram,
+      loyaltyProgramName: loyaltyProgramName ?? this.loyaltyProgramName,
     );
   }
 
@@ -107,6 +115,8 @@ class Store extends Equatable {
         rating,
         reviewCount,
         metadata,
+        hasLoyaltyProgram,
+        loyaltyProgramName,
       ];
 
   @override
