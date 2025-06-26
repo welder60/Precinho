@@ -189,8 +189,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         const SizedBox(height: AppTheme.paddingLarge),
 
                         // Link para cadastro
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        Wrap(
+                          alignment: WrapAlignment.center,
+                          crossAxisAlignment: WrapCrossAlignment.center,
                           children: [
                             Text(
                               'Não tem uma conta? ',
