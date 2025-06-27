@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import '../../../core/themes/app_theme.dart';
 import '../../../core/utils/formatters.dart';
 import 'add_price_page.dart';
+import 'package:share_plus/share_plus.dart';
+import 'dart:io';
+import 'package:http/http.dart' as http;
 
 class PriceDetailPage extends StatelessWidget {
   final DocumentSnapshot price;
@@ -33,6 +36,28 @@ class PriceDetailPage extends StatelessWidget {
         builder: (_) => AddPricePage(product: productDoc, store: storeDoc),
       ),
     );
+  }
+
+  Future<void> _sharePrice() async {
+    final data = price.data() as Map<String, dynamic>;
+    final imageUrl = data['image_url'] as String?;
+    final productName = data['product_name'] as String? ?? 'Produto';
+    final storeName = data['store_name'] as String? ?? 'Comércio';
+    final value = Formatters.formatPrice((data['price'] as num).toDouble());
+    final link = 'precinho://price/${price.id}';
+
+    XFile? file;
+    if (imageUrl != null && imageUrl.isNotEmpty) {
+      final resp = await http.get(Uri.parse(imageUrl));
+      file = XFile.fromData(resp.bodyBytes, name: 'price.jpg', mimeType: 'image/jpeg');
+    }
+
+    final text = '$productName no $storeName por $value\nVeja mais: $link';
+    if (file != null) {
+      await Share.shareXFiles([file], text: text);
+    } else {
+      await Share.share(text);
+    }
   }
 
   Future<Map<String, DocumentSnapshot?>> _fetchExtraDetails() async {
@@ -67,6 +92,12 @@ class PriceDetailPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Detalhes do Preço'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.share),
+            onPressed: _sharePrice,
+          )
+        ],
       ),
       body: FutureBuilder<Map<String, DocumentSnapshot?>>(
         future: _fetchExtraDetails(),
