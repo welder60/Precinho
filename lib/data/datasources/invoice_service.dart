@@ -39,6 +39,15 @@ class InvoiceService {
     await _firestore.collection('invoices').add(data);
   }
 
+  Future<bool> invoiceExists(String accessKey) async {
+    final existing = await _firestore
+        .collection('invoices')
+        .where('access_key', isEqualTo: accessKey)
+        .limit(1)
+        .get();
+    return existing.docs.isNotEmpty;
+  }
+
   Stream<QuerySnapshot> userInvoices(String userId) {
     return _firestore
         .collection('invoices')
