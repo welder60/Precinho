@@ -130,6 +130,10 @@ class _StoreSearchPageState extends ConsumerState<StoreSearchPage> {
                     final distance = item['distance'] as double?;
                     return Card(
                       child: ListTile(
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
                         isThreeLine: true,
                         leading: const Icon(
                           Icons.store,
