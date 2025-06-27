@@ -180,21 +180,17 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
                   ),
                 ),
               Expanded(
-                child: GridView.builder(
+                child: ListView.builder(
                   padding: const EdgeInsets.all(AppTheme.paddingMedium),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    crossAxisSpacing: AppTheme.paddingMedium,
-                    mainAxisSpacing: AppTheme.paddingMedium,
-                    childAspectRatio: 0.8,
-                  ),
                   itemCount: prices.length,
                   itemBuilder: (context, index) {
                     final doc = prices[index];
                     final priceData = doc.data() as Map<String, dynamic>;
-                    final productName = priceData['product_name'] as String? ?? '';
+                    final productName =
+                        priceData['product_name'] as String? ?? '';
                     final productId = priceData['product_id'] as String?;
-                    final info = productId != null ? _productInfo[productId] : null;
+                    final info =
+                        productId != null ? _productInfo[productId] : null;
                     final String? imageUrl =
                         info != null ? info['image_url'] as String? : null;
                     final volume = info != null ? info['volume'] : null;
@@ -204,7 +200,59 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
                       label = '$productName (${volume.toString()} $unit)';
                     }
 
-                    return GestureDetector(
+                    return ListTile(
+                      leading: imageUrl != null && imageUrl.isNotEmpty
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                              child: Image.network(
+                                imageUrl,
+                                width: 56,
+                                height: 56,
+                                fit: BoxFit.cover,
+                              ),
+                            )
+                          : const Icon(
+                              Icons.shopping_bag,
+                              color: AppTheme.primaryColor,
+                            ),
+                      title: Text(label),
+                      trailing: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            Formatters.formatPrice(
+                                (priceData['price'] as num).toDouble()),
+                            style: AppTheme.priceTextStyle,
+                          ),
+                          if (priceData['variation'] != null)
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  (priceData['variation'] as num) > 0
+                                      ? Icons.arrow_upward
+                                      : Icons.arrow_downward,
+                                  color: (priceData['variation'] as num) > 0
+                                      ? AppTheme.errorColor
+                                      : AppTheme.successColor,
+                                  size: 14,
+                                ),
+                                const SizedBox(width: 2),
+                                Text(
+                                  Formatters.formatPercentage(
+                                      ((priceData['variation'] as num).abs()).toDouble()),
+                                  style: TextStyle(
+                                    color: (priceData['variation'] as num) > 0
+                                        ? AppTheme.errorColor
+                                        : AppTheme.successColor,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                        ],
+                      ),
                       onTap: () {
                         Navigator.push(
                           context,
@@ -213,77 +261,10 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
                           ),
                         );
                       },
-                      child: Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(AppTheme.paddingSmall),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                child: imageUrl != null && imageUrl.isNotEmpty
-                                    ? ClipRRect(
-                                        borderRadius: BorderRadius.circular(
-                                            AppTheme.radiusSmall),
-                                        child: Image.network(
-                                          imageUrl,
-                                          fit: BoxFit.contain,
-                                          width: double.infinity,
-                                        ),
-                                      )
-                                    : const Icon(
-                                        Icons.shopping_bag,
-                                        size: 40,
-                                        color: AppTheme.primaryColor,
-                                      ),
-                              ),
-                              const SizedBox(height: AppTheme.paddingSmall),
-                                Text(
-                                  label,
-                                  maxLines: 2,
-                                  textAlign: TextAlign.center,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              Text(
-                                Formatters.formatPrice((priceData['price'] as num).toDouble()),
-                                textAlign: TextAlign.center,
-                                style: AppTheme.priceTextStyle,
-                              ),
-                              if (priceData['variation'] != null)
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      (priceData['variation'] as num) > 0
-                                          ? Icons.arrow_upward
-                                          : Icons.arrow_downward,
-                                      color: (priceData['variation'] as num) > 0
-                                          ? AppTheme.errorColor
-                                          : AppTheme.successColor,
-                                      size: 14,
-                                    ),
-                                    const SizedBox(width: 2),
-                                    Text(
-                                      Formatters.formatPercentage(
-                                          ((priceData['variation'] as num).abs()).toDouble()),
-                                      style: TextStyle(
-                                        color: (priceData['variation'] as num) > 0
-                                            ? AppTheme.errorColor
-                                            : AppTheme.successColor,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                            ],
-                          ),
-                        ),
-                      ),
                     );
                   },
                 ),
               ),
-            ],
           );
         },
             ),
