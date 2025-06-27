@@ -1,30 +1,41 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
 import '../../../core/themes/app_theme.dart';
 import '../../../core/utils/formatters.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/shopping_list_provider.dart';
 import '../price/price_detail_page.dart';
 import '../price/price_photo_page.dart';
 import '../invoice/invoice_qr_page.dart';
+import '../auth/login_page.dart';
 
-class FeedPage extends StatefulWidget {
+class FeedPage extends ConsumerStatefulWidget {
   const FeedPage({super.key});
 
   @override
-  State<FeedPage> createState() => _FeedPageState();
+  ConsumerState<FeedPage> createState() => _FeedPageState();
 }
 
-class _FeedPageState extends State<FeedPage> {
+class _FeedPageState extends ConsumerState<FeedPage> {
   final Map<String, Map<String, dynamic>> _productInfo = {};
   final Map<String, Map<String, dynamic>> _userInfo = {};
+  final Map<String, Map<String, dynamic>> _storeInfo = {};
+  final Map<String, int> _likesCount = {};
+  final Set<String> _liked = {};
+  final Set<String> _likeLoading = {};
   final List<DocumentSnapshot> _docs = [];
   final ScrollController _controller = ScrollController();
   DocumentSnapshot? _lastDoc;
   bool _isLoading = false;
   bool _hasMore = true;
+  Position? _position;
 
   @override
   void initState() {
     super.initState();
+    _loadLocation();
     _fetchMore();
     _controller.addListener(() {
       if (_controller.position.pixels >=
@@ -40,6 +51,32 @@ class _FeedPageState extends State<FeedPage> {
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadLocation() async {
+    try {
+      final perm = await Geolocator.requestPermission();
+      if (perm != LocationPermission.denied &&
+          perm != LocationPermission.deniedForever) {
+        final pos = await Geolocator.getCurrentPosition();
+        _position = pos;
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _fetchStores(Iterable<String> ids) async {
+    final missing = ids.where((id) => !_storeInfo.containsKey(id)).toList();
+    for (var i = 0; i < missing.length; i += 10) {
+      final chunk = missing.sublist(i, i + 10 > missing.length ? missing.length : i + 10);
+      final snap = await FirebaseFirestore.instance
+          .collection('stores')
+          .where(FieldPath.documentId, whereIn: chunk)
+          .get();
+      for (final doc in snap.docs) {
+        _storeInfo[doc.id] = doc.data();
+      }
+    }
+    if (mounted) setState(() {});
   }
 
   Future<void> _fetchProducts(Iterable<String> ids) async {
@@ -97,6 +134,10 @@ class _FeedPageState extends State<FeedPage> {
           .map((d) => (d.data() as Map<String, dynamic>)['user_id'] as String?)
           .whereType<String>()
           .toSet();
+      final storeIds = _docs
+          .map((d) => (d.data() as Map<String, dynamic>)['store_id'] as String?)
+          .whereType<String>()
+          .toSet();
 
       if (productIds.any((id) => !_productInfo.containsKey(id))) {
         await _fetchProducts(productIds);
@@ -104,11 +145,171 @@ class _FeedPageState extends State<FeedPage> {
       if (userIds.any((id) => !_userInfo.containsKey(id))) {
         await _fetchUsers(userIds);
       }
+      if (storeIds.any((id) => !_storeInfo.containsKey(id))) {
+        await _fetchStores(storeIds);
+      }
     } else {
       _hasMore = false;
     }
 
     if (mounted) setState(() => _isLoading = false);
+  }
+
+  Future<void> _refresh() async {
+    _docs.clear();
+    _lastDoc = null;
+    _hasMore = true;
+    await _fetchMore();
+  }
+
+  Future<void> _ensureLikeInfo(DocumentSnapshot doc) async {
+    final id = doc.id;
+    if (_likesCount.containsKey(id) && _liked.contains(id)) return;
+    final data = doc.data() as Map<String, dynamic>;
+    _likesCount[id] = (data['likes_count'] as int?) ?? 0;
+    final user = ref.read(currentUserProvider);
+    if (user != null) {
+      try {
+        final likeSnap = await doc.reference.collection('likes').doc(user.id).get();
+        if (likeSnap.exists) {
+          _liked.add(id);
+        }
+      } catch (_) {}
+    }
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _toggleLike(DocumentSnapshot doc) async {
+    final user = ref.read(currentUserProvider);
+    if (user == null) {
+      if (mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginPage()),
+        );
+      }
+      return;
+    }
+
+    if (_likeLoading.contains(doc.id)) return;
+
+    setState(() => _likeLoading.add(doc.id));
+
+    final liked = _liked.contains(doc.id);
+    try {
+      final likeRef = doc.reference.collection('likes').doc(user.id);
+      if (liked) {
+        await likeRef.delete();
+        await doc.reference.update({'likes_count': FieldValue.increment(-1)});
+        _liked.remove(doc.id);
+        _likesCount[doc.id] = (_likesCount[doc.id] ?? 1) - 1;
+      } else {
+        await likeRef.set({'created_at': Timestamp.now()});
+        await doc.reference.update({'likes_count': FieldValue.increment(1)});
+        _liked.add(doc.id);
+        _likesCount[doc.id] = (_likesCount[doc.id] ?? 0) + 1;
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(liked ? 'Erro ao remover like' : 'Erro ao curtir'),
+            backgroundColor: AppTheme.errorColor,
+          ),
+        );
+      }
+    }
+
+    if (mounted) {
+      setState(() => _likeLoading.remove(doc.id));
+    } else {
+      _likeLoading.remove(doc.id);
+    }
+  }
+
+  Future<void> _addToList(DocumentSnapshot doc) async {
+    final user = ref.read(currentUserProvider);
+    if (user == null) {
+      if (mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginPage()),
+        );
+      }
+      return;
+    }
+    final lists = ref.read(shoppingListProvider);
+    String? selectedId = lists.isNotEmpty ? lists.first.id : null;
+    final quantityController = TextEditingController(text: '1');
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Adicionar à lista'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (lists.isNotEmpty)
+              DropdownButtonFormField<String>(
+                value: selectedId,
+                items: [
+                  for (final l in lists)
+                    DropdownMenuItem(value: l.id, child: Text(l.name)),
+                ],
+                onChanged: (v) => selectedId = v,
+                decoration: const InputDecoration(labelText: 'Lista'),
+              ),
+            if (lists.isEmpty)
+              TextField(
+                decoration: const InputDecoration(labelText: 'Nome da lista'),
+                onChanged: (v) => selectedId = v,
+              ),
+            TextField(
+              controller: quantityController,
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              decoration: const InputDecoration(labelText: 'Quantidade'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Adicionar'),
+          ),
+        ],
+      ),
+    );
+
+    if (result != true || selectedId == null) return;
+
+    var listId = selectedId;
+    if (lists.isEmpty) {
+      listId = ref.read(shoppingListProvider.notifier).createList(selectedId!);
+    }
+
+    final quantity = double.tryParse(quantityController.text) ?? 1;
+    quantityController.dispose();
+
+    final data = doc.data() as Map<String, dynamic>;
+    ref.read(shoppingListProvider.notifier).addProductToList(
+      listId: listId,
+      productId: data['product_id'],
+      productName: data['product_name'] ?? 'Produto',
+      quantity: quantity,
+      price: (data['price'] as num?)?.toDouble(),
+      storeId: data['store_id'],
+      storeName: data['store_name'],
+    );
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Adicionado à lista')),
+      );
+    }
   }
 
   @override
@@ -170,65 +371,28 @@ class _FeedPageState extends State<FeedPage> {
               final userPhoto = user?['photo_url'] as String?;
               final userName = user?['name'] as String? ?? 'Usu\u00e1rio';
 
+              final storeId = data['store_id'] as String?;
+              final store = storeId != null ? _storeInfo[storeId] : null;
+              final storeImage = store?['image_url'] as String?;
+              final lat = (data['latitude'] as num?)?.toDouble();
+              final lng = (data['longitude'] as num?)?.toDouble();
+              double? distance;
+              if (_position != null && lat != null && lng != null) {
+                distance = Geolocator.distanceBetween(
+                      _position!.latitude,
+                      _position!.longitude,
+                      lat,
+                      lng,
+                    ) /
+                    1000.0;
+              }
+              final createdAt = (data['created_at'] as Timestamp?)?.toDate();
+              Future.microtask(() => _ensureLikeInfo(doc));
+              final likes = _likesCount[doc.id] ?? 0;
+              final isLiked = _liked.contains(doc.id);
+
               return Card(
-                child: ListTile(
-                  leading: productImage != null && productImage.isNotEmpty
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-                          child: Image.network(
-                            productImage,
-                            width: 56,
-                            height: 56,
-                            fit: BoxFit.cover,
-                          ),
-                        )
-                      : const Icon(
-                          Icons.shopping_bag,
-                          color: AppTheme.primaryColor,
-                        ),
-                  title: Text(data['product_name'] ?? 'Produto'),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(data['store_name'] ?? ''),
-                    ],
-                  ),
-                  trailing: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        Formatters.formatPrice((data['price'] as num).toDouble()),
-                        style: AppTheme.priceTextStyle,
-                      ),
-                      if (data['variation'] != null)
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              (data['variation'] as num) > 0
-                                  ? Icons.arrow_upward
-                                  : Icons.arrow_downward,
-                              color: (data['variation'] as num) > 0
-                                  ? AppTheme.errorColor
-                                  : AppTheme.successColor,
-                              size: 14,
-                            ),
-                            const SizedBox(width: 2),
-                            Text(
-                              Formatters.formatPercentage(
-                                  ((data['variation'] as num).abs()).toDouble()),
-                              style: TextStyle(
-                                color: (data['variation'] as num) > 0
-                                    ? AppTheme.errorColor
-                                    : AppTheme.successColor,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                        ),
-                    ],
-                  ),
+                child: InkWell(
                   onTap: () {
                     Navigator.push(
                       context,
@@ -237,6 +401,136 @@ class _FeedPageState extends State<FeedPage> {
                       ),
                     );
                   },
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppTheme.paddingSmall),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            productImage != null && productImage.isNotEmpty
+                                ? ClipRRect(
+                                    borderRadius:
+                                        BorderRadius.circular(AppTheme.radiusSmall),
+                                    child: Image.network(
+                                      productImage,
+                                      width: 56,
+                                      height: 56,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  )
+                                : const Icon(
+                                    Icons.shopping_bag,
+                                    color: AppTheme.primaryColor,
+                                    size: 56,
+                                  ),
+                            const SizedBox(width: AppTheme.paddingSmall),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(data['product_name'] ?? 'Produto'),
+                                  const SizedBox(height: 2),
+                                  Row(
+                                    children: [
+                                      if (storeImage != null && storeImage.isNotEmpty)
+                                        CircleAvatar(
+                                          backgroundImage: NetworkImage(storeImage),
+                                          radius: 10,
+                                        ),
+                                      if (storeImage != null && storeImage.isNotEmpty)
+                                        const SizedBox(width: 4),
+                                      Expanded(
+                                        child: Text(
+                                          data['store_name'] ?? '',
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  Formatters.formatPrice((data['price'] as num).toDouble()),
+                                  style: AppTheme.priceTextStyle,
+                                ),
+                                if (data['variation'] != null)
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        (data['variation'] as num) > 0
+                                            ? Icons.arrow_upward
+                                            : Icons.arrow_downward,
+                                        color: (data['variation'] as num) > 0
+                                            ? AppTheme.errorColor
+                                            : AppTheme.successColor,
+                                        size: 14,
+                                      ),
+                                      const SizedBox(width: 2),
+                                      Text(
+                                        Formatters.formatPercentage(
+                                            ((data['variation'] as num).abs()).toDouble()),
+                                        style: TextStyle(
+                                          color: (data['variation'] as num) > 0
+                                              ? AppTheme.errorColor
+                                              : AppTheme.successColor,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: AppTheme.paddingSmall),
+                        Row(
+                          children: [
+                            if (distance != null)
+                              Text(
+                                Formatters.formatDistance(distance),
+                                style: AppTheme.distanceTextStyle,
+                              ),
+                            const Spacer(),
+                            if (createdAt != null)
+                              Text(
+                                Formatters.formatDateTime(createdAt),
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            IconButton(
+                              icon: _likeLoading.contains(doc.id)
+                                  ? const SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(strokeWidth: 2),
+                                    )
+                                  : Icon(
+                                      isLiked ? Icons.favorite : Icons.favorite_border,
+                                      color: Colors.red,
+                                    ),
+                              onPressed: () => _toggleLike(doc),
+                            ),
+                            Text('$likes'),
+                            IconButton(
+                              icon: const Icon(Icons.add),
+                              onPressed: () => _addToList(doc),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
                 ),
               );
             },
