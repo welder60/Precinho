@@ -107,7 +107,13 @@ class _PricePhotoPageState extends ConsumerState<PricePhotoPage> {
         userId: user.id,
       );
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Enviado para análise')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Obrigado por contribuir! Sua imagem será analisada pela moderação.',
+            ),
+          ),
+        );
         Navigator.pop(context);
       }
     } catch (e) {
