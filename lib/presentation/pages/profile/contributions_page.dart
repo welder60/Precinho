@@ -6,49 +6,127 @@ import '../../../core/themes/app_theme.dart';
 import '../../../core/utils/formatters.dart';
 import '../../providers/auth_provider.dart';
 
-class ContributionsPage extends ConsumerWidget {
+class ContributionsPage extends ConsumerStatefulWidget {
   const ContributionsPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ContributionsPage> createState() => _ContributionsPageState();
+}
+
+class _ContributionsPageState extends ConsumerState<ContributionsPage> {
+  ModerationStatus? _filter;
+
+  @override
+  Widget build(BuildContext context) {
     final user = ref.watch(currentUserProvider);
     if (user == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
+
+    Query query = FirebaseFirestore.instance
+        .collection('contributions')
+        .where('user_id', isEqualTo: user.id);
+    if (_filter != null) {
+      query = query.where('status', isEqualTo: _filter!.value);
+    }
+    query = query.orderBy('created_at', descending: true);
+
     return Scaffold(
       appBar: AppBar(title: const Text('Minhas Contribuições')),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('contributions')
-            .where('user_id', isEqualTo: user.id)
-            .orderBy('created_at', descending: true)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          final docs = snapshot.data?.docs ?? [];
-          if (docs.isEmpty) {
-            return const Center(child: Text('Nenhuma contribuição encontrada'));
-          }
-          return ListView.builder(
-            itemCount: docs.length,
+      body: Column(
+        children: [
+          Padding(
             padding: const EdgeInsets.all(AppTheme.paddingMedium),
-            itemBuilder: (context, index) {
-              final data = docs[index].data() as Map<String, dynamic>;
-              final date = (data['created_at'] as Timestamp?)?.toDate();
-              final type = data['type'] as String? ?? '';
-              return Card(
-                child: ListTile(
-                  title: Text(type),
-                  subtitle: Text(
-                    date != null ? Formatters.formatDateTime(date) : '',
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  FilterChip(
+                    label: const Text('Todos'),
+                    selected: _filter == null,
+                    onSelected: (_) => setState(() => _filter = null),
                   ),
-                ),
-              );
-            },
-          );
-        },
+                  const SizedBox(width: 8),
+                  FilterChip(
+                    label: const Text('Aprovados'),
+                    selected: _filter == ModerationStatus.approved,
+                    onSelected: (_) =>
+                        setState(() => _filter = ModerationStatus.approved),
+                  ),
+                  const SizedBox(width: 8),
+                  FilterChip(
+                    label: const Text('Pendente'),
+                    selected: _filter == ModerationStatus.pending,
+                    onSelected: (_) =>
+                        setState(() => _filter = ModerationStatus.pending),
+                  ),
+                  const SizedBox(width: 8),
+                  FilterChip(
+                    label: const Text('Recusados'),
+                    selected: _filter == ModerationStatus.rejected,
+                    onSelected: (_) =>
+                        setState(() => _filter = ModerationStatus.rejected),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+              stream: query.snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                final docs = snapshot.data?.docs ?? [];
+                if (docs.isEmpty) {
+                  return const Center(
+                      child: Text('Nenhuma contribuição encontrada'));
+                }
+                return ListView.builder(
+                  itemCount: docs.length,
+                  padding: const EdgeInsets.all(AppTheme.paddingMedium),
+                  itemBuilder: (context, index) {
+                    final data = docs[index].data() as Map<String, dynamic>;
+                    final date = (data['created_at'] as Timestamp?)?.toDate();
+                    final type = data['type'] as String? ?? '';
+                    final status = data['status'] as String? ?? '';
+                    final imageUrl = data['image_url'] as String?;
+                    final statusLabel = ModerationStatus.values.firstWhere(
+                      (e) => e.value == status,
+                      orElse: () => ModerationStatus.pending,
+                    ).displayName;
+                    return Card(
+                      child: ListTile(
+                        leading: imageUrl != null && imageUrl.isNotEmpty
+                            ? ClipRRect(
+                                borderRadius:
+                                    BorderRadius.circular(AppTheme.radiusSmall),
+                                child: Image.network(
+                                  imageUrl,
+                                  width: 56,
+                                  height: 56,
+                                  fit: BoxFit.cover,
+                                ),
+                              )
+                            : const Icon(Icons.photo),
+                        title: Text(type),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (date != null)
+                              Text(Formatters.formatDateTime(date)),
+                            Text(statusLabel),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

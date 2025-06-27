@@ -137,6 +137,16 @@ class _FeedPageState extends State<FeedPage> {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const PricePhotoPage()),
+          );
+        },
+        icon: const Icon(Icons.camera_alt),
+        label: const Text('📸 Enviar preço'),
+      ),
       body: _docs.isEmpty && _isLoading
           ? const Center(child: CircularProgressIndicator())
           : ListView.builder(
