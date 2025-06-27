@@ -185,6 +185,7 @@ class _ProductSearchPageState extends ConsumerState<ProductSearchPage> {
       ),
       floatingActionButton: ref.watch(isAdminProvider)
           ? FloatingActionButton(
+              heroTag: 'product_search_fab',
               onPressed: () {
                 Navigator.push(
                   context,

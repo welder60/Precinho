@@ -85,6 +85,7 @@ class ManageStoresPage extends StatelessWidget {
         },
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'manage_stores_fab',
         onPressed: () {
           Navigator.push(
             context,

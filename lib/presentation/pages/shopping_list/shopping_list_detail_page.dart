@@ -363,6 +363,7 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
         ],
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'shopping_list_detail_fab',
         onPressed: () => _addProduct(context),
         child: const Icon(Icons.add),
       ),

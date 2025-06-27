@@ -49,6 +49,7 @@ class ShoppingListsPage extends ConsumerWidget {
               },
             ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'shopping_lists_fab',
         onPressed: () => _showCreateListDialog(context, ref),
         child: const Icon(Icons.add),
       ),

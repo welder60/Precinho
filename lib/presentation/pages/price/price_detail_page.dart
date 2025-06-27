@@ -238,6 +238,7 @@ class PriceDetailPage extends StatelessWidget {
         },
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'price_detail_fab',
         onPressed: () => _updatePrice(context),
         child: const Icon(Icons.edit),
       ),
