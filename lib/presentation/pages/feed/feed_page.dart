@@ -339,6 +339,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'feed_page_fab',
         onPressed: () {
           Navigator.push(
             context,

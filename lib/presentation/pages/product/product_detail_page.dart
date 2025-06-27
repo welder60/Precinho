@@ -79,6 +79,7 @@ class ProductDetailPage extends ConsumerWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'product_detail_fab',
         onPressed: () => _showAddToListDialog(context, ref, data),
         child: const Icon(Icons.add_shopping_cart),
       ),

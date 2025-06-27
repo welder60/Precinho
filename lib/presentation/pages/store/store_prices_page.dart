@@ -291,6 +291,7 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'store_prices_fab',
         onPressed: () {
           Navigator.push(
             context,
