@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/themes/app_theme.dart';
 import '../../../core/utils/formatters.dart';
 import '../../providers/auth_provider.dart';
+import '../../../core/constants/enums.dart';
 
 class ContributionsPage extends ConsumerStatefulWidget {
   const ContributionsPage({super.key});

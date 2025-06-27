@@ -287,7 +287,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
 
     if (result != true || selectedId == null) return;
 
-    var listId = selectedId;
+    String listId = selectedId!;
     if (lists.isEmpty) {
       listId = ref.read(shoppingListProvider.notifier).createList(selectedId!);
     }
