@@ -13,6 +13,7 @@ import '../../../core/themes/app_theme.dart';
 import '../../../core/logging/firebase_logger.dart';
 import '../../providers/auth_provider.dart';
 import '../../../data/datasources/contribution_service.dart';
+import 'price_info_page.dart';
 
 class PricePhotoPage extends ConsumerStatefulWidget {
   const PricePhotoPage({super.key});
@@ -25,6 +26,17 @@ class _PricePhotoPageState extends ConsumerState<PricePhotoPage> {
   final _picker = ImagePicker();
   File? _image;
   Position? _position;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Tire uma foto do preço do produto')),
+      );
+      _pickImage(ImageSource.camera);
+    });
+  }
 
   Future<void> _pickImage(ImageSource source) async {
     final picked = await _picker.pickImage(source: source, imageQuality: AppConstants.imageQuality);
@@ -77,6 +89,18 @@ class _PricePhotoPageState extends ConsumerState<PricePhotoPage> {
     setState(() {
       _image = File(picked.path);
     });
+
+    if (mounted && _image != null && _position != null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => PriceInfoPage(
+            image: _image!,
+            position: _position!,
+          ),
+        ),
+      );
+    }
   }
 
   bool _validateImage(File file) {
@@ -134,6 +158,7 @@ class _PricePhotoPageState extends ConsumerState<PricePhotoPage> {
         padding: const EdgeInsets.all(AppTheme.paddingLarge),
         child: Column(
           children: [
+            const Text('Aponte a câmera para o preço e capture a foto'),
             if (_image != null)
               Image.file(_image!, height: 200),
             const SizedBox(height: AppTheme.paddingMedium),
