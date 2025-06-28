@@ -265,9 +265,10 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
                   },
                 ),
               ),
+            ],
           );
         },
-            ),
+      ),
           ),
         ],
       ),
