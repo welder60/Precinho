@@ -3,15 +3,15 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // Cores principais
-  // Verde folha para a ação principal
-  static const Color primaryColor = Color(0xFF6BCB77);
-  static const Color primaryLightColor = Color(0xFF6BCB77);
-  static const Color primaryDarkColor = Color(0xFF519A5A);
+  // Azul escuro para a ação principal
+  static const Color primaryColor = Color(0xFF264653);
+  static const Color primaryLightColor = Color(0xFF264653);
+  static const Color primaryDarkColor = Color(0xFF102a39);
 
-  // Azul claro para destaques e ações secundárias
-  static const Color secondaryColor = Color(0xFF58B4E1);
-  static const Color secondaryLightColor = Color(0xFF58B4E1);
-  static const Color secondaryDarkColor = Color(0xFF3A8CB6);
+  // Amarelo/dourado para destaques e promoções
+  static const Color secondaryColor = Color(0xFFF4A261);
+  static const Color secondaryLightColor = Color(0xFFF4A261);
+  static const Color secondaryDarkColor = Color(0xFFE0924E);
 
   // Cores de status
   static const Color successColor = Color(0xFF4CAF50);
@@ -20,14 +20,14 @@ class AppTheme {
   static const Color infoColor = Color(0xFF2196F3);
 
   // Cores neutras
-  static const Color backgroundColor = Color(0xFFFFFFFF);
-  static const Color surfaceColor = Color(0xFFF5F5F5);
-  static const Color cardColor = Color(0xFFF5F5F5);
+  static const Color backgroundColor = Color(0xFF81B29A);
+  static const Color surfaceColor = Color(0xFFFFFFFF);
+  static const Color cardColor = Color(0xFFFFFFFF);
   static const Color dividerColor = Color(0xFFE0E0E0);
 
   // Cores de texto
-  static const Color textPrimaryColor = Color(0xFF222222);
-  static const Color textSecondaryColor = Color(0xFF555555);
+  static const Color textPrimaryColor = Color(0xFF264653);
+  static const Color textSecondaryColor = Color(0xFF4A4A4A);
   static const Color textDisabledColor = Color(0xFFBDBDBD);
   static const Color textOnPrimaryColor = Color(0xFFFFFFFF);
 
@@ -35,7 +35,7 @@ class AppTheme {
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
-      fontFamily: GoogleFonts.poppins().fontFamily,
+      fontFamily: GoogleFonts.montserrat().fontFamily,
       brightness: Brightness.light,
       colorScheme: const ColorScheme.light(
         primary: primaryColor,
@@ -192,23 +192,68 @@ class AppTheme {
         ),
       ),
 
-      // Tipografia baseada em Poppins
-      textTheme: GoogleFonts.poppinsTextTheme().copyWith(
-        displayLarge: const TextStyle(fontWeight: FontWeight.bold, color: textPrimaryColor, fontSize: 32),
-        displayMedium: const TextStyle(fontWeight: FontWeight.bold, color: textPrimaryColor, fontSize: 28),
-        displaySmall: const TextStyle(fontWeight: FontWeight.bold, color: textPrimaryColor, fontSize: 24),
-        headlineLarge: const TextStyle(fontWeight: FontWeight.w600, color: textPrimaryColor, fontSize: 22),
-        headlineMedium: const TextStyle(fontWeight: FontWeight.w600, color: textPrimaryColor, fontSize: 20),
-        headlineSmall: const TextStyle(fontWeight: FontWeight.w600, color: textPrimaryColor, fontSize: 18),
-        titleLarge: const TextStyle(fontWeight: FontWeight.w600, color: textPrimaryColor, fontSize: 16),
-        titleMedium: const TextStyle(fontWeight: FontWeight.w500, color: textPrimaryColor, fontSize: 14),
-        titleSmall: const TextStyle(fontWeight: FontWeight.w500, color: textPrimaryColor, fontSize: 12),
-        bodyLarge: const TextStyle(fontWeight: FontWeight.normal, color: textPrimaryColor, fontSize: 16),
-        bodyMedium: const TextStyle(fontWeight: FontWeight.normal, color: textPrimaryColor, fontSize: 14),
-        bodySmall: const TextStyle(fontWeight: FontWeight.normal, color: textSecondaryColor, fontSize: 12),
-        labelLarge: const TextStyle(fontWeight: FontWeight.w500, color: textPrimaryColor, fontSize: 14),
-        labelMedium: const TextStyle(fontWeight: FontWeight.w500, color: textPrimaryColor, fontSize: 12),
-        labelSmall: const TextStyle(fontWeight: FontWeight.w500, color: textSecondaryColor, fontSize: 10),
+      // Tipografia baseada em Montserrat e Roboto
+      textTheme: TextTheme(
+        displayLarge: GoogleFonts.montserrat(
+            fontWeight: FontWeight.bold,
+            color: textPrimaryColor,
+            fontSize: 32),
+        displayMedium: GoogleFonts.montserrat(
+            fontWeight: FontWeight.bold,
+            color: textPrimaryColor,
+            fontSize: 28),
+        displaySmall: GoogleFonts.montserrat(
+            fontWeight: FontWeight.bold,
+            color: textPrimaryColor,
+            fontSize: 24),
+        headlineLarge: GoogleFonts.montserrat(
+            fontWeight: FontWeight.w600,
+            color: textPrimaryColor,
+            fontSize: 22),
+        headlineMedium: GoogleFonts.montserrat(
+            fontWeight: FontWeight.w600,
+            color: textPrimaryColor,
+            fontSize: 20),
+        headlineSmall: GoogleFonts.montserrat(
+            fontWeight: FontWeight.w600,
+            color: textPrimaryColor,
+            fontSize: 18),
+        titleLarge: GoogleFonts.montserrat(
+            fontWeight: FontWeight.w600,
+            color: textPrimaryColor,
+            fontSize: 16),
+        titleMedium: GoogleFonts.montserrat(
+            fontWeight: FontWeight.w500,
+            color: textPrimaryColor,
+            fontSize: 14),
+        titleSmall: GoogleFonts.montserrat(
+            fontWeight: FontWeight.w500,
+            color: textPrimaryColor,
+            fontSize: 12),
+        bodyLarge: GoogleFonts.roboto(
+            fontWeight: FontWeight.normal,
+            color: textPrimaryColor,
+            fontSize: 16),
+        bodyMedium: GoogleFonts.roboto(
+            fontWeight: FontWeight.normal,
+            color: textPrimaryColor,
+            fontSize: 14),
+        bodySmall: GoogleFonts.roboto(
+            fontWeight: FontWeight.normal,
+            color: textSecondaryColor,
+            fontSize: 12),
+        labelLarge: GoogleFonts.montserrat(
+            fontWeight: FontWeight.w500,
+            color: textPrimaryColor,
+            fontSize: 14),
+        labelMedium: GoogleFonts.montserrat(
+            fontWeight: FontWeight.w500,
+            color: textPrimaryColor,
+            fontSize: 12),
+        labelSmall: GoogleFonts.montserrat(
+            fontWeight: FontWeight.w500,
+            color: textSecondaryColor,
+            fontSize: 10),
       ),
     );
   }
@@ -226,7 +271,7 @@ class AppTheme {
   static const TextStyle priceTextStyle = TextStyle(
     fontSize: 18,
     fontWeight: FontWeight.bold,
-    color: primaryColor,
+    color: secondaryColor,
   );
 
   static const TextStyle discountTextStyle = TextStyle(
