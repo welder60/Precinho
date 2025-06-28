@@ -3,16 +3,13 @@ import 'dart:typed_data';
 
 import 'package:exif/exif.dart';
 import 'package:flutter/material.dart';
-import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
+import 'package:camera/camera.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/themes/app_theme.dart';
-import '../../../core/logging/firebase_logger.dart';
-import '../../providers/auth_provider.dart';
-import '../../../data/datasources/contribution_service.dart';
 import 'price_info_page.dart';
 
 class PricePhotoPage extends ConsumerStatefulWidget {
@@ -24,18 +21,32 @@ class PricePhotoPage extends ConsumerStatefulWidget {
 
 class _PricePhotoPageState extends ConsumerState<PricePhotoPage> {
   final _picker = ImagePicker();
+  CameraController? _cameraController;
+  bool _isCameraInitialized = false;
   File? _image;
   Position? _position;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    _initCamera();
+  }
+
+  Future<void> _initCamera() async {
+    final cameras = await availableCameras();
+    final backCamera = cameras.firstWhere(
+      (camera) => camera.lensDirection == CameraLensDirection.back,
+      orElse: () => cameras.first,
+    );
+    _cameraController =
+        CameraController(backCamera, ResolutionPreset.medium, enableAudio: false);
+    await _cameraController!.initialize();
+    if (mounted) {
+      setState(() => _isCameraInitialized = true);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Tire uma foto do preço do produto')),
+        const SnackBar(content: Text('Aponte a câmera para o preço do produto')),
       );
-      _pickImage(ImageSource.camera);
-    });
+    }
   }
 
   Future<void> _pickImage(ImageSource source) async {
@@ -75,20 +86,38 @@ class _PricePhotoPageState extends ConsumerState<PricePhotoPage> {
         altitudeAccuracy: 0,
         isMocked: false,
       );
-    } else {
-      final permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Permissão de localização negada')));
-        }
-        return;
-      }
-      _position = await Geolocator.getCurrentPosition();
-    }
+      setState(() {
+        _image = File(picked.path);
+      });
 
-    setState(() {
-      _image = File(picked.path);
-    });
+      if (mounted && _image != null && _position != null) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => PriceInfoPage(
+              image: _image!,
+              position: _position!,
+            ),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _takePhoto() async {
+    if (!_isCameraInitialized || _cameraController == null) return;
+    final permission = await Geolocator.requestPermission();
+    if (permission == LocationPermission.denied ||
+        permission == LocationPermission.deniedForever) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Permissão de localização negada')));
+      }
+      return;
+    }
+    final xFile = await _cameraController!.takePicture();
+    _position = await Geolocator.getCurrentPosition();
+    _image = File(xFile.path);
 
     if (mounted && _image != null && _position != null) {
       Navigator.pushReplacement(
@@ -103,88 +132,70 @@ class _PricePhotoPageState extends ConsumerState<PricePhotoPage> {
     }
   }
 
-  bool _validateImage(File file) {
-    final bytes = file.readAsBytesSync();
-    final image = img.decodeImage(bytes);
-    if (image == null) return false;
-    int sum = 0;
-    for (final p in image.getBytes()) {
-      sum += p;
-    }
-    final avg = sum / image.length;
-    return avg > 20; // evita imagem muito escura
+  @override
+  void dispose() {
+    _cameraController?.dispose();
+    super.dispose();
   }
 
-  Future<void> _submit() async {
-    final user = ref.read(currentUserProvider);
-    if (_image == null || _position == null || user == null) return;
-    if (!_validateImage(_image!)) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Imagem de baixa qualidade')));
-      }
-      return;
-    }
-    try {
-      await ContributionService().submitPricePhoto(
-        image: _image!,
-        position: _position!,
-        userId: user.id,
-      );
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Obrigado por contribuir! Sua imagem será analisada pela moderação.',
-            ),
-          ),
-        );
-        Navigator.pop(context);
-      }
-    } catch (e) {
-      FirebaseLogger.log('submitPricePhoto_error', {'error': e.toString()});
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erro: $e')));
-      }
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Foto de Preço'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(AppTheme.paddingLarge),
-        child: Column(
-          children: [
-            const Text('Aponte a câmera para o preço e capture a foto'),
-            if (_image != null)
-              Image.file(_image!, height: 200),
-            const SizedBox(height: AppTheme.paddingMedium),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton.icon(
-                  onPressed: () => _pickImage(ImageSource.camera),
-                  icon: const Icon(Icons.camera_alt),
-                  label: const Text('Câmera'),
-                ),
-                ElevatedButton.icon(
-                  onPressed: () => _pickImage(ImageSource.gallery),
-                  icon: const Icon(Icons.photo),
-                  label: const Text('Galeria'),
-                ),
-              ],
-            ),
-            const SizedBox(height: AppTheme.paddingLarge),
-            ElevatedButton(
-              onPressed: _image != null && _position != null ? _submit : null,
-              child: const Text('Enviar'),
-            ),
-          ],
+        leading: IconButton(
+          icon: const Icon(Icons.close),
+          onPressed: () => Navigator.pop(context),
         ),
       ),
+      body: _isCameraInitialized
+          ? Stack(
+              children: [
+                CameraPreview(_cameraController!),
+                Center(
+                  child: Container(
+                    width: 250,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.white, width: 2),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  bottom: 160,
+                  left: 0,
+                  right: 0,
+                  child: const Text(
+                    'Aponte a câmera para o preço do produto',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+                Positioned(
+                  bottom: 40,
+                  left: 0,
+                  right: 0,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      FloatingActionButton(
+                        heroTag: 'take_photo',
+                        onPressed: _takePhoto,
+                        child: const Icon(Icons.camera_alt),
+                      ),
+                      const SizedBox(width: 20),
+                      FloatingActionButton(
+                        heroTag: 'pick_gallery',
+                        onPressed: () => _pickImage(ImageSource.gallery),
+                        child: const Icon(Icons.photo),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            )
+          : const Center(child: CircularProgressIndicator()),
     );
   }
 }
