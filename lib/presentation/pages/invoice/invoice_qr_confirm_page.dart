@@ -137,11 +137,13 @@ class _InvoiceQrConfirmPageState extends ConsumerState<InvoiceQrConfirmPage> {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: AppTheme.paddingLarge),
-                  ElevatedButton(
-                    onPressed: _isValid ? _submit : () => Navigator.pop(context),
-                    child: Text(_isValid ? 'Enviar Nota Fiscal' : 'OK'),
-                  ),
-                  const SizedBox(height: AppTheme.paddingMedium),
+                  if (_isValid) ...[
+                    ElevatedButton(
+                      onPressed: _submit,
+                      child: const Text('Enviar Nota Fiscal'),
+                    ),
+                    const SizedBox(height: AppTheme.paddingMedium),
+                  ],
                   OutlinedButton(
                     onPressed: () {
                       Navigator.pushReplacement(

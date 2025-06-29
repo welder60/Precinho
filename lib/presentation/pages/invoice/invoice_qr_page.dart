@@ -3,6 +3,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/themes/app_theme.dart';
+import '../home/home_page.dart';
 import 'invoice_qr_confirm_page.dart';
 
 class InvoiceQrPage extends ConsumerStatefulWidget {
@@ -50,7 +51,13 @@ class _InvoiceQrPageState extends ConsumerState<InvoiceQrPage> {
         title: const Text('Escanear Nota Fiscal'),
         leading: IconButton(
           icon: const Icon(Icons.close),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (_) => const HomePage()),
+              (route) => route.isFirst,
+            );
+          },
         ),
         actions: [
           IconButton(
