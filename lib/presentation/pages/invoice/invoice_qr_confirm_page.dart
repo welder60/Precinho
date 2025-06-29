@@ -6,6 +6,7 @@ import '../../../core/themes/app_theme.dart';
 import '../../providers/auth_provider.dart';
 import '../../../data/datasources/invoice_service.dart';
 import 'invoice_qr_page.dart';
+import '../home/home_page.dart';
 import 'invoices_page.dart';
 
 class InvoiceQrConfirmPage extends ConsumerStatefulWidget {
@@ -146,15 +147,33 @@ class _InvoiceQrConfirmPageState extends ConsumerState<InvoiceQrConfirmPage> {
                   ],
                   OutlinedButton(
                     onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (_) => const InvoiceQrPage()),
-                      );
+                      if (_isValid) {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (_) => const InvoiceQrPage()),
+                        );
+                      } else {
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (_) => const HomePage()),
+                          (route) => route.isFirst,
+                        );
+                      }
                     },
                     child: const Text('Ler novo QR Code'),
                   ),
                   TextButton(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () {
+                      if (_isValid) {
+                        Navigator.pop(context);
+                      } else {
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (_) => const HomePage()),
+                          (route) => route.isFirst,
+                        );
+                      }
+                    },
                     child: const Text('Voltar'),
                   ),
                 ],
