@@ -8,7 +8,7 @@ O **Precinho** é um aplicativo mobile desenvolvido em Flutter que permite aos u
 
 O aplicativo segue uma identidade visual inspirada em economia colaborativa e simplicidade.
 
-- **Paleta de Cores**: verde folha `#6BCB77` para ações principais e azul claro `#58B4E1` para destaques. Tons neutros `#FFFFFF` e `#F5F5F5` são usados como fundo, com textos em `#222222` e `#555555`.
+- **Paleta de Cores**: verde principal `#79B38C` para ações e `#55C18A` para destaques. Tons neutros `#FFFFFF` e `#F5F5F5` são usados como fundo, com textos em `#222222` e `#555555`.
 - **Tipografia**: toda a interface utiliza a fonte [Poppins](https://fonts.google.com/specimen/Poppins) com variações em negrito para títulos. Elementos de código usam a fonte `Roboto Mono`.
 - **Ícones e Componentes**: estilo simples e arredondado, seguindo as diretrizes do Material Design.
 - **Slogan**: "Juntos, a gente economiza."

@@ -3,15 +3,15 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // Cores principais
-  // Verde folha para a ação principal
-  static const Color primaryColor = Color(0xFF6BCB77);
-  static const Color primaryLightColor = Color(0xFF6BCB77);
-  static const Color primaryDarkColor = Color(0xFF519A5A);
+  // Verde suave para a ação principal
+  static const Color primaryColor = Color(0xFF79B38C);
+  static const Color primaryLightColor = Color(0xFF79B38C);
+  static const Color primaryDarkColor = Color(0xFF56996C);
 
-  // Azul claro para destaques e ações secundárias
-  static const Color secondaryColor = Color(0xFF58B4E1);
-  static const Color secondaryLightColor = Color(0xFF58B4E1);
-  static const Color secondaryDarkColor = Color(0xFF3A8CB6);
+  // Cor de destaque e ações secundárias
+  static const Color secondaryColor = Color(0xFF55C18A);
+  static const Color secondaryLightColor = Color(0xFF55C18A);
+  static const Color secondaryDarkColor = Color(0xFF3BA26E);
 
   // Cores de status
   static const Color successColor = Color(0xFF4CAF50);
