@@ -180,6 +180,7 @@ class _InvoiceQrConfirmPageState extends ConsumerState<InvoiceQrConfirmPage> {
                 ],
               ),
             ),
+            ),
     );
   }
 }
