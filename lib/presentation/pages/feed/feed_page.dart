@@ -347,7 +347,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
           );
         },
         icon: const Icon(Icons.camera_alt),
-        label: const Text('📸 Enviar preço'),
+        label: const Text('Enviar preço'),
       ),
       body: _docs.isEmpty && _isLoading
           ? const Center(child: CircularProgressIndicator())
