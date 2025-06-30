@@ -50,7 +50,7 @@ O aplicativo segue uma identidade visual inspirada em economia colaborativa e si
 - Sistema de pontuação
 - Ranking de colaboradores
 - Badges e conquistas
-- Histórico de contribuições
+- Histórico de envios
 
 ### 👤 Perfil do Usuário
 - Estatísticas pessoais

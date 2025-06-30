@@ -8,11 +8,11 @@ import '../../core/constants/app_constants.dart';
 import '../../core/constants/enums.dart';
 import '../../core/logging/firebase_logger.dart';
 
-class ContributionService {
+class SubmissionService {
   final FirebaseFirestore _firestore;
   final FirebaseStorage _storage;
 
-  ContributionService({
+  SubmissionService({
     FirebaseFirestore? firestore,
     FirebaseStorage? storage,
   })  : _firestore = firestore ?? FirebaseFirestore.instance,
@@ -28,7 +28,7 @@ class ContributionService {
     await ref.putFile(image);
     final url = await ref.getDownloadURL();
     final data = {
-      'type': ContributionType.pricePhoto.value,
+      'type': SubmissionType.pricePhoto.value,
       'user_id': userId,
       'image_url': url,
       'latitude': position.latitude,
@@ -38,7 +38,7 @@ class ContributionService {
       'points': AppConstants.pointsForPricePhoto,
     };
     FirebaseLogger.log('submitPricePhoto', data);
-    await _firestore.collection('contributions').add(data);
+    await _firestore.collection('submissions').add(data);
   }
 
   Future<void> submitInvoice({
@@ -48,8 +48,8 @@ class ContributionService {
     required String userId,
   }) async {
     final existing = await _firestore
-        .collection('contributions')
-        .where('type', isEqualTo: ContributionType.invoice.value)
+        .collection('submissions')
+        .where('type', isEqualTo: SubmissionType.invoice.value)
         .where('access_key', isEqualTo: accessKey)
         .limit(1)
         .get();
@@ -58,7 +58,7 @@ class ContributionService {
     }
 
     final data = {
-      'type': ContributionType.invoice.value,
+      'type': SubmissionType.invoice.value,
       'user_id': userId,
       'qr_link': qrLink,
       'access_key': accessKey,
@@ -68,6 +68,6 @@ class ContributionService {
       'points': AppConstants.pointsForInvoice,
     };
     FirebaseLogger.log('submitInvoice', data);
-    await _firestore.collection('contributions').add(data);
+    await _firestore.collection('submissions').add(data);
   }
 }

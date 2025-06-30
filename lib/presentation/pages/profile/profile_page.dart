@@ -5,7 +5,7 @@ import '../../../core/themes/app_theme.dart';
 import '../../../core/utils/formatters.dart';
 import '../../providers/auth_provider.dart';
 import '../admin/admin_home_page.dart';
-import 'contributions_page.dart';
+import 'submissions_page.dart';
 import '../price/user_prices_page.dart';
 import '../invoice/invoices_page.dart';
 
@@ -263,17 +263,17 @@ class ProfilePage extends ConsumerWidget {
   Widget _buildMenuSection(BuildContext context, WidgetRef ref) {
     return Column(
       children: [
-        // Minhas contribuições
+        // Meus envios
         _buildMenuItem(
           context,
-          'Minhas Contribuições',
-          'Preços e comércios cadastrados',
+          'Meus Envios',
+          'Preços e notas fiscais enviados',
           Icons.history,
           () {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => const ContributionsPage(),
+                builder: (_) => const SubmissionsPage(),
               ),
             );
           },

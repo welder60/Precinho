@@ -7,14 +7,14 @@ import '../../../core/utils/formatters.dart';
 import '../../providers/auth_provider.dart';
 import '../../../core/constants/enums.dart';
 
-class ContributionsPage extends ConsumerStatefulWidget {
-  const ContributionsPage({super.key});
+class SubmissionsPage extends ConsumerStatefulWidget {
+  const SubmissionsPage({super.key});
 
   @override
-  ConsumerState<ContributionsPage> createState() => _ContributionsPageState();
+  ConsumerState<SubmissionsPage> createState() => _SubmissionsPageState();
 }
 
-class _ContributionsPageState extends ConsumerState<ContributionsPage> {
+class _SubmissionsPageState extends ConsumerState<SubmissionsPage> {
   ModerationStatus? _filter;
 
   @override
@@ -25,7 +25,7 @@ class _ContributionsPageState extends ConsumerState<ContributionsPage> {
     }
 
     Query query = FirebaseFirestore.instance
-        .collection('contributions')
+        .collection('submissions')
         .where('user_id', isEqualTo: user.id);
     if (_filter != null) {
       query = query.where('status', isEqualTo: _filter!.value);
@@ -33,7 +33,7 @@ class _ContributionsPageState extends ConsumerState<ContributionsPage> {
     query = query.orderBy('created_at', descending: true);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Minhas Contribuições')),
+      appBar: AppBar(title: const Text('Meus Envios')),
       body: Column(
         children: [
           Padding(
@@ -82,7 +82,7 @@ class _ContributionsPageState extends ConsumerState<ContributionsPage> {
                 final docs = snapshot.data?.docs ?? [];
                 if (docs.isEmpty) {
                   return const Center(
-                      child: Text('Nenhuma contribuição encontrada'));
+                      child: Text('Nenhum envio encontrado'));
                 }
                 return ListView.builder(
                   itemCount: docs.length,

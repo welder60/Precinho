@@ -110,7 +110,7 @@ enum AchievementType {
   firstPrice('first_price', 'Primeiro Preço'),
   priceHunter('price_hunter', 'Caçador de Preços'),
   storeExplorer('store_explorer', 'Explorador de Comércios'),
-  topContributor('top_contributor', 'Top Contribuidor'),
+  topUploader('top_uploader', 'Top Usuário'),
   moderatorHelper('moderator_helper', 'Ajudante de Moderador'),
   loyalUser('loyal_user', 'Usuário Fiel');
 
@@ -133,11 +133,11 @@ enum ErrorType {
   final String displayName;
 }
 
-enum ContributionType {
+enum SubmissionType {
   pricePhoto('price_photo', 'Foto de Preço'),
   invoice('invoice', 'Nota Fiscal');
 
-  const ContributionType(this.value, this.displayName);
+  const SubmissionType(this.value, this.displayName);
   final String value;
   final String displayName;
 }
