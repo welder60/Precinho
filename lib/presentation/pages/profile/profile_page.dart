@@ -18,9 +18,13 @@ Future<Map<String, int>> _fetchUserStats(String userId) async {
       .where('user_id', isEqualTo: userId)
       .count()
       .get();
+
+  final priceCount = priceAgg.count ?? 0;
+  final invoiceCount = invoiceAgg.count ?? 0;
+
   return {
-    'prices': priceAgg.count,
-    'invoices': invoiceAgg.count,
+    'prices': priceCount,
+    'invoices': invoiceCount,
   };
 }
 
