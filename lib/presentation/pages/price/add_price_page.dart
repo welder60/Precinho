@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:flutter/services.dart';
 import '../../../core/themes/app_theme.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/utils/price_input_formatter.dart';
@@ -200,6 +201,7 @@ class _AddPricePageState extends State<AddPricePage> {
         };
         FirebaseLogger.log('Adding price', data);
         await FirebaseFirestore.instance.collection('prices').add(data);
+        SystemSound.play(SystemSoundType.alert);
         FirebaseLogger.log('Price added', {'product_id': data['product_id']});
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(

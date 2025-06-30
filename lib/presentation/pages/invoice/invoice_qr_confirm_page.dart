@@ -5,6 +5,7 @@ import '../../../core/logging/firebase_logger.dart';
 import '../../../core/themes/app_theme.dart';
 import '../../providers/auth_provider.dart';
 import '../../../data/datasources/invoice_service.dart';
+import 'package:flutter/services.dart';
 import 'invoice_qr_page.dart';
 import '../home/home_page.dart';
 import 'invoices_page.dart';
@@ -96,6 +97,7 @@ class _InvoiceQrConfirmPageState extends ConsumerState<InvoiceQrConfirmPage> {
         number: number,
         userId: user.id,
       );
+      SystemSound.play(SystemSoundType.alert);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Nota fiscal cadastrada com sucesso')),
