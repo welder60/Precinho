@@ -1,10 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../core/themes/app_theme.dart';
 import '../../../core/utils/formatters.dart';
 import '../../providers/auth_provider.dart';
 import '../admin/admin_home_page.dart';
 import 'contributions_page.dart';
+
+Future<Map<String, int>> _fetchUserStats(String userId) async {
+  final priceAgg = await FirebaseFirestore.instance
+      .collection('prices')
+      .where('user_id', isEqualTo: userId)
+      .count()
+      .get();
+  final invoiceAgg = await FirebaseFirestore.instance
+      .collection('invoices')
+      .where('user_id', isEqualTo: userId)
+      .count()
+      .get();
+  return {
+    'prices': priceAgg.count,
+    'invoices': invoiceAgg.count,
+  };
+}
 
 class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
@@ -127,42 +145,49 @@ class ProfilePage extends ConsumerWidget {
   }
 
   Widget _buildStatsSection(BuildContext context, user) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(AppTheme.paddingMedium),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Estatísticas',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: AppTheme.paddingMedium),
+    return FutureBuilder<Map<String, int>>(
+      future: _fetchUserStats(user.id),
+      builder: (context, snapshot) {
+        final priceCount = snapshot.data?['prices'];
+        final invoiceCount = snapshot.data?['invoices'];
 
-            // Grid de estatísticas
-            Row(
+        return Card(
+          child: Padding(
+            padding: const EdgeInsets.all(AppTheme.paddingMedium),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: _buildStatItem(
-                    context,
-                    'Preços Cadastrados',
-                    '42', // Placeholder
-                    Icons.local_offer,
-                  ),
+                Text(
+                  'Estatísticas',
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
-                Expanded(
-                  child: _buildStatItem(
-                    context,
-                    'Notas Fiscais Enviadas',
-                    '8', // Placeholder
-                    Icons.receipt,
-                  ),
+                const SizedBox(height: AppTheme.paddingMedium),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildStatItem(
+                        context,
+                        'Preços Cadastrados',
+                        priceCount != null ? '$priceCount' : '...',
+                        Icons.local_offer,
+                      ),
+                    ),
+                    Expanded(
+                      child: _buildStatItem(
+                        context,
+                        'Notas Fiscais Enviadas',
+                        invoiceCount != null ? '$invoiceCount' : '...',
+                        Icons.receipt,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
