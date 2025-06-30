@@ -5,6 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:flutter/services.dart';
 
 import '../../../core/constants/enums.dart';
 import '../../../core/themes/app_theme.dart';
@@ -117,6 +118,7 @@ class _PriceInfoPageState extends ConsumerState<PriceInfoPage> {
       };
 
       await FirebaseFirestore.instance.collection('prices').add(data);
+      SystemSound.play(SystemSoundType.alert);
 
       if (mounted) {
         Navigator.pushAndRemoveUntil(
