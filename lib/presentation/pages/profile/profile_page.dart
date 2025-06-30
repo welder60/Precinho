@@ -6,6 +6,8 @@ import '../../../core/utils/formatters.dart';
 import '../../providers/auth_provider.dart';
 import '../admin/admin_home_page.dart';
 import 'contributions_page.dart';
+import '../price/user_prices_page.dart';
+import '../invoice/invoices_page.dart';
 
 Future<Map<String, int>> _fetchUserStats(String userId) async {
   final priceAgg = await FirebaseFirestore.instance
@@ -175,6 +177,14 @@ class ProfilePage extends ConsumerWidget {
                         'Preços Cadastrados',
                         priceCount != null ? '$priceCount' : '...',
                         Icons.local_offer,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const UserPricesPage(),
+                            ),
+                          );
+                        },
                       ),
                     ),
                     Expanded(
@@ -183,6 +193,14 @@ class ProfilePage extends ConsumerWidget {
                         'Notas Fiscais Enviadas',
                         invoiceCount != null ? '$invoiceCount' : '...',
                         Icons.receipt,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const InvoicesPage(),
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ],
@@ -195,8 +213,14 @@ class ProfilePage extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatItem(BuildContext context, String label, String value, IconData icon) {
-    return Container(
+  Widget _buildStatItem(
+    BuildContext context,
+    String label,
+    String value,
+    IconData icon, {
+    VoidCallback? onTap,
+  }) {
+    final content = Container(
       padding: const EdgeInsets.all(AppTheme.paddingMedium),
       margin: const EdgeInsets.all(AppTheme.paddingSmall),
       decoration: BoxDecoration(
@@ -229,6 +253,11 @@ class ProfilePage extends ConsumerWidget {
         ],
       ),
     );
+
+    if (onTap != null) {
+      return InkWell(onTap: onTap, child: content);
+    }
+    return content;
   }
 
   Widget _buildMenuSection(BuildContext context, WidgetRef ref) {
