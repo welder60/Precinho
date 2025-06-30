@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../../core/themes/app_theme.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../core/constants/enums.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/shopping_list_provider.dart';
 import '../price/price_detail_page.dart';
@@ -115,7 +116,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
 
     Query query = FirebaseFirestore.instance
         .collection('prices')
-        .where('isApproved', isEqualTo: true)
+        .where('status', isEqualTo: ModerationStatus.approved.value)
         .orderBy('created_at', descending: true)
         .limit(20);
     if (_lastDoc != null) {

@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart';
 
 import '../../../core/themes/app_theme.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../core/constants/enums.dart';
 import '../../providers/shopping_list_provider.dart';
 import '../../providers/store_favorites_provider.dart';
 import '../product/product_search_page.dart';
@@ -102,7 +103,8 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
               .collection('prices')
               .where('product_id', isEqualTo: item.productId)
               .where('store_id', isEqualTo: store.id)
-              .where('isApproved', isEqualTo: true)
+              .where('status',
+                  isEqualTo: ModerationStatus.approved.value)
               .orderBy('created_at', descending: true)
               .limit(1)
               .get();
@@ -160,7 +162,8 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
             .collection('prices')
             .where('product_id', isEqualTo: item.productId)
             .where('store_id', isEqualTo: store.id)
-            .where('isApproved', isEqualTo: true)
+            .where('status',
+                isEqualTo: ModerationStatus.approved.value)
             .orderBy('created_at', descending: true)
             .limit(1)
             .get();
