@@ -154,7 +154,9 @@ flutter pub get
    - Para a versão web, copie `web/env.js.example` para `web/env.js` com os mesmos valores.
    - Em ambientes de CI (como o GitHub Actions), esses arquivos são gerados automaticamente a partir de **Secrets** configurados no repositório (utilizando os mesmos nomes de variáveis definidos em `.env.example`).
    - As principais variáveis são:
-     - `GOOGLE_MAPS_API_KEY`
+     - `GOOGLE_MAPS_API_KEY_ANDROID`
+     - `GOOGLE_MAPS_API_KEY_IOS`
+     - `GOOGLE_MAPS_API_KEY_WEB`
      - `GOOGLE_SIGNIN_CLIENT_ID`
      - Chaves do Firebase (veja `.env.example`)
    - Durante o desenvolvimento execute:
