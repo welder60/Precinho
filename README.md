@@ -263,6 +263,7 @@ class Price {
   final DateTime createdAt;
   final DateTime? expiresAt;
   final bool isApproved;
+  final ModerationStatus status;
 }
 ```
 

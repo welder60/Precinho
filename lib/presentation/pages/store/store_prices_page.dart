@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/themes/app_theme.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../core/constants/enums.dart';
 import '../../providers/store_favorites_provider.dart';
 import '../price/add_price_page.dart';
 import '../price/price_detail_page.dart';
@@ -106,7 +107,8 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
               stream: FirebaseFirestore.instance
                   .collection('prices')
                   .where('store_id', isEqualTo: widget.store.id)
-                  .where('isApproved', isEqualTo: true)
+                  .where('status',
+                      isEqualTo: ModerationStatus.approved.value)
                   .orderBy('price')
                   .orderBy('created_at', descending: true)
                   .snapshots(),
