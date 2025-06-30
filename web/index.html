@@ -57,7 +57,7 @@
   <script id="google-maps" src=""></script>
   <script>
     document.getElementById('google-maps').src =
-      `https://maps.googleapis.com/maps/api/js?key=${window.env.GOOGLE_MAPS_API_KEY}&libraries=places`;
+      `https://maps.googleapis.com/maps/api/js?key=${window.env.GOOGLE_MAPS_API_KEY_WEB}&libraries=places`;
     window.searchPlaces = function(query, lat, lng, radius) {
       return new Promise(function(resolve, reject) {
         const service = new google.maps.places.PlacesService(document.createElement('div'));

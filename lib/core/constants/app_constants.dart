@@ -1,5 +1,6 @@
 // Constantes da aplicação Precinho
 import '../config/app_config.dart';
+import 'package:flutter/foundation.dart' show kIsWeb, defaultTargetPlatform, TargetPlatform;
 
 class AppConstants {
   // Configurações gerais
@@ -9,8 +10,25 @@ class AppConstants {
   // Configurações de API
   static const String baseUrl = 'https://api.precinho.com';
   static const int timeoutDuration = 30000; // 30 segundos
-  static String get googleMapsApiKey =>
-      AppConfig.get('GOOGLE_MAPS_API_KEY');
+  static String get googleMapsApiKey {
+    if (kIsWeb) {
+      return AppConfig.get('GOOGLE_MAPS_API_KEY_WEB',
+          defaultValue: AppConfig.get('GOOGLE_MAPS_API_KEY'));
+    }
+    switch (defaultTargetPlatform) {
+      case TargetPlatform.android:
+        return AppConfig.get('GOOGLE_MAPS_API_KEY_ANDROID',
+            defaultValue: AppConfig.get('GOOGLE_MAPS_API_KEY'));
+      case TargetPlatform.iOS:
+        return AppConfig.get('GOOGLE_MAPS_API_KEY_IOS',
+            defaultValue: AppConfig.get('GOOGLE_MAPS_API_KEY'));
+      case TargetPlatform.macOS:
+        return AppConfig.get('GOOGLE_MAPS_API_KEY_IOS',
+            defaultValue: AppConfig.get('GOOGLE_MAPS_API_KEY'));
+      default:
+        return AppConfig.get('GOOGLE_MAPS_API_KEY');
+    }
+  }
   
   // Configurações de geolocalização
   static const double defaultSearchRadius = 5.0; // 5km
