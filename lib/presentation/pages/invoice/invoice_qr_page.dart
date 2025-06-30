@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 
 import '../../../core/themes/app_theme.dart';
 import '../home/home_page.dart';
@@ -22,6 +23,7 @@ class _InvoiceQrPageState extends ConsumerState<InvoiceQrPage> {
     if (capture.barcodes.isEmpty) return;
     final value = capture.barcodes.first.rawValue;
     if (value == null) return;
+    SystemSound.play(SystemSoundType.alert);
     _controller.stop();
     await Navigator.push(
       context,

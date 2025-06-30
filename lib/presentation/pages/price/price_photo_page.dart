@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:camera/camera.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/themes/app_theme.dart';
@@ -116,6 +117,7 @@ class _PricePhotoPageState extends ConsumerState<PricePhotoPage> {
       return;
     }
     final xFile = await _cameraController!.takePicture();
+    SystemSound.play(SystemSoundType.alert);
     _position = await Geolocator.getCurrentPosition();
     _image = File(xFile.path);
 
