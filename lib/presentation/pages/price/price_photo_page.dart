@@ -149,6 +149,23 @@ class _PricePhotoPageState extends ConsumerState<PricePhotoPage> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton(
+            heroTag: 'take_photo',
+            onPressed: _takePhoto,
+            child: const Icon(Icons.camera_alt),
+          ),
+          const SizedBox(width: 20),
+          FloatingActionButton(
+            heroTag: 'pick_gallery',
+            onPressed: () => _pickImage(ImageSource.gallery),
+            child: const Icon(Icons.photo),
+          ),
+        ],
+      ),
       body: _isCameraInitialized
           ? Stack(
               children: [
@@ -166,31 +183,12 @@ class _PricePhotoPageState extends ConsumerState<PricePhotoPage> {
                   bottom: 160,
                   left: 0,
                   right: 0,
-                  child: const Text(
-                    'Aponte a câmera para o preço do produto',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-                Positioned(
-                  bottom: 40,
-                  left: 0,
-                  right: 0,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      FloatingActionButton(
-                        heroTag: 'take_photo',
-                        onPressed: _takePhoto,
-                        child: const Icon(Icons.camera_alt),
-                      ),
-                      const SizedBox(width: 20),
-                      FloatingActionButton(
-                        heroTag: 'pick_gallery',
-                        onPressed: () => _pickImage(ImageSource.gallery),
-                        child: const Icon(Icons.photo),
-                      ),
-                    ],
+                  child: const SafeArea(
+                    child: Text(
+                      'Aponte a câmera para o preço do produto',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ),
               ],
