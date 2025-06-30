@@ -148,18 +148,10 @@ class _InvoiceQrConfirmPageState extends ConsumerState<InvoiceQrConfirmPage> {
                   ],
                   OutlinedButton(
                     onPressed: () {
-                      if (_isValid) {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (_) => const InvoiceQrPage()),
-                        );
-                      } else {
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(builder: (_) => const HomePage()),
-                          (route) => route.isFirst,
-                        );
-                      }
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (_) => const InvoiceQrPage()),
+                      );
                     },
                     child: const Text('Ler novo QR Code'),
                   ),
