@@ -2,8 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:html/parser.dart' as html_parser;
 import '../../../core/themes/app_theme.dart';
+import '../../../data/parsers/invoice_html_parser.dart';
+import '../../../data/parsers/invoice_xml_parser.dart';
 
 class ImportInvoicePage extends StatefulWidget {
   const ImportInvoicePage({super.key});
@@ -33,21 +34,12 @@ class _ImportInvoicePageState extends State<ImportInvoicePage> {
     if (_selectedFile == null) return;
     final content = await _selectedFile!.readAsString();
     if (_selectedFile!.path.toLowerCase().endsWith('.xml')) {
-      _parseXml(content);
+      final msg = InvoiceXmlParser.parse(content);
+      setState(() => _message = msg);
     } else {
-      _parseHtml(content);
+      final msg = InvoiceHtmlParser.parse(content);
+      setState(() => _message = msg);
     }
-  }
-
-  void _parseHtml(String html) {
-    final document = html_parser.parse(html);
-    // TODO: Implementar extração de dados da nota fiscal em HTML
-    setState(() => _message = 'Arquivo HTML carregado (${document.body?.children.length} elementos)');
-  }
-
-  void _parseXml(String xml) {
-    // TODO: Implementar extração de dados da nota fiscal em XML
-    setState(() => _message = 'Arquivo XML carregado (${xml.length} caracteres)');
   }
 
   @override

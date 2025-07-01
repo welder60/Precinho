@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../core/constants/enums.dart';
 
 /// Serviço auxiliar para criação de entidades ao importar notas fiscais.
 class InvoiceImportService {
@@ -78,6 +79,38 @@ class InvoiceImportService {
       'created_at': Timestamp.now(),
     };
     final doc = await _firestore.collection('prices').add(data);
+    return doc;
+  }
+
+  /// Cria ou retorna uma nota fiscal existente pela chave de acesso.
+  Future<DocumentReference<Map<String, dynamic>>> getOrCreateInvoice({
+    required String qrLink,
+    required String accessKey,
+    required String cnpj,
+    required String series,
+    required String number,
+    required String userId,
+  }) async {
+    final existing = await _firestore
+        .collection('invoices')
+        .where('access_key', isEqualTo: accessKey)
+        .limit(1)
+        .get();
+    if (existing.docs.isNotEmpty) {
+      return existing.docs.first.reference;
+    }
+
+    final data = {
+      'user_id': userId,
+      'qr_link': qrLink,
+      'access_key': accessKey,
+      'cnpj': cnpj,
+      'series': series,
+      'number': number,
+      'created_at': Timestamp.now(),
+      'status': ModerationStatus.underReview.value,
+    };
+    final doc = await _firestore.collection('invoices').add(data);
     return doc;
   }
 }
