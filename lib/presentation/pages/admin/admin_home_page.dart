@@ -5,6 +5,7 @@ import 'manage_products_page.dart';
 import 'manage_users_page.dart';
 import 'validate_prices_page.dart';
 import 'manage_stores_page.dart';
+import 'import_invoice_page.dart';
 
 class AdminHomePage extends StatelessWidget {
   const AdminHomePage({super.key});
@@ -83,6 +84,19 @@ class AdminHomePage extends StatelessWidget {
               },
               icon: const Icon(Icons.check),
               label: const Text('Validar Preços'),
+            ),
+            const SizedBox(height: AppTheme.paddingMedium),
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const ImportInvoicePage(),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.file_upload),
+              label: const Text('Importar Nota Fiscal'),
             ),
           ],
         ),
