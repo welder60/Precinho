@@ -14,7 +14,6 @@ class Price extends Equatable {
   final double? longitude;
   final DateTime createdAt;
   final DateTime? expiresAt;
-  final bool isApproved;
   final ModerationStatus status;
   final DateTime updatedAt;
   final String? notes;
@@ -43,7 +42,6 @@ class Price extends Equatable {
     this.longitude,
     required this.createdAt,
     this.expiresAt,
-    required this.isApproved,
     required this.status,
     required this.updatedAt,
     this.notes,
@@ -73,7 +71,6 @@ class Price extends Equatable {
     double? longitude,
     DateTime? createdAt,
     DateTime? expiresAt,
-    bool? isApproved,
     ModerationStatus? status,
     DateTime? updatedAt,
     String? notes,
@@ -102,7 +99,6 @@ class Price extends Equatable {
       longitude: longitude ?? this.longitude,
       createdAt: createdAt ?? this.createdAt,
       expiresAt: expiresAt ?? this.expiresAt,
-      isApproved: isApproved ?? this.isApproved,
       status: status ?? this.status,
       updatedAt: updatedAt ?? this.updatedAt,
       notes: notes ?? this.notes,
@@ -150,7 +146,6 @@ class Price extends Equatable {
         longitude,
         createdAt,
         expiresAt,
-        isApproved,
         status,
         updatedAt,
         notes,
@@ -169,7 +164,7 @@ class Price extends Equatable {
 
   @override
   String toString() {
-    return 'Price(id: $id, productId: $productId, storeId: $storeId, value: $value, variation: $variation, isApproved: $isApproved)';
+    return 'Price(id: $id, productId: $productId, storeId: $storeId, value: $value, variation: $variation)';
   }
 }
 

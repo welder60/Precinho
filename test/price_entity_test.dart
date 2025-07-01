@@ -14,7 +14,6 @@ void main() {
       productName: 'Banana',
       storeName: 'Comércio',
       createdAt: now.subtract(const Duration(days: 2)),
-      isApproved: true,
       status: ModerationStatus.approved,
       updatedAt: now,
       isPromotional: true,

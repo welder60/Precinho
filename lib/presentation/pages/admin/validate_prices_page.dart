@@ -25,7 +25,6 @@ class _ValidatePricesPageState extends State<ValidatePricesPage> {
   ) async {
     try {
       await doc.update({
-        'isApproved': approve,
         'status': approve
             ? ModerationStatus.approved.value
             : ModerationStatus.rejected.value,

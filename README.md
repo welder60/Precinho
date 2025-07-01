@@ -219,7 +219,6 @@ class Product {
   final String unit;
   final double volume;
   final String? barcode;
-  final bool isApproved;
   final ModerationStatus status;
 }
 ```
@@ -234,7 +233,6 @@ class Store {
   final double latitude;
   final double longitude;
   final StoreCategory category;
-  final bool isApproved;
   final String userId;
   final String status;
   final double rating;
@@ -262,7 +260,6 @@ class Price {
   final double? longitude;
   final DateTime createdAt;
   final DateTime? expiresAt;
-  final bool isApproved;
   final ModerationStatus status;
 }
 ```

@@ -100,7 +100,6 @@ class _PriceInfoPageState extends ConsumerState<PriceInfoPage> {
         'user_id': user.id,
         'image_url': imageUrl,
         'created_at': Timestamp.now(),
-        'isApproved': false,
         'status': ModerationStatus.pending.value,
         'latitude': widget.position.latitude,
         'longitude': widget.position.longitude,

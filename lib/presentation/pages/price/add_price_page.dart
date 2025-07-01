@@ -192,7 +192,6 @@ class _AddPricePageState extends State<AddPricePage> {
           'price': priceValue,
           'image_url': null,
           'created_at': Timestamp.now(),
-          'isApproved': true,
           if (variation != null) 'variation': variation,
           if (position != null) ...{
             'latitude': position.latitude,
