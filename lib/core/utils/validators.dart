@@ -196,7 +196,43 @@ class Validators {
     return null;
   }
 
-  // Validação de coordenadas
+  
+
+  // Validação de CPF
+  static String? validateCpf(String? cpf) {
+    if (cpf == null || cpf.isEmpty) {
+      return 'CPF é obrigatório';
+    }
+
+    final cleanCpf = cpf.replaceAll(RegExp(r'[^\d]'), '');
+    if (cleanCpf.length != 11) {
+      return 'CPF inválido';
+    }
+
+    if (RegExp(r'^(\d)\1*$').hasMatch(cleanCpf)) {
+      return 'CPF inválido';
+    }
+
+    int calcDigit(String base, int length) {
+      var sum = 0
+      for (var i = 0; i < length; i++) {
+        sum += int.parse(base[i]) * ((length + 1) - i);
+      }
+      final mod = sum % 11;
+      return mod < 2 ? 0 : 11 - mod;
+    }
+
+    final digit1 = calcDigit(cleanCpf, 9);
+    final digit2 = calcDigit(cleanCpf, 10);
+
+    if (digit1 != int.parse(cleanCpf[9]) || digit2 != int.parse(cleanCpf[10])) {
+      return 'CPF inválido';
+    }
+
+    return null;
+
+  }
+// Validação de coordenadas
   static String? validateLatitude(double? latitude) {
     if (latitude == null) {
       return 'Latitude é obrigatória';
