@@ -214,7 +214,7 @@ class Validators {
     }
 
     int calcDigit(String base, int length) {
-      var sum = 0
+      var sum = 0;
       for (var i = 0; i < length; i++) {
         sum += int.parse(base[i]) * ((length + 1) - i);
       }
