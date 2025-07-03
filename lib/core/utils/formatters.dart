@@ -158,8 +158,16 @@ class Formatters {
     }
     return cep;
   }
+  // Formatação de CPF
+  static String formatCpf(String cpf) {
+    final cleanCpf = cpf.replaceAll(RegExp(r'[^\d]'), '');
+    if (cleanCpf.length == 11) {
+      return '${cleanCpf.substring(0, 3)}.${cleanCpf.substring(3, 6)}.${cleanCpf.substring(6, 9)}-${cleanCpf.substring(9)}';
+    }
+    return cpf;
+  }
 
-  // Formatação de CNPJ
+// Formatação de CNPJ
   static String formatCnpj(String cnpj) {
     final cleanCnpj = cnpj.replaceAll(RegExp(r'[^\d]'), '');
     if (cleanCnpj.length == 14) {
