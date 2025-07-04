@@ -23,10 +23,15 @@ class InvoiceHtmlParser {
     return data;
   }
 
+  /// Returns all key/value pairs extracted from the HTML.
+  static Map<String, String> extractFields(String html) {
+    final document = html_parser.parse(html);
+    return _extractFields(document);
+  }
+
   /// Parses the HTML of an NFC-e file and returns a short summary message.
   static String parse(String html) {
-    final document = html_parser.parse(html);
-    final fields = _extractFields(document);
+    final fields = extractFields(html);
 
     final numero = fields['Número NFC-e'] ?? fields['Número'];
     final total =
