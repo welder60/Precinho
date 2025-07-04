@@ -1,9 +1,38 @@
 import 'package:html/parser.dart' as html_parser;
+import 'package:html/dom.dart';
 
 class InvoiceHtmlParser {
+  /// Extracts key/value pairs from the provided NFC-e HTML.
+  ///
+  /// Each field is generally composed of a `div` with the `sub-titulo` class
+  /// followed by another `div` with the `campo-xml` class containing the
+  /// respective value. This helper iterates through all column containers and
+  /// stores the pairs in a map.
+  static Map<String, String> _extractFields(Document document) {
+    final data = <String, String>{};
+    final cols = document.querySelectorAll('div.col');
+    for (final col in cols) {
+      final keyElement = col.querySelector('.sub-titulo');
+      final valueElement = col.querySelector('.campo-xml');
+      if (keyElement != null && valueElement != null) {
+        final key = keyElement.text.trim();
+        final value = valueElement.text.trim();
+        if (key.isNotEmpty) data[key] = value;
+      }
+    }
+    return data;
+  }
+
+  /// Parses the HTML of an NFC-e file and returns a short summary message.
   static String parse(String html) {
     final document = html_parser.parse(html);
-    // TODO: Implementar extração de dados da nota fiscal em HTML
-    return 'Arquivo HTML carregado (${document.body?.children.length} elementos)';
+    final fields = _extractFields(document);
+
+    final numero = fields['Número NFC-e'] ?? fields['Número'];
+    final total =
+        fields['Valor Total da Nota Fiscal'] ?? fields['Valor Total da NFe'];
+
+    return 'NFC-e ' + (numero ?? '?') + ' - Total R\$ ' + (total ?? '?') +
+        ' (' + fields.length.toString() + ' campos)';
   }
 }
