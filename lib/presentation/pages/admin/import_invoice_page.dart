@@ -1,5 +1,6 @@
-import 'dart:io';
+import 'dart:io' show File;
 import 'dart:convert';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
