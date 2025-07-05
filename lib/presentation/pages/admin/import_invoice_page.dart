@@ -53,12 +53,10 @@ class _ImportInvoicePageState extends State<ImportInvoicePage> {
       final msg = InvoiceHtmlParser.parse(content);
       setState(() => _message = msg);
 
-      final cnpj = fields['CNPJ']?.first;
-      final name = (fields['Razão Social']?.first ??
-              fields['Nome / Razão Social']?.first ??
-              fields['Nome']?.first) ??
-          'Desconhecido';
-      final address = fields['Endereço']?.first;
+      final cnpj = fields['CNPJ'];
+      final name = fields['Razão Social'] ?? fields['Nome / Razão Social'] ??
+          fields['Nome'] ?? 'Desconhecido';
+      final address = fields['Endereço'];
       if (cnpj != null) {
         await InvoiceImportService()
             .getOrCreateStore(cnpj: cnpj, name: name, address: address);
