@@ -65,12 +65,14 @@ class InvoiceImportService {
     String? customCode,
     required double value,
     required String description,
+    required DocumentReference invoiceRef,
     required DocumentReference storeRef,
     required DocumentReference productRef,
   }) async {
     final data = {
       'product_id': productRef.id,
       'store_id': storeRef.id,
+      'invoice_id': invoiceRef.id,
       'price': value,
       'description': description,
       if (ncm != null) 'ncm_code': ncm,
