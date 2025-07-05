@@ -1,5 +1,6 @@
 import 'package:html/parser.dart' as html_parser;
 import 'package:html/dom.dart';
+import '../datasources/invoice_import_service.dart';
 
 class InvoiceHtmlParser {
   /// Converte string com vírgula em double. Ex: "1.234,56" => 1234.56
@@ -139,6 +140,81 @@ class InvoiceHtmlParser {
       print('    Valor da Nota: R\$ ${total.toStringAsFixed(2)}');
       print('    Soma dos Itens: R\$ ${soma.toStringAsFixed(2)}');
       print('    Diferença: R\$ ${diferenca.toStringAsFixed(2)}');
+    }
+
+    return '$nItens preços importados';
+  }
+
+  /// Importa os dados da NFC-e para o Firestore.
+  static Future<String> importInvoice(
+    String html, {
+    required String userId,
+    String qrLink = '',
+  }) async {
+    final campos = extractFields(html);
+    final produtos = extractPrices(html);
+
+    final chaveNF =
+        campos['Chave de acesso']?[0].replaceAll(RegExp(r'\D'), '') ?? '';
+    final serie = campos['Série']?[0] ?? '';
+    final numero = campos['Número']?[0] ?? '';
+
+    final cnpj = campos['CNPJ']?[0].replaceAll(RegExp(r'\D'), '') ?? '';
+    final nome = campos['Nome / Razão Social']?.first ??
+        campos['Razão Social']?.first ??
+        campos['Nome']?.first ??
+        'Desconhecido';
+    final endereco = campos['Endereço']?.first;
+
+    final service = InvoiceImportService();
+
+    final storeRef = await service.getOrCreateStore(
+      cnpj: cnpj,
+      name: nome,
+      address: endereco,
+    );
+
+    final invoiceRef = await service.getOrCreateInvoice(
+      qrLink: qrLink,
+      accessKey: chaveNF,
+      cnpj: cnpj,
+      series: serie,
+      number: numero,
+      userId: userId,
+    );
+
+    final eans = produtos['Código EAN Comercial'] ?? [];
+    final ncms = produtos['Código NCM'] ?? [];
+    final codigos = produtos['Código do produto'] ?? [];
+    final descricoes = produtos['Descrição'] ?? [];
+    final valores = produtos['Valor(R\$)'] ?? [];
+
+    final nItens = descricoes.length;
+
+    for (int i = 0; i < nItens; i++) {
+      final ean = i < eans.length ? eans[i] : null;
+      final ncm = i < ncms.length ? ncms[i] : null;
+      final codigo = i < codigos.length ? codigos[i] : null;
+      final descricao = descricoes[i];
+      final valorStr = i < valores.length ? valores[i] : '0,00';
+      final valor = _toDouble(valorStr);
+
+      final productRef = await service.getOrCreateProduct(
+        ean: ean?.isNotEmpty == true ? ean : null,
+        ncm: ncm?.isNotEmpty == true ? ncm : null,
+        name: descricao,
+      );
+
+      await service.createPrice(
+        ncm: ncm?.isNotEmpty == true ? ncm : null,
+        ean: ean?.isNotEmpty == true ? ean : null,
+        customCode: codigo,
+        value: valor,
+        description: descricao,
+        invoiceRef: invoiceRef,
+        storeRef: storeRef,
+        productRef: productRef,
+      );
     }
 
     return '$nItens preços importados';

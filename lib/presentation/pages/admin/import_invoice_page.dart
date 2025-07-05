@@ -7,7 +7,6 @@ import 'package:file_picker/file_picker.dart';
 import '../../../core/themes/app_theme.dart';
 import '../../../data/parsers/invoice_html_parser.dart';
 import '../../../data/parsers/invoice_xml_parser.dart';
-import '../../../data/datasources/invoice_import_service.dart';
 
 class ImportInvoicePage extends StatefulWidget {
   const ImportInvoicePage({super.key});
@@ -49,18 +48,11 @@ class _ImportInvoicePageState extends State<ImportInvoicePage> {
       final msg = InvoiceXmlParser.parse(content);
       setState(() => _message = msg);
     } else {
-      final fields = InvoiceHtmlParser.extractFields(content);
-      final msg = InvoiceHtmlParser.parse(content);
+      final msg = await InvoiceHtmlParser.importInvoice(
+        content,
+        userId: 'system',
+      );
       setState(() => _message = msg);
-
-      final cnpj = fields['CNPJ'];
-      final name = fields['Razão Social'] ?? fields['Nome / Razão Social'] ??
-          fields['Nome'] ?? 'Desconhecido';
-      final address = fields['Endereço'];
-      if (cnpj != null) {
-        await InvoiceImportService()
-            .getOrCreateStore(cnpj: cnpj, name: name, address: address);
-      }
     }
   }
 
