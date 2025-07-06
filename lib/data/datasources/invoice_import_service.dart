@@ -75,6 +75,7 @@ class InvoiceImportService {
       'invoice_id': invoiceRef.id,
       'price': value,
       'description': description,
+      'status': ModerationStatus.approved.value,
       if (ncm != null) 'ncm_code': ncm,
       if (ean != null) 'ean_code': ean,
       if (customCode != null) 'custom_code': customCode,

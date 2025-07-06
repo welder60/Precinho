@@ -1,6 +1,7 @@
 import 'package:html/parser.dart' as html_parser;
 import 'package:html/dom.dart';
 import '../datasources/invoice_import_service.dart';
+import '../../core/constants/enums.dart';
 
 class InvoiceHtmlParser {
   /// Converte string com vírgula em double. Ex: "1.234,56" => 1234.56
@@ -183,6 +184,12 @@ class InvoiceHtmlParser {
       userId: userId,
     );
 
+    final invoiceSnap = await invoiceRef.get();
+    final currentStatus = invoiceSnap.data()?['status'] as String?;
+    if (currentStatus == ModerationStatus.approved.value) {
+      throw Exception('Invoice j\u00e1 aprovada');
+    }
+
     final eans = produtos['Código EAN Comercial'] ?? [];
     final ncms = produtos['Código NCM'] ?? [];
     final codigos = produtos['Código do produto'] ?? [];
@@ -216,6 +223,8 @@ class InvoiceHtmlParser {
         productRef: productRef,
       );
     }
+
+    await invoiceRef.update({'status': ModerationStatus.approved.value});
 
     return '$nItens preços importados';
   }
