@@ -182,6 +182,37 @@ class Validators {
     return null;
   }
 
+  // Validação de marca (opcional)
+  static String? validateBrand(String? brand) {
+    if (brand == null || brand.isEmpty) {
+      return null; // Marca é opcional
+    }
+
+    if (brand.length < 2) {
+      return 'Marca deve ter pelo menos 2 caracteres';
+    }
+
+    if (brand.length > AppConstants.maxProductNameLength) {
+      return 'Marca deve ter no máximo ${AppConstants.maxProductNameLength} caracteres';
+    }
+
+    return null;
+  }
+
+  // Validação de código NCM (opcional)
+  static String? validateNcmCode(String? ncm) {
+    if (ncm == null || ncm.isEmpty) {
+      return null;
+    }
+
+    final clean = ncm.replaceAll(RegExp(r'[^\d]'), '');
+    if (clean.length != 8) {
+      return 'NCM deve ter 8 dígitos';
+    }
+
+    return null;
+  }
+
   // Validação de CNPJ
   static String? validateCnpj(String? cnpj) {
     if (cnpj == null || cnpj.isEmpty) {

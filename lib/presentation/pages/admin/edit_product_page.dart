@@ -26,6 +26,7 @@ class _EditProductPageState extends State<EditProductPage> {
   late final TextEditingController _brandController;
   late final TextEditingController _volumeController;
   late final TextEditingController _barcodeController;
+  late final TextEditingController _ncmController;
   late final TextEditingController _descriptionController;
   final ImagePicker _picker = ImagePicker();
   XFile? _imageFile;
@@ -46,6 +47,7 @@ class _EditProductPageState extends State<EditProductPage> {
     _volumeController =
         TextEditingController(text: data['volume']?.toString() ?? '');
     _barcodeController = TextEditingController(text: data['barcode'] ?? '');
+    _ncmController = TextEditingController(text: data['ncm_code'] ?? '');
     _descriptionController =
         TextEditingController(text: data['description'] ?? '');
     if (data['unit'] != null) {
@@ -79,6 +81,7 @@ class _EditProductPageState extends State<EditProductPage> {
     _brandController.dispose();
     _volumeController.dispose();
     _barcodeController.dispose();
+    _ncmController.dispose();
     _descriptionController.dispose();
     _categoryController.dispose();
     super.dispose();
@@ -143,6 +146,7 @@ class _EditProductPageState extends State<EditProductPage> {
           'volume': double.tryParse(_volumeController.text.trim()),
           'unit': _unit,
           'barcode': _barcodeController.text.trim(),
+          'ncm_code': _ncmController.text.trim(),
           'description': _descriptionController.text.trim(),
           'categories': _categories,
           'image_url': imageUrl,
@@ -218,7 +222,7 @@ class _EditProductPageState extends State<EditProductPage> {
                   labelText: 'Marca',
                   prefixIcon: Icon(Icons.business),
                 ),
-                validator: Validators.validateProductName,
+                validator: Validators.validateBrand,
               ),
               const SizedBox(height: AppTheme.paddingMedium),
               TextFormField(
@@ -258,6 +262,16 @@ class _EditProductPageState extends State<EditProductPage> {
                 ),
                 keyboardType: TextInputType.number,
                 validator: Validators.validateBarcode,
+              ),
+              const SizedBox(height: AppTheme.paddingMedium),
+              TextFormField(
+                controller: _ncmController,
+                decoration: const InputDecoration(
+                  labelText: 'NCM',
+                  prefixIcon: Icon(Icons.numbers),
+                ),
+                keyboardType: TextInputType.number,
+                validator: Validators.validateNcmCode,
               ),
               const SizedBox(height: AppTheme.paddingMedium),
               TextFormField(
