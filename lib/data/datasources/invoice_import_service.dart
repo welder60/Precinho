@@ -91,6 +91,8 @@ class InvoiceImportService {
           'product_id': productRef.id,
           'code': storeCode,
           'description': storeDescription ?? name,
+          if (ncm != null) 'ncm_code': ncm,
+          if (ean != null) 'ean_code': ean,
           'created_at': Timestamp.now(),
         });
       }
@@ -112,6 +114,8 @@ class InvoiceImportService {
   }) async {
     final productSnap = await productRef.get();
     final productData = productSnap.data() ?? <String, dynamic>{};
+    final storeSnap = await storeRef.get();
+    final storeData = storeSnap.data() ?? <String, dynamic>{};
 
     final data = {
       'product_id': productRef.id,
@@ -122,6 +126,10 @@ class InvoiceImportService {
       'product_name': productData['name'],
       'image_url': productData['image_url'],
       'status': ModerationStatus.approved.value,
+      if (storeData['latitude'] != null)
+        'latitude': (storeData['latitude'] as num).toDouble(),
+      if (storeData['longitude'] != null)
+        'longitude': (storeData['longitude'] as num).toDouble(),
       if (ncm != null) 'ncm_code': ncm,
       if (ean != null) 'ean_code': ean,
       if (customCode != null) 'custom_code': customCode,

@@ -193,10 +193,16 @@ class _AddPricePageState extends State<AddPricePage> {
           'image_url': null,
           'created_at': Timestamp.now(),
           if (variation != null) 'variation': variation,
-          if (position != null) ...{
-            'latitude': position.latitude,
-            'longitude': position.longitude,
-          },
+          if (storeData['latitude'] != null && storeData['longitude'] != null)
+            ...{
+              'latitude': (storeData['latitude'] as num).toDouble(),
+              'longitude': (storeData['longitude'] as num).toDouble(),
+            }
+          else if (position != null)
+            ...{
+              'latitude': position.latitude,
+              'longitude': position.longitude,
+            },
         };
         FirebaseLogger.log('Adding price', data);
         await FirebaseFirestore.instance.collection('prices').add(data);
