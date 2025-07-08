@@ -8,7 +8,6 @@ import '../../../core/constants/enums.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/shopping_list_provider.dart';
 import '../price/price_detail_page.dart';
-import '../price/price_photo_page.dart';
 import '../invoice/invoice_qr_page.dart';
 import '../auth/login_page.dart';
 
@@ -320,15 +319,6 @@ class _FeedPageState extends ConsumerState<FeedPage> {
         title: const Text('In\u00edcio'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.camera_alt),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const PricePhotoPage()),
-              );
-            },
-          ),
-          IconButton(
             icon: const Icon(Icons.qr_code),
             onPressed: () {
               Navigator.push(
@@ -344,11 +334,11 @@ class _FeedPageState extends ConsumerState<FeedPage> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const PricePhotoPage()),
+            MaterialPageRoute(builder: (_) => const InvoiceQrPage()),
           );
         },
-        icon: const Icon(Icons.camera_alt),
-        label: const Text('Enviar preço'),
+        icon: const Icon(Icons.qr_code),
+        label: const Text('Ler nota'),
       ),
       body: _docs.isEmpty && _isLoading
           ? const Center(child: CircularProgressIndicator())

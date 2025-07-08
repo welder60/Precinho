@@ -12,7 +12,6 @@ Future<Map<String, int>> _fetchUserStats(String userId) async {
   final priceAgg = await FirebaseFirestore.instance
       .collection('prices')
       .where('user_id', isEqualTo: userId)
-      .where('image_url', isNull: false)
       .count()
       .get();
   final invoiceAgg = await FirebaseFirestore.instance
@@ -21,11 +20,11 @@ Future<Map<String, int>> _fetchUserStats(String userId) async {
       .count()
       .get();
 
-  final pricePhotoCount = priceAgg.count ?? 0;
+  final priceCount = priceAgg.count ?? 0;
   final invoiceCount = invoiceAgg.count ?? 0;
 
   return {
-    'prices': pricePhotoCount,
+    'prices': priceCount,
     'invoices': invoiceCount,
   };
 }
@@ -154,7 +153,7 @@ class ProfilePage extends ConsumerWidget {
     return FutureBuilder<Map<String, int>>(
       future: _fetchUserStats(user.id),
       builder: (context, snapshot) {
-        final photoCount = snapshot.data?['prices'];
+        final priceCount = snapshot.data?['prices'];
         final invoiceCount = snapshot.data?['invoices'];
 
         return Card(
@@ -174,8 +173,8 @@ class ProfilePage extends ConsumerWidget {
                     Expanded(
                       child: _buildStatItem(
                         context,
-                        'Fotos de Preços Enviadas',
-                        photoCount != null ? '$photoCount' : '...',
+                        'Preços Registrados',
+                        priceCount != null ? '$priceCount' : '...',
                         Icons.local_offer,
                         onTap: () {
                           Navigator.push(

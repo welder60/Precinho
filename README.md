@@ -34,10 +34,9 @@ O aplicativo segue uma identidade visual inspirada em economia colaborativa e si
 - Comparação de preços entre comércios
 
 ### 📝 Cadastro de Preços
-- Captura de foto do preço *(apenas pelo aplicativo para registrar a localização do usuário)*
 - Localização utilizada para sugerir ou cadastrar o comércio
 - Inserção manual de dados
-- Escaneamento de nota fiscal (OCR)
+- Leitura de QR Code da nota fiscal
 - Validação por moderação
 
 ### 🛒 Listas de Compras
@@ -267,7 +266,7 @@ class Price {
 Os registros de preços armazenam suas próprias coordenadas geográficas e
 também mantêm o nome do produto e do comércio. Essa redundância permite
 consultas mais rápidas mesmo que as informações de produto ou comércio sejam
-alteradas posteriormente e abre caminho para anexar fotos no futuro.
+alteradas posteriormente.
 
 ## 🎯 Funcionalidades Implementadas
 
@@ -287,8 +286,7 @@ alteradas posteriormente e abre caminho para anexar fotos no futuro.
 
 ### 🚧 Em Desenvolvimento
 - [x] Integração com Google Maps
-- [ ] Funcionalidade de câmera
-- [ ] OCR para notas fiscais
+- [ ] Leitura de QR Code das notas fiscais
 - [ ] Sistema de moderação
 - [ ] Gamificação completa
 - [ ] Notificações push
