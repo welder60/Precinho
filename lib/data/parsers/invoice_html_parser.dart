@@ -210,6 +210,9 @@ class InvoiceHtmlParser {
         ean: ean?.isNotEmpty == true ? ean : null,
         ncm: ncm?.isNotEmpty == true ? ncm : null,
         name: descricao,
+        storeRef: storeRef,
+        storeCode: codigo,
+        storeDescription: descricao,
       );
 
       await service.createPrice(
