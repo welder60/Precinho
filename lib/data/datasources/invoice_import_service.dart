@@ -110,12 +110,17 @@ class InvoiceImportService {
     required DocumentReference storeRef,
     required DocumentReference productRef,
   }) async {
+    final productSnap = await productRef.get();
+    final productData = productSnap.data() ?? <String, dynamic>{};
+
     final data = {
       'product_id': productRef.id,
       'store_id': storeRef.id,
       'invoice_id': invoiceRef.id,
       'price': value,
       'description': description,
+      'product_name': productData['name'],
+      'image_url': productData['image_url'],
       'status': ModerationStatus.approved.value,
       if (ncm != null) 'ncm_code': ncm,
       if (ean != null) 'ean_code': ean,
