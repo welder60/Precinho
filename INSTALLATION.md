@@ -165,9 +165,7 @@ Arquivo `ios/Runner/Info.plist`:
 <key>NSLocationWhenInUseUsageDescription</key>
 <string>Este app precisa de acesso à localização para encontrar preços próximos.</string>
 <key>NSCameraUsageDescription</key>
-<string>Este app precisa de acesso à câmera para fotografar preços.</string>
-<key>NSPhotoLibraryUsageDescription</key>
-<string>Este app precisa de acesso às fotos para selecionar imagens.</string>
+<string>Este app precisa de acesso à câmera para ler o QR Code da nota fiscal.</string>
 ```
 
 ## 🏃‍♂️ Executando a Aplicação
