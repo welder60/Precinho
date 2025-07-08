@@ -6,6 +6,7 @@ import 'manage_users_page.dart';
 import 'validate_prices_page.dart';
 import 'manage_stores_page.dart';
 import 'import_invoice_page.dart';
+import 'manage_store_codes_page.dart';
 
 class AdminHomePage extends StatelessWidget {
   const AdminHomePage({super.key});
@@ -45,6 +46,19 @@ class AdminHomePage extends StatelessWidget {
               },
               icon: const Icon(Icons.store),
               label: const Text('Gerenciar Com\u00e9rcios'),
+            ),
+            const SizedBox(height: AppTheme.paddingMedium),
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const ManageStoreCodesPage(),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.code),
+              label: const Text('Gerenciar C\u00f3digos'),
             ),
             const SizedBox(height: AppTheme.paddingMedium),
             ElevatedButton.icon(
