@@ -65,7 +65,9 @@ class _ManageStoreCodesPageState extends State<ManageStoreCodesPage> {
               return ListTile(
                 leading: const Icon(Icons.code, color: AppTheme.primaryColor),
                 title: Text('${data['code']} - $storeName'),
-                subtitle: Text(productName),
+                subtitle: Text(
+                  '$productName\nNCM: ${data['ncm_code'] ?? '-'} | EAN: ${data['ean_code'] ?? '-'}',
+                ),
                 onTap: () {
                   Navigator.push(
                     context,

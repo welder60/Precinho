@@ -244,6 +244,20 @@ crie um novo `Store` anônimo contendo as coordenadas do local. É possível
 cadastrar quantos comércios anônimos forem necessários, cada um com um
 `id` distinto e sua respectiva localização.
 
+### StoreProductCode (Código Próprio do Comércio)
+```dart
+class StoreProductCode {
+  final String id;
+  final String storeId;
+  final String productId;
+  final String code;
+  final String description;
+  final String? ncmCode;
+  final String? eanCode;
+  final DateTime createdAt;
+}
+```
+
 ### Price (Preço)
 ```dart
 class Price {
@@ -255,8 +269,8 @@ class Price {
   final String userId;
   final double value;
   final String? imageUrl;
-  final double? latitude;
-  final double? longitude;
+  final double? latitude; // localização do comércio
+  final double? longitude; // localização do comércio
   final DateTime createdAt;
   final DateTime? expiresAt;
   final ModerationStatus status;
