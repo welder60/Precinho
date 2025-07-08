@@ -175,7 +175,7 @@ flutter run
 ### Configuração do Firebase
 
 1. **Firestore Database:**
-   - Crie as coleções: `users`, `products`, `stores`, `prices`
+   - Crie as coleções: `users`, `products`, `stores`, `prices`, `store_products`
    - As listas de compras agora são armazenadas apenas no dispositivo e não
      precisam de coleção em banco de dados
    - Configure as regras de segurança
