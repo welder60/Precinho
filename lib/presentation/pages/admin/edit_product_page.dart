@@ -11,6 +11,7 @@ import '../../../core/constants/enums.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/logging/firebase_logger.dart';
 import '../product/product_search_page.dart';
+import "../../data/datasources/cosmos_service.dart";
 
 class EditProductPage extends StatefulWidget {
   final DocumentSnapshot document;
@@ -93,6 +94,58 @@ class _EditProductPageState extends State<EditProductPage> {
       setState(() {
         _imageFile = picked;
       });
+    }
+  }
+
+  Future<void> _updateFromCosmos() async {
+    final ean = _barcodeController.text.trim();
+    if (ean.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Informe o codigo de barras')),
+      );
+      return;
+    }
+    try {
+      final data = await CosmosService().fetchProduct(ean);
+      if (data == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Produto nao encontrado')),
+        );
+        return;
+      }
+      final product = data['product'] as Map<String, dynamic>? ?? data;
+      setState(() {
+        _nameController.text = product['description'] ?? _nameController.text;
+        final brand = product['brand'];
+        if (brand is Map && brand['name'] != null) {
+          _brandController.text = brand['name'];
+        } else if (brand is String) {
+          _brandController.text = brand;
+        }
+        final quantity = product['quantity'] as String?;
+        if (quantity != null) {
+          final parts = quantity.split(' ');
+          if (parts.length >= 2) {
+            _volumeController.text = parts.first.replaceAll(',', '.');
+            _unit = parts[1];
+          }
+        }
+        final ncm = (product['ncm'] as Map<String, dynamic>?)?['code'];
+        if (ncm != null) {
+          _ncmController.text = ncm;
+        }
+        final picture = product['picture'] ?? data['thumbnail'];
+        if (picture is String && picture.isNotEmpty) {
+          _imageUrl = picture;
+        }
+        if (product['description_short'] != null) {
+          _descriptionController.text = product['description_short'];
+        }
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao consultar Cosmos: $e')),
+      );
     }
   }
 
@@ -264,6 +317,11 @@ class _EditProductPageState extends State<EditProductPage> {
                 validator: Validators.validateBarcode,
               ),
               const SizedBox(height: AppTheme.paddingMedium),
+              const SizedBox(height: AppTheme.paddingSmall),
+              OutlinedButton(
+                onPressed: _updateFromCosmos,
+                child: const Text('Atualizar dados'),
+              ),
               TextFormField(
                 controller: _ncmController,
                 decoration: const InputDecoration(

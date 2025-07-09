@@ -156,8 +156,9 @@ flutter pub get
      - `GOOGLE_MAPS_API_KEY_ANDROID`
      - `GOOGLE_MAPS_API_KEY_IOS`
      - `GOOGLE_MAPS_API_KEY_WEB`
-     - `GOOGLE_SIGNIN_CLIENT_ID`
-     - Chaves do Firebase (veja `.env.example`)
+    - `GOOGLE_SIGNIN_CLIENT_ID`
+    - `COSMOS_TOKEN`
+    - Chaves do Firebase (veja `.env.example`)
    - Durante o desenvolvimento execute:
 
      ```bash
