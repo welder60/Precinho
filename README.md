@@ -20,6 +20,7 @@ O aplicativo segue uma identidade visual inspirada em economia colaborativa e si
 - Cadastro de novos usuários
 - Login social com Google
 - Recuperação de senha
+- Contas Google registradas automaticamente para administração
 
 ### 🗺️ Mapa de Preços
 - Visualização de preços em mapa interativo
@@ -295,6 +296,7 @@ alteradas posteriormente.
 - [x] Tema e design system
 - [x] Validações e formatadores
 - [x] Página de administração com gestão de produtos via Firestore
+- [x] Gerenciamento de usuários (incluindo contas Google)
 - [x] Tela de cadastro dedicada para a versão web
 - [x] Envio de preços para o Firestore com mensagens de sucesso ou erro
 

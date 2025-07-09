@@ -130,8 +130,19 @@ class FirebaseAuthService implements AuthService {
       if (userCredential.user == null) {
         throw const AuthenticationFailure(message: 'Falha na autenticação com Google');
       }
-      FirebaseLogger.log('Google sign in success', {'uid': userCredential.user!.uid});
-      return _mapFirebaseUserToUserModel(userCredential.user!);
+      final firebaseUser = userCredential.user!;
+
+      // Criar registro do usuário caso ainda não exista
+      final doc = FirebaseFirestore.instance.collection('users').doc(firebaseUser.uid);
+      final snapshot = await doc.get();
+      if (!snapshot.exists) {
+        final userModel = _mapFirebaseUserToUserModel(firebaseUser);
+        FirebaseLogger.log('Creating user record', userModel.toJson());
+        await doc.set(userModel.toJson());
+      }
+
+      FirebaseLogger.log('Google sign in success', {'uid': firebaseUser.uid});
+      return _mapFirebaseUserToUserModel(firebaseUser);
     } on firebase_auth.FirebaseAuthException catch (e) {
       FirebaseLogger.log('Google oauth error', {'code': e.code});
       throw AuthenticationFailure(
