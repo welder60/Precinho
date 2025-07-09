@@ -6,7 +6,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/shopping_list_provider.dart';
 import '../admin/edit_product_page.dart';
 
-import "../../data/datasources/cosmos_service.dart";
+import '../../../data/datasources/cosmos_service.dart';
 import '../../../core/themes/app_theme.dart';
 
 class ProductDetailPage extends ConsumerWidget {

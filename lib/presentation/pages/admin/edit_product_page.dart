@@ -11,7 +11,7 @@ import '../../../core/constants/enums.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/logging/firebase_logger.dart';
 import '../product/product_search_page.dart';
-import "../../data/datasources/cosmos_service.dart";
+import '../../../data/datasources/cosmos_service.dart';
 
 class EditProductPage extends StatefulWidget {
   final DocumentSnapshot document;
