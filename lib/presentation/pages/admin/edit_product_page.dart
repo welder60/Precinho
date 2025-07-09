@@ -149,6 +149,41 @@ class _EditProductPageState extends State<EditProductPage> {
     }
   }
 
+  Future<void> _updateImageFromCosmos() async {
+    final ean = _barcodeController.text.trim();
+    if (ean.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Informe o codigo de barras')),
+      );
+      return;
+    }
+    try {
+      final data = await CosmosService().fetchProduct(ean);
+      if (data == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Produto nao encontrado')),
+        );
+        return;
+      }
+      final product = data['product'] as Map<String, dynamic>? ?? data;
+      final picture = product['picture'] ?? data['thumbnail'];
+      if (picture is String && picture.isNotEmpty) {
+        setState(() {
+          _imageUrl = picture;
+          _imageFile = null;
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Imagem nao encontrada')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao consultar Cosmos: $e')),
+      );
+    }
+  }
+
   void _addCategory() {
     final text = _categoryController.text.trim();
     if (text.isNotEmpty && !_categories.contains(text)) {
@@ -379,6 +414,10 @@ class _EditProductPageState extends State<EditProductPage> {
               OutlinedButton(
                 onPressed: _pickImage,
                 child: const Text('Selecionar Foto'),
+              ),
+              OutlinedButton(
+                onPressed: _updateImageFromCosmos,
+                child: const Text('Atualizar Imagem'),
               ),
               if (_imageFile != null)
                 ...[

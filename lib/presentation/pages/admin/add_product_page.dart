@@ -29,6 +29,7 @@ class _AddProductPageState extends State<AddProductPage> {
   final _descriptionController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
   XFile? _imageFile;
+  String? _imageUrl;
   String? _unit;
   final List<String> _categories = [];
   final TextEditingController _categoryController = TextEditingController();
@@ -103,6 +104,41 @@ class _AddProductPageState extends State<AddProductPage> {
     }
   }
 
+  Future<void> _updateImageFromCosmos() async {
+    final ean = _barcodeController.text.trim();
+    if (ean.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Informe o codigo de barras')),
+      );
+      return;
+    }
+    try {
+      final data = await CosmosService().fetchProduct(ean);
+      if (data == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Produto nao encontrado')),
+        );
+        return;
+      }
+      final product = data['product'] as Map<String, dynamic>? ?? data;
+      final picture = product['picture'] ?? data['thumbnail'];
+      if (picture is String && picture.isNotEmpty) {
+        setState(() {
+          _imageUrl = picture;
+          _imageFile = null;
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Imagem nao encontrada')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao consultar Cosmos: $e')),
+      );
+    }
+  }
+
   void _addCategory() {
     final text = _categoryController.text.trim();
     if (text.isNotEmpty && !_categories.contains(text)) {
@@ -132,7 +168,7 @@ class _AddProductPageState extends State<AddProductPage> {
   Future<void> _submit() async {
     if (_formKey.currentState!.validate()) {
       try {
-        String? imageUrl;
+        String? imageUrl = _imageUrl;
         if (_imageFile != null) {
           final id = const Uuid().v4();
           final ref = FirebaseStorage.instance
@@ -311,10 +347,22 @@ class _AddProductPageState extends State<AddProductPage> {
                 onPressed: _pickImage,
                 child: const Text('Selecionar Foto'),
               ),
+              OutlinedButton(
+                onPressed: _updateImageFromCosmos,
+                child: const Text('Atualizar Imagem'),
+              ),
               if (_imageFile != null) ...[
                 const SizedBox(height: AppTheme.paddingMedium),
                 Image.file(
                   File(_imageFile!.path),
+                  height: 150,
+                  fit: BoxFit.cover,
+                ),
+              ]
+              else if (_imageUrl != null && _imageUrl!.isNotEmpty) ...[
+                const SizedBox(height: AppTheme.paddingMedium),
+                Image.network(
+                  _imageUrl!,
                   height: 150,
                   fit: BoxFit.cover,
                 ),
