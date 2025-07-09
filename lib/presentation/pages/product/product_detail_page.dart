@@ -6,12 +6,62 @@ import '../../providers/auth_provider.dart';
 import '../../providers/shopping_list_provider.dart';
 import '../admin/edit_product_page.dart';
 
+import "../../data/datasources/cosmos_service.dart";
 import '../../../core/themes/app_theme.dart';
 
 class ProductDetailPage extends ConsumerWidget {
   final DocumentSnapshot product;
   const ProductDetailPage({required this.product, super.key});
 
+  Future<void> _updateFromCosmos(BuildContext context) async {
+    final data = product.data() as Map<String, dynamic>;
+    final ean = data['barcode'] as String?;
+    if (ean == null || ean.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Produto sem codigo de barras')),
+      );
+      return;
+    }
+    try {
+      final cosmos = await CosmosService().fetchProduct(ean);
+      if (cosmos == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Produto nao encontrado')),
+        );
+        return;
+      }
+      final productData = cosmos['product'] as Map<String, dynamic>? ?? cosmos;
+      final updates = <String, dynamic>{};
+      if (productData['description'] != null) {
+        updates['name'] = productData['description'];
+      }
+      final brand = productData['brand'];
+      if (brand is Map && brand['name'] != null) {
+        updates['brand'] = brand['name'];
+      } else if (brand is String) {
+        updates['brand'] = brand;
+      }
+      final picture = productData['picture'] ?? cosmos['thumbnail'];
+      if (picture is String && picture.isNotEmpty) {
+        updates['image_url'] = picture;
+      }
+      final ncm = (productData['ncm'] as Map<String, dynamic>?)?['code'];
+      if (ncm != null) {
+        updates['ncm_code'] = ncm;
+      }
+      if (updates.isNotEmpty) {
+        updates['updated_at'] = Timestamp.now();
+        await product.reference.update(updates);
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Dados atualizados')), 
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao consultar Cosmos: $e')),
+      );
+    }
+  }
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final data = product.data() as Map<String, dynamic>;
@@ -20,7 +70,7 @@ class ProductDetailPage extends ConsumerWidget {
       appBar: AppBar(
         title: Text(data['name'] ?? 'Produto'),
         actions: [
-          if (isAdmin)
+          if (isAdmin) ...[
             IconButton(
               icon: const Icon(Icons.edit),
               onPressed: () {
@@ -32,6 +82,11 @@ class ProductDetailPage extends ConsumerWidget {
                 );
               },
             ),
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: () => _updateFromCosmos(context),
+            ),
+          ],
         ],
       ),
       body: ListView(
