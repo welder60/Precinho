@@ -108,9 +108,9 @@ class InvoiceImportService {
     String? customCode,
     required double value,
     required String description,
-    required DocumentReference invoiceRef,
-    required DocumentReference storeRef,
-    required DocumentReference productRef,
+    required DocumentReference<Map<String, dynamic>> invoiceRef,
+    required DocumentReference<Map<String, dynamic>> storeRef,
+    required DocumentReference<Map<String, dynamic>> productRef,
   }) async {
     final productSnap = await productRef.get();
     final productData = productSnap.data() ?? <String, dynamic>{};
