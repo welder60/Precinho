@@ -1,6 +1,5 @@
 import 'dart:io' show File;
 import 'dart:convert';
-import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
@@ -23,6 +22,7 @@ class _ImportInvoicePageState extends State<ImportInvoicePage> {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['html', 'htm', 'xml'],
+      withData: true,
     );
     if (result != null) {
       setState(() {
@@ -35,9 +35,8 @@ class _ImportInvoicePageState extends State<ImportInvoicePage> {
   Future<void> _import() async {
     if (_selectedFile == null) return;
     String content;
-    if (kIsWeb) {
-      final bytes = _selectedFile!.bytes;
-      if (bytes == null) return;
+    final bytes = _selectedFile!.bytes;
+    if (bytes != null) {
       content = utf8.decode(bytes);
     } else {
       final file = File(_selectedFile!.path!);
