@@ -72,6 +72,8 @@ class InvoiceImportService {
         'name': name,
         if (ean != null) 'barcode': ean,
         if (ncm != null) 'ncm_code': ncm,
+        if (ean != null && ean.isNotEmpty)
+          'image_url': 'https://cdn-cosmos.bluesoft.com.br/products/$ean',
         'created_at': Timestamp.now(),
       };
       productRef = await _firestore.collection('products').add(data);

@@ -180,6 +180,12 @@ class _AddProductPageState extends State<AddProductPage> {
           FirebaseLogger.log('Image uploaded', {'url': imageUrl});
         }
 
+        final barcode = _barcodeController.text.trim();
+        if ((imageUrl == null || imageUrl.isEmpty) && barcode.isNotEmpty) {
+          imageUrl =
+              'https://cdn-cosmos.bluesoft.com.br/products/$barcode';
+        }
+
         final equivalentIds = _equivalentProducts.map((e) => e.id).toList();
 
         final data = {
