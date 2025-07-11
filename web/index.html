@@ -56,8 +56,12 @@
   <script src="flutter.js" defer=""></script>
   <script id="google-maps" src=""></script>
   <script>
-    document.getElementById('google-maps').src =
-      `https://maps.googleapis.com/maps/api/js?key=${window.env.GOOGLE_MAPS_API_KEY_WEB}&libraries=places`;
+    if (window.env && window.env.GOOGLE_MAPS_API_KEY_WEB) {
+      document.getElementById('google-maps').src =
+        `https://maps.googleapis.com/maps/api/js?key=${window.env.GOOGLE_MAPS_API_KEY_WEB}&libraries=places`;
+    } else {
+      console.error('GOOGLE_MAPS_API_KEY_WEB not configured');
+    }
     window.searchPlaces = function(query, lat, lng, radius) {
       return new Promise(function(resolve, reject) {
         const service = new google.maps.places.PlacesService(document.createElement('div'));

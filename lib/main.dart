@@ -10,11 +10,17 @@ import 'presentation/providers/auth_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'core/config/app_config.dart';
+import 'core/constants/app_constants.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await AppConfig.load();
+
+  assert(
+    AppConstants.googleMapsApiKey.isNotEmpty,
+    'Google Maps API key must be provided. Check your environment configuration.',
+  );
 
   try {
     if (Firebase.apps.isEmpty) {
