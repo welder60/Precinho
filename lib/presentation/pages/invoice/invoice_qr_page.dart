@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
+import 'package:vibration/vibration.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 import '../../../core/themes/app_theme.dart';
 import '../home/home_page.dart';
@@ -16,6 +18,7 @@ class InvoiceQrPage extends ConsumerStatefulWidget {
 
 class _InvoiceQrPageState extends ConsumerState<InvoiceQrPage> {
   final MobileScannerController _controller = MobileScannerController();
+  final AudioPlayer _player = AudioPlayer();
   bool _flashOn = false;
   String? _message;
 
@@ -23,7 +26,10 @@ class _InvoiceQrPageState extends ConsumerState<InvoiceQrPage> {
     if (capture.barcodes.isEmpty) return;
     final value = capture.barcodes.first.rawValue;
     if (value == null) return;
-    SystemSound.play(SystemSoundType.alert);
+    if (await Vibration.hasVibrator() ?? false) {
+      Vibration.vibrate(duration: 200);
+    }
+    await _player.play(AssetSource('audios/scan.wav'));
     _controller.stop();
     await Navigator.push(
       context,
@@ -42,6 +48,7 @@ class _InvoiceQrPageState extends ConsumerState<InvoiceQrPage> {
   @override
   void dispose() {
     _controller.dispose();
+    _player.dispose();
     super.dispose();
   }
 

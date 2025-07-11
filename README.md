@@ -335,6 +335,11 @@ flutter analyze
 - Lógica de negócio
 - Widgets principais
 
+### Áudio de leitura de QR Code
+Para personalizar o som ao escanear um QR Code, adicione um arquivo
+`scan.wav` na pasta `assets/audios/`. Esse áudio será reproduzido sempre que
+um código for detectado.
+
 ## 📦 Publicação para Android
 
 1. Gere um keystore para assinar o aplicativo:
