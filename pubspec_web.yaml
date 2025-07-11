@@ -36,6 +36,7 @@ dependencies:
   uuid: ^4.2.1
   equatable: ^2.0.5
   flutter_dotenv: ^5.1.0
+  file_selector: ^1.0.2
   # UI e Animações
   lottie: ^2.7.0
   cached_network_image: ^3.3.0

@@ -1,9 +1,6 @@
-import 'dart:io' show File;
-import 'dart:convert';
-import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:file_selector/file_selector.dart';
 import '../../../core/themes/app_theme.dart';
 import '../../../data/parsers/invoice_html_parser.dart';
 import '../../../data/parsers/invoice_xml_parser.dart';
@@ -16,17 +13,18 @@ class ImportInvoicePage extends StatefulWidget {
 }
 
 class _ImportInvoicePageState extends State<ImportInvoicePage> {
-  PlatformFile? _selectedFile;
+  XFile? _selectedFile;
   String? _message;
 
   Future<void> _pickFile() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['html', 'htm', 'xml'],
+    final typeGroup = XTypeGroup(
+      label: 'invoice',
+      extensions: ['html', 'htm', 'xml'],
     );
-    if (result != null) {
+    final file = await openFile(acceptedTypeGroups: [typeGroup]);
+    if (file != null) {
       setState(() {
-        _selectedFile = result.files.single;
+        _selectedFile = file;
         _message = null;
       });
     }
@@ -34,17 +32,10 @@ class _ImportInvoicePageState extends State<ImportInvoicePage> {
 
   Future<void> _import() async {
     if (_selectedFile == null) return;
-    String content;
-    if (kIsWeb) {
-      final bytes = _selectedFile!.bytes;
-      if (bytes == null) return;
-      content = utf8.decode(bytes);
-    } else {
-      final file = File(_selectedFile!.path!);
-      content = await file.readAsString();
-    }
+    final content = await _selectedFile!.readAsString();
 
-    if (_selectedFile!.extension?.toLowerCase() == 'xml') {
+    final extension = _selectedFile!.name.split('.').last.toLowerCase();
+    if (extension == 'xml') {
       final msg = InvoiceXmlParser.parse(content);
       setState(() => _message = msg);
     } else {
