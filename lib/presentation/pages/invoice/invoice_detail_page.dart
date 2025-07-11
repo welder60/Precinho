@@ -47,6 +47,14 @@ class InvoiceDetailPage extends StatelessWidget {
             stream: _pricesStream(),
             builder: (context, priceSnapshot) {
               final priceDocs = priceSnapshot.data?.docs ?? [];
+              double total = 0;
+              for (final doc in priceDocs) {
+                final data = doc.data() as Map<String, dynamic>;
+                final price = (data['price'] as num?)?.toDouble() ?? 0.0;
+                final discount = (data['discount'] as num?)?.toDouble() ?? 0.0;
+                total += price - discount;
+              }
+              final itemCount = priceDocs.length;
               return SingleChildScrollView(
                 padding: const EdgeInsets.all(AppTheme.paddingLarge),
                 child: Column(
@@ -63,6 +71,9 @@ class InvoiceDetailPage extends StatelessWidget {
                     Text('Status: ${status.displayName}'),
                     if (status == ModerationStatus.approved &&
                         priceDocs.isNotEmpty) ...[
+                      const SizedBox(height: AppTheme.paddingMedium),
+                      Text('Total: ${Formatters.formatPrice(total)}'),
+                      Text('Itens: $itemCount'),
                       const SizedBox(height: AppTheme.paddingLarge),
                       Text(
                         'Produtos',
