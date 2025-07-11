@@ -15,6 +15,7 @@ class InvoiceService {
     required String series,
     required String number,
     required String userId,
+    String? storeId,
   }) async {
     final existing = await _firestore
         .collection('invoices')
@@ -34,6 +35,7 @@ class InvoiceService {
       'number': number,
       'created_at': Timestamp.now(),
       'status': ModerationStatus.underReview.value,
+      if (storeId != null) 'store_id': storeId,
     };
     FirebaseLogger.log('submitInvoice', data);
     await _firestore.collection('invoices').add(data);
