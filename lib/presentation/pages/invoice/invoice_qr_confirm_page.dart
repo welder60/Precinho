@@ -7,7 +7,7 @@ import '../../../core/logging/firebase_logger.dart';
 import '../../../core/themes/app_theme.dart';
 import '../../providers/auth_provider.dart';
 import '../../../data/datasources/invoice_service.dart';
-import '../../store/place_search_page.dart';
+import '../store/place_search_page.dart';
 import '../../../data/models/place_result.dart';
 import 'package:flutter/services.dart';
 import 'invoice_qr_page.dart';
