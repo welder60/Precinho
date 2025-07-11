@@ -167,6 +167,12 @@ class _AddProductPageState extends State<AddProductPage> {
   }
 
   Future<void> _submit() async {
+    if (_barcodeController.text.trim().isEmpty) {
+      if (_volumeController.text.trim().isEmpty) {
+        _volumeController.text = '1';
+      }
+      _unit ??= 'kg';
+    }
     if (_formKey.currentState!.validate()) {
       try {
         String? imageUrl = _imageUrl;
