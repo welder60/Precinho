@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../../core/constants/app_constants.dart';
+import '../../core/logging/maps_logger.dart';
 import '../models/place_result.dart';
 
 class PlacesService {
@@ -12,7 +13,9 @@ class PlacesService {
   PlacesService({http.Client? client}) : _client = client ?? http.Client();
 
   String buildPhotoUrl(String photoReference, {int maxWidth = 600}) {
-    return 'https://maps.googleapis.com/maps/api/place/photo?maxwidth=$maxWidth&photo_reference=$photoReference&key=${AppConstants.googleMapsApiKey}';
+    final url = 'https://maps.googleapis.com/maps/api/place/photo?maxwidth=$maxWidth&photo_reference=$photoReference&key=${AppConstants.googleMapsApiKey}';
+    MapsLogger.log('buildPhotoUrl', {'url': url});
+    return url;
   }
 
   Future<List<PlaceResult>> searchPlacesByName({
@@ -35,7 +38,12 @@ class PlacesService {
       queryParameters,
     );
 
+    MapsLogger.log('searchPlacesByName_request', {'uri': uri.toString()});
     final response = await _client.get(uri);
+    MapsLogger.log('searchPlacesByName_response', {
+      'status': response.statusCode,
+      'body': response.body,
+    });
     if (response.statusCode != 200) {
       throw Exception('Erro ao buscar locais: ${response.statusCode}');
     }
@@ -61,7 +69,12 @@ class PlacesService {
       queryParameters,
     );
 
+    MapsLogger.log('getPhotoReference_request', {'uri': uri.toString()});
     final response = await _client.get(uri);
+    MapsLogger.log('getPhotoReference_response', {
+      'status': response.statusCode,
+      'body': response.body,
+    });
     if (response.statusCode != 200) {
       throw Exception('Erro ao buscar detalhes: ${response.statusCode}');
     }
