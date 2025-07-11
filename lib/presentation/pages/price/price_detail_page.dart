@@ -7,6 +7,7 @@ import 'add_price_page.dart';
 import 'package:share_plus/share_plus.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:precinho_app/presentation/widgets/app_cached_image.dart';
 
 class PriceDetailPage extends StatelessWidget {
   final DocumentSnapshot price;
@@ -120,13 +121,11 @@ class PriceDetailPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (productImage != null && productImage.isNotEmpty)
-                  Image.network(
-                    productImage,
-                    width: double.infinity,
-                    height: 200,
-                    fit: BoxFit.cover,
-                  ),
+                AppCachedImage(
+                  imageUrl: productImage,
+                  width: double.infinity,
+                  height: 200,
+                ),
                 const SizedBox(height: AppTheme.paddingMedium),
                 Text(
                   productName.isNotEmpty ? productName : 'Produto',

@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../core/themes/app_theme.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../providers/store_favorites_provider.dart';
+import 'package:precinho_app/presentation/widgets/app_cached_image.dart';
 // Página de detalhes exibe apenas informações do comércio.
 
 class StoreDetailPage extends ConsumerWidget {
@@ -36,11 +37,11 @@ class StoreDetailPage extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (data['latitude'] != null && data['longitude'] != null)
-            Image.network(
-              'https://maps.googleapis.com/maps/api/staticmap?center=${data['latitude']},${data['longitude']}&zoom=16&size=600x200&markers=color:red%7C${data['latitude']},${data['longitude']}&key=${AppConstants.googleMapsApiKey}',
+            AppCachedImage(
+              imageUrl:
+                  'https://maps.googleapis.com/maps/api/staticmap?center=${data['latitude']},${data['longitude']}&zoom=16&size=600x200&markers=color:red%7C${data['latitude']},${data['longitude']}&key=${AppConstants.googleMapsApiKey}',
               width: double.infinity,
               height: 200,
-              fit: BoxFit.cover,
             ),
           Padding(
             padding: const EdgeInsets.all(AppTheme.paddingMedium),

@@ -9,6 +9,7 @@ import '../../providers/store_favorites_provider.dart';
 import '../price/add_price_page.dart';
 import '../price/price_detail_page.dart';
 import 'product_detail_page.dart';
+import 'package:precinho_app/presentation/widgets/app_cached_image.dart';
 
 class ProductPricesPage extends ConsumerStatefulWidget {
   final DocumentSnapshot product;
@@ -62,14 +63,11 @@ class _ProductPricesPageState extends ConsumerState<ProductPricesPage> {
       ),
       body: Column(
         children: [
-          if (data['image_url'] != null &&
-              (data['image_url'] as String).isNotEmpty)
-            Image.network(
-              data['image_url'],
-              width: double.infinity,
-              height: 200,
-              fit: BoxFit.cover,
-            ),
+          AppCachedImage(
+            imageUrl: data['image_url'] as String?,
+            width: double.infinity,
+            height: 200,
+          ),
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance

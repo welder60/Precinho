@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/constants/enums.dart';
 import '../../../core/themes/app_theme.dart';
+import 'package:precinho_app/presentation/widgets/app_cached_image.dart';
 
 class ValidatePricesPage extends StatefulWidget {
   const ValidatePricesPage({super.key});
@@ -80,17 +81,11 @@ class _ValidatePricesPageState extends State<ValidatePricesPage> {
               return Card(
                 margin: const EdgeInsets.only(bottom: AppTheme.paddingSmall),
                 child: ListTile(
-                  leading: imageUrl != null && imageUrl.isNotEmpty
-                      ? Image.network(
-                          imageUrl,
-                          width: 56,
-                          height: 56,
-                          fit: BoxFit.cover,
-                        )
-                      : const Icon(
-                          Icons.local_offer,
-                          color: AppTheme.primaryColor,
-                        ),
+                  leading: AppCachedImage(
+                    imageUrl: imageUrl,
+                    width: 56,
+                    height: 56,
+                  ),
                   title: Text(data['product_name'] ?? 'Produto'),
                   subtitle: Text(data['store_name'] ?? 'Comércio'),
                   trailing: Row(

@@ -6,6 +6,7 @@ import '../../../core/themes/app_theme.dart';
 import '../admin/add_product_page.dart';
 import '../product/product_prices_page.dart';
 import '../../providers/auth_provider.dart';
+import 'package:precinho_app/presentation/widgets/app_cached_image.dart';
 class ProductSearchPage extends ConsumerStatefulWidget {
   final ValueChanged<DocumentSnapshot>? onSelected;
   const ProductSearchPage({this.onSelected, super.key});
@@ -142,23 +143,15 @@ class _ProductSearchPageState extends ConsumerState<ProductSearchPage> {
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Expanded(
-                                      child: data['image_url'] != null &&
-                                              (data['image_url'] as String)
-                                                  .isNotEmpty
-                                          ? ClipRRect(
-                                              borderRadius: BorderRadius.circular(
-                                                  AppTheme.radiusSmall),
-                                              child: Image.network(
-                                                data['image_url'],
-                                                fit: BoxFit.cover,
-                                                width: double.infinity,
-                                              ),
-                                            )
-                                          : const Icon(
-                                              Icons.shopping_bag,
-                                              size: 40,
-                                              color: AppTheme.primaryColor,
-                                            ),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(
+                                            AppTheme.radiusSmall),
+                                        child: AppCachedImage(
+                                          imageUrl: data['image_url'] as String?,
+                                          width: double.infinity,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
                                     ),
                                     const SizedBox(
                                         height: AppTheme.paddingSmall),

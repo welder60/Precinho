@@ -7,6 +7,7 @@ import '../../../core/themes/app_theme.dart';
 import '../../../core/utils/formatters.dart';
 import '../../providers/auth_provider.dart';
 import 'price_detail_page.dart';
+import 'package:precinho_app/presentation/widgets/app_cached_image.dart';
 
 class UserPricesPage extends ConsumerWidget {
   const UserPricesPage({super.key});
@@ -48,9 +49,11 @@ class UserPricesPage extends ConsumerWidget {
               );
               final imageUrl = data['image_url'] as String?;
               return ListTile(
-                leading: imageUrl != null && imageUrl.isNotEmpty
-                    ? Image.network(imageUrl, width: 56, height: 56, fit: BoxFit.cover)
-                    : const Icon(Icons.photo),
+                leading: AppCachedImage(
+                  imageUrl: imageUrl,
+                  width: 56,
+                  height: 56,
+                ),
                 title: Text(data['product_name'] ?? 'Produto'),
                 subtitle: Text('${data['store_name'] ?? 'Comércio'}\n${status.displayName}'),
                 isThreeLine: true,

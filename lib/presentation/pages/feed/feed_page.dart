@@ -7,6 +7,7 @@ import '../../../core/utils/formatters.dart';
 import '../../../core/constants/enums.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/shopping_list_provider.dart';
+import 'package:precinho_app/presentation/widgets/app_cached_image.dart';
 import '../price/price_detail_page.dart';
 import '../invoice/invoice_qr_page.dart';
 import '../auth/login_page.dart';
@@ -401,22 +402,15 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            productImage != null && productImage.isNotEmpty
-                                ? ClipRRect(
-                                    borderRadius:
-                                        BorderRadius.circular(AppTheme.radiusSmall),
-                                    child: Image.network(
-                                      productImage,
-                                      width: 56,
-                                      height: 56,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  )
-                                : const Icon(
-                                    Icons.shopping_bag,
-                                    color: AppTheme.primaryColor,
-                                    size: 56,
-                                  ),
+                            ClipRRect(
+                              borderRadius:
+                                  BorderRadius.circular(AppTheme.radiusSmall),
+                              child: AppCachedImage(
+                                imageUrl: productImage,
+                                width: 56,
+                                height: 56,
+                              ),
+                            ),
                             const SizedBox(width: AppTheme.paddingSmall),
                             Expanded(
                               child: Column(
@@ -427,9 +421,12 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                                   Row(
                                     children: [
                                       if (storeImage != null && storeImage.isNotEmpty)
-                                        CircleAvatar(
-                                          backgroundImage: NetworkImage(storeImage),
-                                          radius: 10,
+                                        ClipOval(
+                                          child: AppCachedImage(
+                                            imageUrl: storeImage,
+                                            width: 20,
+                                            height: 20,
+                                          ),
                                         ),
                                       if (storeImage != null && storeImage.isNotEmpty)
                                         const SizedBox(width: 4),

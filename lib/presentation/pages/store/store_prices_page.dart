@@ -9,6 +9,7 @@ import '../../providers/store_favorites_provider.dart';
 import '../price/add_price_page.dart';
 import '../price/price_detail_page.dart';
 import 'store_detail_page.dart';
+import 'package:precinho_app/presentation/widgets/app_cached_image.dart';
 
 class StorePricesPage extends ConsumerStatefulWidget {
   final DocumentSnapshot store;
@@ -203,20 +204,14 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
                     }
 
                     return ListTile(
-                      leading: imageUrl != null && imageUrl.isNotEmpty
-                          ? ClipRRect(
-                              borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-                              child: Image.network(
-                                imageUrl,
-                                width: 56,
-                                height: 56,
-                                fit: BoxFit.cover,
-                              ),
-                            )
-                          : const Icon(
-                              Icons.shopping_bag,
-                              color: AppTheme.primaryColor,
-                            ),
+                      leading: ClipRRect(
+                        borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                        child: AppCachedImage(
+                          imageUrl: imageUrl,
+                          width: 56,
+                          height: 56,
+                        ),
+                      ),
                       title: Text(label),
                       trailing: Column(
                         mainAxisSize: MainAxisSize.min,
