@@ -16,6 +16,14 @@ class InvoiceDetailPage extends StatelessWidget {
         .snapshots();
   }
 
+  Stream<QuerySnapshot> _pricesStream() {
+    return FirebaseFirestore.instance
+        .collection('prices')
+        .where('invoice_id', isEqualTo: invoiceId)
+        .orderBy('created_at')
+        .snapshots();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,40 +43,81 @@ class InvoiceDetailPage extends StatelessWidget {
             (s) => s.value == data['status'],
             orElse: () => ModerationStatus.underReview,
           );
-          final products = (data['products'] as List?)?.cast<String>() ?? [];
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(AppTheme.paddingLarge),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Link: ${data['qr_link'] ?? ''}'),
-                const SizedBox(height: AppTheme.paddingMedium),
-                Text('CNPJ: ${data['cnpj']}'),
-                Text('S\u00e9rie: ${data['series']}'),
-                Text('N\u00famero: ${data['number']}'),
-                if (date != null)
-                  Text('Enviada em: ${Formatters.formatDateTime(date)}'),
-                const SizedBox(height: AppTheme.paddingMedium),
-                Text('Status: ${status.displayName}'),
-                if (status == ModerationStatus.approved && products.isNotEmpty) ...[
-                  const SizedBox(height: AppTheme.paddingLarge),
-                  Text(
-                    'Produtos',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: AppTheme.paddingSmall),
-                  for (final p in products)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: AppTheme.paddingSmall),
-                      child: Text(p),
-                    ),
-                ]
-              ],
-            ),
+          return StreamBuilder<QuerySnapshot>(
+            stream: _pricesStream(),
+            builder: (context, priceSnapshot) {
+              final priceDocs = priceSnapshot.data?.docs ?? [];
+              return SingleChildScrollView(
+                padding: const EdgeInsets.all(AppTheme.paddingLarge),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Link: ${data['qr_link'] ?? ''}'),
+                    const SizedBox(height: AppTheme.paddingMedium),
+                    Text('CNPJ: ${data['cnpj']}'),
+                    Text('S\u00e9rie: ${data['series']}'),
+                    Text('N\u00famero: ${data['number']}'),
+                    if (date != null)
+                      Text('Enviada em: ${Formatters.formatDateTime(date)}'),
+                    const SizedBox(height: AppTheme.paddingMedium),
+                    Text('Status: ${status.displayName}'),
+                    if (status == ModerationStatus.approved &&
+                        priceDocs.isNotEmpty) ...[
+                      const SizedBox(height: AppTheme.paddingLarge),
+                      Text(
+                        'Produtos',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: AppTheme.paddingSmall),
+                      for (final doc in priceDocs)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: AppTheme.paddingSmall),
+                          child: _PriceRow(
+                              data: doc.data() as Map<String, dynamic>),
+                        ),
+                    ]
+                  ],
+                ),
+              );
+            },
           );
         },
       ),
+    );
+  }
+}
+
+class _PriceRow extends StatelessWidget {
+  final Map<String, dynamic> data;
+  const _PriceRow({required this.data});
+
+  @override
+  Widget build(BuildContext context) {
+    final name = data['product_name'] as String? ?? '';
+    final value = (data['price'] as num?)?.toDouble() ?? 0.0;
+    final discount = (data['discount'] as num?)?.toDouble() ?? 0.0;
+    final paid = value - discount;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(child: Text(name)),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              Formatters.formatPrice(paid),
+              style: AppTheme.priceTextStyle,
+            ),
+            if (discount > 0)
+              Text(
+                'Desconto: ${Formatters.formatPrice(discount)}',
+                style: AppTheme.discountTextStyle,
+              ),
+          ],
+        ),
+      ],
     );
   }
 }
