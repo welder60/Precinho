@@ -204,6 +204,8 @@ class InvoiceHtmlParser {
     final codigos = produtos['Código do produto'] ?? [];
     final descricoes = produtos['Descrição'] ?? [];
     final valores = produtos['Valor(R\$)'] ?? [];
+    final unitarios = produtos['Valor Unit\u00e1rio de Comercializa\u00e7\u00e3o'] ?? [];
+    final descontos = produtos['Valor do Desconto'] ?? [];
 
     final nItens = descricoes.length;
 
@@ -213,7 +215,11 @@ class InvoiceHtmlParser {
       final codigo = i < codigos.length ? codigos[i] : null;
       final descricao = descricoes[i];
       final valorStr = i < valores.length ? valores[i] : '0,00';
+      final unitarioStr = i < unitarios.length ? unitarios[i] : '0,00';
+      final descontoStr = i < descontos.length ? descontos[i] : '0,00';
       final valor = _toDouble(valorStr);
+      final unitario = _toDouble(unitarioStr);
+      final desconto = _toDouble(descontoStr);
 
       final productRef = await service.getOrCreateProduct(
         ean: ean?.isNotEmpty == true ? ean : null,
@@ -229,6 +235,8 @@ class InvoiceHtmlParser {
         ean: ean?.isNotEmpty == true ? ean : null,
         customCode: codigo,
         value: valor,
+        unitValue: unitario,
+        discount: desconto,
         description: descricao,
         invoiceRef: invoiceRef,
         storeRef: storeRef,
