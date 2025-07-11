@@ -11,6 +11,21 @@ import 'invoice_detail_page.dart';
 class InvoicesPage extends ConsumerWidget {
   const InvoicesPage({super.key});
 
+  Future<Map<String, dynamic>> _fetchSummary(String invoiceId) async {
+    final snap = await FirebaseFirestore.instance
+        .collection('prices')
+        .where('invoice_id', isEqualTo: invoiceId)
+        .get();
+    double total = 0;
+    for (final doc in snap.docs) {
+      final data = doc.data();
+      final price = (data['price'] as num?)?.toDouble() ?? 0.0;
+      final discount = (data['discount'] as num?)?.toDouble() ?? 0.0;
+      total += price - discount;
+    }
+    return {'total': total, 'count': snap.docs.length};
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(currentUserProvider);
@@ -45,22 +60,53 @@ class InvoicesPage extends ConsumerWidget {
                 orElse: () => ModerationStatus.underReview,
               );
               return Card(
-                child: ListTile(
-                  title: Text('Série ${data['series']} - Nº ${data['number']}'),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (date != null)
-                        Text(Formatters.formatDateTime(date)),
-                      Text(status.displayName),
-                    ],
-                  ),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => InvoiceDetailPage(invoiceId: doc.id),
+                child: FutureBuilder<Map<String, dynamic>>(
+                  future: _fetchSummary(doc.id),
+                  builder: (context, summarySnapshot) {
+                    Widget trailing;
+                    if (!summarySnapshot.hasData) {
+                      trailing = const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(),
+                      );
+                    } else {
+                      final total =
+                          summarySnapshot.data!['total'] as double? ?? 0.0;
+                      final count = summarySnapshot.data!['count'] as int? ?? 0;
+                      trailing = Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            Formatters.formatPrice(total),
+                            style: AppTheme.priceTextStyle,
+                          ),
+                          Text('$count itens'),
+                        ],
+                      );
+                    }
+                    return ListTile(
+                      title:
+                          Text('Série ${data['series']} - Nº ${data['number']}'),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (date != null)
+                            Text(Formatters.formatDateTime(date)),
+                          Text(status.displayName),
+                        ],
                       ),
+                      trailing: trailing,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                InvoiceDetailPage(invoiceId: doc.id),
+                          ),
+                        );
+                      },
                     );
                   },
                 ),
