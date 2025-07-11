@@ -46,6 +46,17 @@ class ProductDetailPage extends ConsumerWidget {
       if (picture is String && picture.isNotEmpty) {
         updates['image_url'] = picture;
       }
+      final quantity = productData['quantity'] as String?;
+      if (quantity != null) {
+        final parts = quantity.split(' ');
+        if (parts.length >= 2) {
+          final volume = double.tryParse(parts.first.replaceAll(',', '.'));
+          if (volume != null) {
+            updates['volume'] = volume;
+          }
+          updates['unit'] = parts[1];
+        }
+      }
       final ncm = (productData['ncm'] as Map<String, dynamic>?)?['code'];
       if (ncm != null) {
         updates['ncm_code'] = ncm;
