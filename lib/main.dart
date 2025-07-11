@@ -16,10 +16,15 @@ void main() async {
 
   await AppConfig.load();
 
-  if (Firebase.apps.isEmpty) {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
+  try {
+    if (Firebase.apps.isEmpty) {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    }
+  } on FirebaseException catch (e) {
+    // Ignore duplicate initialization errors caused by hot restarts
+    if (e.code != 'duplicate-app') rethrow;
   }
 
   runApp(
