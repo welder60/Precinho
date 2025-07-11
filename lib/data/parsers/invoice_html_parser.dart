@@ -1,5 +1,6 @@
 import 'package:html/parser.dart' as html_parser;
 import 'package:html/dom.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../datasources/invoice_import_service.dart';
 import '../../core/constants/enums.dart';
 
