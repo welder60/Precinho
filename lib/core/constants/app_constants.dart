@@ -40,6 +40,11 @@ class AppConstants {
           key = AppConfig.get('GOOGLE_MAPS_API_KEY');
       }
     }
+    assert(
+      key.isNotEmpty,
+      'Google Maps API key not configured for $platform. '
+      'Ensure AppConfig.load() has been called and the key is set.',
+    );
     MapsLogger.log('googleMapsApiKey_loaded', {
       'platform': platform,
       'keySnippet': key.isNotEmpty ? key.substring(0, 5) + '...' : 'EMPTY',
