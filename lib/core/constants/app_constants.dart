@@ -1,6 +1,7 @@
 // Constantes da aplicação Precinho
 import '../config/app_config.dart';
 import 'package:flutter/foundation.dart' show kIsWeb, defaultTargetPlatform, TargetPlatform;
+import '../logging/maps_logger.dart';
 
 class AppConstants {
   // Configurações gerais
@@ -11,23 +12,39 @@ class AppConstants {
   static const String baseUrl = 'https://api.precinho.com';
   static const int timeoutDuration = 30000; // 30 segundos
   static String get googleMapsApiKey {
+    String platform;
+    String key;
     if (kIsWeb) {
-      return AppConfig.get('GOOGLE_MAPS_API_KEY_WEB',
+      platform = 'web';
+      key = AppConfig.get('GOOGLE_MAPS_API_KEY_WEB',
           defaultValue: AppConfig.get('GOOGLE_MAPS_API_KEY'));
+    } else {
+      switch (defaultTargetPlatform) {
+        case TargetPlatform.android:
+          platform = 'android';
+          key = AppConfig.get('GOOGLE_MAPS_API_KEY_ANDROID',
+              defaultValue: AppConfig.get('GOOGLE_MAPS_API_KEY'));
+          break;
+        case TargetPlatform.iOS:
+          platform = 'ios';
+          key = AppConfig.get('GOOGLE_MAPS_API_KEY_IOS',
+              defaultValue: AppConfig.get('GOOGLE_MAPS_API_KEY'));
+          break;
+        case TargetPlatform.macOS:
+          platform = 'macos';
+          key = AppConfig.get('GOOGLE_MAPS_API_KEY_IOS',
+              defaultValue: AppConfig.get('GOOGLE_MAPS_API_KEY'));
+          break;
+        default:
+          platform = 'unknown';
+          key = AppConfig.get('GOOGLE_MAPS_API_KEY');
+      }
     }
-    switch (defaultTargetPlatform) {
-      case TargetPlatform.android:
-        return AppConfig.get('GOOGLE_MAPS_API_KEY_ANDROID',
-            defaultValue: AppConfig.get('GOOGLE_MAPS_API_KEY'));
-      case TargetPlatform.iOS:
-        return AppConfig.get('GOOGLE_MAPS_API_KEY_IOS',
-            defaultValue: AppConfig.get('GOOGLE_MAPS_API_KEY'));
-      case TargetPlatform.macOS:
-        return AppConfig.get('GOOGLE_MAPS_API_KEY_IOS',
-            defaultValue: AppConfig.get('GOOGLE_MAPS_API_KEY'));
-      default:
-        return AppConfig.get('GOOGLE_MAPS_API_KEY');
-    }
+    MapsLogger.log('googleMapsApiKey_loaded', {
+      'platform': platform,
+      'keySnippet': key.isNotEmpty ? key.substring(0, 5) + '...' : 'EMPTY',
+    });
+    return key;
   }
   
   // Configurações de geolocalização
