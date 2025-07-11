@@ -12,6 +12,7 @@ import '../../../core/utils/validators.dart';
 import '../../../core/logging/firebase_logger.dart';
 import '../product/product_search_page.dart';
 import '../../../data/datasources/cosmos_service.dart';
+import 'package:precinho_app/presentation/widgets/app_cached_image.dart';
 
 class EditProductPage extends StatefulWidget {
   final DocumentSnapshot document;
@@ -431,10 +432,9 @@ class _EditProductPageState extends State<EditProductPage> {
               else if (_imageUrl != null && _imageUrl!.isNotEmpty)
                 ...[
                   const SizedBox(height: AppTheme.paddingMedium),
-                  Image.network(
-                    _imageUrl!,
+                  AppCachedImage(
+                    imageUrl: _imageUrl!,
                     height: 150,
-                    fit: BoxFit.cover,
                   ),
                 ],
               const SizedBox(height: AppTheme.paddingMedium),

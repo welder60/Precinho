@@ -4,6 +4,7 @@ import '../../../core/themes/app_theme.dart';
 import 'add_product_page.dart';
 import 'edit_product_page.dart';
 import '../../../core/logging/firebase_logger.dart';
+import 'package:precinho_app/presentation/widgets/app_cached_image.dart';
 
 class ManageProductsPage extends StatelessWidget {
   const ManageProductsPage({super.key});
@@ -68,13 +69,13 @@ class ManageProductsPage extends StatelessWidget {
               final doc = docs[index];
               final data = doc.data() as Map<String, dynamic>;
               return ListTile(
-                leading: data['image_url'] != null &&
-                        (data['image_url'] as String).isNotEmpty
-                    ? CircleAvatar(
-                        backgroundImage: NetworkImage(data['image_url']),
-                      )
-                    : const Icon(Icons.shopping_bag,
-                        color: AppTheme.primaryColor),
+                leading: ClipOval(
+                  child: AppCachedImage(
+                    imageUrl: data['image_url'] as String?,
+                    width: 40,
+                    height: 40,
+                  ),
+                ),
                 title: Text(data['name'] ?? ''),
                 subtitle: Text(
                   "${data['brand'] ?? ''} - ${data['barcode'] ?? ''}\n${data['description'] ?? ''}",

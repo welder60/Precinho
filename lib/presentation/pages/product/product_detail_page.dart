@@ -8,6 +8,7 @@ import '../admin/edit_product_page.dart';
 
 import '../../../data/datasources/cosmos_service.dart';
 import '../../../core/themes/app_theme.dart';
+import 'package:precinho_app/presentation/widgets/app_cached_image.dart';
 
 class ProductDetailPage extends ConsumerWidget {
   final DocumentSnapshot product;
@@ -91,12 +92,10 @@ class ProductDetailPage extends ConsumerWidget {
       ),
       body: ListView(
         children: [
-          if (data['image_url'] != null && (data['image_url'] as String).isNotEmpty)
-            Image.network(
-              data['image_url'],
-              height: 150,
-              fit: BoxFit.cover,
-            ),
+          AppCachedImage(
+            imageUrl: data['image_url'] as String?,
+            height: 150,
+          ),
           Padding(
             padding: const EdgeInsets.all(AppTheme.paddingMedium),
             child: Column(
