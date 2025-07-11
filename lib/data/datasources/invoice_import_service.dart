@@ -149,6 +149,7 @@ class InvoiceImportService {
     required String series,
     required String number,
     required String userId,
+    String? storeId,
   }) async {
     final existing = await _firestore
         .collection('invoices')
@@ -156,7 +157,14 @@ class InvoiceImportService {
         .limit(1)
         .get();
     if (existing.docs.isNotEmpty) {
-      return existing.docs.first.reference;
+      final ref = existing.docs.first.reference;
+      if (storeId != null) {
+        final data = existing.docs.first.data();
+        if (!(data.containsKey('store_id'))) {
+          await ref.update({'store_id': storeId});
+        }
+      }
+      return ref;
     }
 
     final data = {
@@ -168,6 +176,7 @@ class InvoiceImportService {
       'number': number,
       'created_at': Timestamp.now(),
       'status': ModerationStatus.underReview.value,
+      if (storeId != null) 'store_id': storeId,
     };
     final doc = await _firestore.collection('invoices').add(data);
     return doc;

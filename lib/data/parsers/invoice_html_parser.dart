@@ -169,13 +169,10 @@ class InvoiceHtmlParser {
 
     final service = InvoiceImportService();
 
-    final storeRef = await service.getOrCreateStore(
-      cnpj: cnpj,
-      name: nome,
-      address: endereco,
-    );
+    DocumentReference<Map<String, dynamic>> invoiceRef;
+    DocumentReference<Map<String, dynamic>> storeRef;
 
-    final invoiceRef = await service.getOrCreateInvoice(
+    invoiceRef = await service.getOrCreateInvoice(
       qrLink: qrLink,
       accessKey: chaveNF,
       cnpj: cnpj,
@@ -185,6 +182,18 @@ class InvoiceHtmlParser {
     );
 
     final invoiceSnap = await invoiceRef.get();
+    final existingStoreId = invoiceSnap.data()?['store_id'] as String?;
+
+    if (existingStoreId != null) {
+      storeRef = FirebaseFirestore.instance.collection('stores').doc(existingStoreId);
+    } else {
+      storeRef = await service.getOrCreateStore(
+        cnpj: cnpj,
+        name: nome,
+        address: endereco,
+      );
+      await invoiceRef.update({'store_id': storeRef.id});
+    }
     final currentStatus = invoiceSnap.data()?['status'] as String?;
     if (currentStatus == ModerationStatus.approved.value) {
       throw Exception('Invoice j\u00e1 aprovada');
