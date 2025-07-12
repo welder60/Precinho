@@ -157,6 +157,8 @@ flutter pub get
      - `GOOGLE_MAPS_API_KEY_ANDROID`
      - `GOOGLE_MAPS_API_KEY_IOS`
      - `GOOGLE_MAPS_API_KEY_WEB`
+   - Se preferir não usar `.env`, defina valores em `lib/maps_options.dart` que
+     servirão como fallback para as chaves do Google Maps.
     - `GOOGLE_SIGNIN_CLIENT_ID`
     - `COSMOS_TOKEN`
     - Chaves do Firebase (veja `.env.example`)
