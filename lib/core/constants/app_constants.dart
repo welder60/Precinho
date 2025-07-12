@@ -3,6 +3,7 @@ import '../config/app_config.dart';
 import 'package:flutter/foundation.dart' show kIsWeb, defaultTargetPlatform, TargetPlatform;
 import '../logging/maps_logger.dart';
 import '../../maps_options.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AppConstants {
   // Configurações gerais
@@ -13,6 +14,10 @@ class AppConstants {
   static const String baseUrl = 'https://api.precinho.com';
   static const int timeoutDuration = 30000; // 30 segundos
   static String get googleMapsApiKey {
+    assert(
+      dotenv.isInitialized,
+      '.env not loaded. Call AppConfig.load() before using the Maps API.',
+    );
     String platform;
     String key;
     if (kIsWeb) {
