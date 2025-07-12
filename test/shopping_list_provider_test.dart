@@ -75,4 +75,32 @@ void main() {
     expect(list.items.first.storeId, isNull);
     expect(list.items.first.storeName, isNull);
   });
+
+  test('toggle item completed', () {
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    final notifier = container.read(shoppingListProvider.notifier);
+    final listId = notifier.createList('Teste');
+    notifier.addProductToList(
+      listId: listId,
+      productId: '1',
+      productName: 'Banana',
+      quantity: 1,
+    );
+
+    final itemId = container
+        .read(shoppingListProvider)
+        .firstWhere((l) => l.id == listId)
+        .items
+        .first
+        .id;
+
+    notifier.toggleItemCompleted(listId: listId, itemId: itemId);
+    var list = container.read(shoppingListProvider).firstWhere((l) => l.id == listId);
+    expect(list.items.first.isCompleted, isTrue);
+
+    notifier.toggleItemCompleted(listId: listId, itemId: itemId);
+    list = container.read(shoppingListProvider).firstWhere((l) => l.id == listId);
+    expect(list.items.first.isCompleted, isFalse);
+  });
 }

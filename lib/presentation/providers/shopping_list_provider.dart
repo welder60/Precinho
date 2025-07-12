@@ -131,6 +131,29 @@ class ShoppingListNotifier extends StateNotifier<List<ShoppingList>> {
     _storage.saveLists(state.map((e) => ShoppingListModel.fromEntity(e)).toList());
   }
 
+  void toggleItemCompleted({required String listId, required String itemId}) {
+    state = [
+      for (final l in state)
+        if (l.id == listId)
+          l.copyWith(
+            items: [
+              for (final item in l.items)
+                if (item.id == itemId)
+                  item.copyWith(
+                    isCompleted: !item.isCompleted,
+                    updatedAt: DateTime.now(),
+                  )
+                else
+                  item,
+            ],
+            updatedAt: DateTime.now(),
+          )
+        else
+          l
+    ];
+    _storage.saveLists(state.map((e) => ShoppingListModel.fromEntity(e)).toList());
+  }
+
   void clearPrices(String listId) {
     state = [
       for (final l in state)

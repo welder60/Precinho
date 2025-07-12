@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/themes/app_theme.dart';
 import '../../providers/shopping_list_provider.dart';
-import 'shopping_list_detail_page.dart';
+import 'shopping_price_list_page.dart';
 
 class ShoppingListsPage extends ConsumerWidget {
   const ShoppingListsPage({super.key});
@@ -37,7 +37,7 @@ class ShoppingListsPage extends ConsumerWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => ShoppingListDetailPage(listId: list.id),
+                          builder: (_) => ShoppingPriceListPage(listId: list.id),
                         ),
                       );
                     },
@@ -91,7 +91,7 @@ class ShoppingListsPage extends ConsumerWidget {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => ShoppingListDetailPage(listId: id),
+          builder: (_) => ShoppingPriceListPage(listId: id),
         ),
       );
     }
