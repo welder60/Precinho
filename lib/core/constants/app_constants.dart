@@ -2,6 +2,7 @@
 import '../config/app_config.dart';
 import 'package:flutter/foundation.dart' show kIsWeb, defaultTargetPlatform, TargetPlatform;
 import '../logging/maps_logger.dart';
+import '../../maps_options.dart';
 
 class AppConstants {
   // Configurações gerais
@@ -16,28 +17,51 @@ class AppConstants {
     String key;
     if (kIsWeb) {
       platform = 'web';
-      key = AppConfig.get('GOOGLE_MAPS_API_KEY_WEB',
-          defaultValue: AppConfig.get('GOOGLE_MAPS_API_KEY'));
+      key = AppConfig.get(
+        'GOOGLE_MAPS_API_KEY_WEB',
+        defaultValue: AppConfig.get(
+          'GOOGLE_MAPS_API_KEY',
+          defaultValue: DefaultMapsOptions.web,
+        ),
+      );
     } else {
       switch (defaultTargetPlatform) {
         case TargetPlatform.android:
           platform = 'android';
-          key = AppConfig.get('GOOGLE_MAPS_API_KEY_ANDROID',
-              defaultValue: AppConfig.get('GOOGLE_MAPS_API_KEY'));
+          key = AppConfig.get(
+            'GOOGLE_MAPS_API_KEY_ANDROID',
+            defaultValue: AppConfig.get(
+              'GOOGLE_MAPS_API_KEY',
+              defaultValue: DefaultMapsOptions.android,
+            ),
+          );
           break;
         case TargetPlatform.iOS:
           platform = 'ios';
-          key = AppConfig.get('GOOGLE_MAPS_API_KEY_IOS',
-              defaultValue: AppConfig.get('GOOGLE_MAPS_API_KEY'));
+          key = AppConfig.get(
+            'GOOGLE_MAPS_API_KEY_IOS',
+            defaultValue: AppConfig.get(
+              'GOOGLE_MAPS_API_KEY',
+              defaultValue: DefaultMapsOptions.ios,
+            ),
+          );
           break;
         case TargetPlatform.macOS:
           platform = 'macos';
-          key = AppConfig.get('GOOGLE_MAPS_API_KEY_IOS',
-              defaultValue: AppConfig.get('GOOGLE_MAPS_API_KEY'));
+          key = AppConfig.get(
+            'GOOGLE_MAPS_API_KEY_IOS',
+            defaultValue: AppConfig.get(
+              'GOOGLE_MAPS_API_KEY',
+              defaultValue: DefaultMapsOptions.ios,
+            ),
+          );
           break;
         default:
           platform = 'unknown';
-          key = AppConfig.get('GOOGLE_MAPS_API_KEY');
+          key = AppConfig.get(
+            'GOOGLE_MAPS_API_KEY',
+            defaultValue: DefaultMapsOptions.fallback,
+          );
       }
     }
     assert(
