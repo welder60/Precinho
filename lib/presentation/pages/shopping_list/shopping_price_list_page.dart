@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/themes/app_theme.dart';
 import '../../../core/utils/formatters.dart';
 import '../../providers/shopping_list_provider.dart';
+import '../../../domain/entities/shopping_list.dart';
 
 class ShoppingPriceListPage extends ConsumerWidget {
   final String listId;
