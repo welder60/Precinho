@@ -43,7 +43,16 @@ class ShoppingListsPage extends ConsumerWidget {
                     },
                     title: Text(list.name),
                     subtitle: LinearProgressIndicator(value: progress),
-                    trailing: Text('$completed/$total'),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('$completed/$total'),
+                        IconButton(
+                          icon: const Icon(Icons.delete, color: AppTheme.errorColor),
+                          onPressed: () => _deleteList(context, ref, list.id),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },
@@ -94,6 +103,31 @@ class ShoppingListsPage extends ConsumerWidget {
           builder: (_) => ShoppingPriceListPage(listId: id),
         ),
       );
+    }
+  }
+
+  Future<void> _deleteList(
+      BuildContext context, WidgetRef ref, String listId) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Excluir Lista'),
+        content: const Text('Tem certeza que deseja excluir esta lista?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Excluir'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      ref.read(shoppingListProvider.notifier).deleteList(listId);
     }
   }
 }

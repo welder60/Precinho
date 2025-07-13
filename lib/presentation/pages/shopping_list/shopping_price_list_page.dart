@@ -75,6 +75,14 @@ class ShoppingPriceListPage extends ConsumerWidget {
                           style: AppTheme.priceTextStyle,
                         ),
                       ),
+                      if (item.isCompleted)
+                        IconButton(
+                          icon:
+                              const Icon(Icons.delete, color: AppTheme.errorColor),
+                          onPressed: () => ref
+                              .read(shoppingListProvider.notifier)
+                              .removeItem(listId: listId, itemId: item.id),
+                        ),
                     ],
                   ),
                 );

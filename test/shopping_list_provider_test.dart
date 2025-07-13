@@ -103,4 +103,34 @@ void main() {
     list = container.read(shoppingListProvider).firstWhere((l) => l.id == listId);
     expect(list.items.first.isCompleted, isFalse);
   });
+
+  test('remove item and delete list', () {
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    final notifier = container.read(shoppingListProvider.notifier);
+    final first = notifier.createList('L1');
+    final second = notifier.createList('L2');
+    notifier.addProductToList(
+      listId: first,
+      productId: '1',
+      productName: 'Banana',
+      quantity: 1,
+    );
+
+    final itemId = container
+        .read(shoppingListProvider)
+        .firstWhere((l) => l.id == first)
+        .items
+        .first
+        .id;
+
+    notifier.removeItem(listId: first, itemId: itemId);
+    var list = container.read(shoppingListProvider).firstWhere((l) => l.id == first);
+    expect(list.items, isEmpty);
+
+    notifier.deleteList(first);
+    final lists = container.read(shoppingListProvider);
+    expect(lists.length, 1);
+    expect(lists.first.id, second);
+  });
 }
