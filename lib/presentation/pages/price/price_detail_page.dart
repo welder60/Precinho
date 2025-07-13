@@ -5,11 +5,7 @@ import '../../../core/themes/app_theme.dart';
 import '../../../core/utils/formatters.dart';
 import 'add_price_page.dart';
 import 'package:share_plus/share_plus.dart';
-import 'dart:io';
-import 'dart:typed_data';
 import 'package:http/http.dart' as http;
-import 'package:flutter/services.dart' show rootBundle;
-import 'package:image/image.dart' as img;
 import 'package:precinho_app/presentation/widgets/app_cached_image.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -55,8 +51,7 @@ class PriceDetailPage extends StatelessWidget {
     if (imageUrl != null && imageUrl.isNotEmpty) {
       final resp = await http.get(Uri.parse(imageUrl));
       final bytes = resp.bodyBytes;
-      final processed = await _decorateImage(bytes, value, storeName);
-      file = XFile.fromData(processed, name: 'price.jpg', mimeType: 'image/jpeg');
+      file = XFile.fromData(bytes, name: 'price.jpg', mimeType: 'image/jpeg');
     }
 
     final text = '$productName no $storeName por $value\nVeja mais: $link';
@@ -67,26 +62,6 @@ class PriceDetailPage extends StatelessWidget {
     }
   }
 
-  Future<Uint8List> _decorateImage(Uint8List bytes, String value, String store) async {
-	  final base = img.decodeImage(bytes);
-	  if (base == null) return bytes;
-
-	  final iconData = await rootBundle.load('assets/icons/app_icon.png');
-	  final icon = img.decodeImage(iconData.buffer.asUint8List());
-
-	  // Adiciona texto
-	  img.drawString(base, img.arial24, 8, 8, value);
-	  img.drawString(base, img.arial24, 8, 40, store);
-
-	  if (icon != null) {
-		final x = base.width - icon.width - 8;
-		final y = base.height - icon.height - 8;
-		img.compositeImage(base, icon, dstX: x, dstY: y);
-	  }
-
-	  final jpg = img.encodeJpg(base);
-	  return Uint8List.fromList(jpg);
-	}
 
 
   Future<Map<String, DocumentSnapshot?>> _fetchExtraDetails() async {
