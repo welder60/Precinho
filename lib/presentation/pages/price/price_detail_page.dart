@@ -83,7 +83,7 @@ class PriceDetailPage extends StatelessWidget {
     if (icon != null) {
       final x = base.width - icon.width - 8;
       final y = base.height - icon.height - 8;
-      img.drawImage(base, icon, dstX: x, dstY: y);
+      img.copyInto(base, icon, dstX: x, dstY: y);
     }
     final jpg = img.encodeJpg(base);
     return Uint8List.fromList(jpg);
