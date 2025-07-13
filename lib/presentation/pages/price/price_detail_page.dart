@@ -75,13 +75,15 @@ class PriceDetailPage extends StatelessWidget {
     final priceText = value;
     final storeText = store;
 
-    img.drawString(base, img.arial_24, 8, 8, priceText);
-    img.drawString(base, img.arial_24, 8, 40, storeText);
+    img.drawString(base, priceText,
+        font: img.arial24, x: 8, y: 8);
+    img.drawString(base, storeText,
+        font: img.arial24, x: 8, y: 40);
 
     if (icon != null) {
       final x = base.width - icon.width - 8;
       final y = base.height - icon.height - 8;
-      img.copyInto(base, icon, dstX: x, dstY: y);
+      img.drawImage(base, icon, dstX: x, dstY: y);
     }
     final jpg = img.encodeJpg(base);
     return Uint8List.fromList(jpg);
