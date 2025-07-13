@@ -196,7 +196,7 @@ class PriceDetailPage extends StatelessWidget {
                 ),
                 if (createdAt != null) ...[
                   const SizedBox(height: AppTheme.paddingMedium),
-                  Text('Registrado em: ${Formatters.formatDateTime(createdAt)}'),
+                  Text('Registrado em: ${Formatters.formatDate(createdAt)}'),
                 ],
                 const SizedBox(height: AppTheme.paddingLarge),
                 Text(
@@ -237,7 +237,7 @@ class PriceDetailPage extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(date != null
-                                ? Formatters.formatDateTime(date)
+                                ? Formatters.formatDate(date)
                                 : '-'),
                             Text(
                               Formatters.formatPrice(
