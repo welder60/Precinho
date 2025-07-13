@@ -226,112 +226,135 @@ class _ProductPricesPageState extends ConsumerState<ProductPricesPage> {
               final createdAt =
                   (priceData['created_at'] as Timestamp?)?.toDate();
 
-              return ListTile(
-                leading: const Icon(
-                  Icons.store,
-                  color: AppTheme.primaryColor,
-                ),
-                title: Text(storeName),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          Formatters.formatPrice((priceData['price'] as num).toDouble()),
-                          style: AppTheme.priceTextStyle,
-                        ),
-                        if (perUnit != null)
-                          Text(
-                            perUnit,
-                            style: Theme.of(context).textTheme.labelSmall,
-                          ),
-                        if (priceData['variation'] != null)
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                (priceData['variation'] as num) > 0
-                                    ? Icons.arrow_upward
-                                    : Icons.arrow_downward,
-                                color: (priceData['variation'] as num) > 0
-                                    ? AppTheme.errorColor
-                                    : AppTheme.successColor,
-                                size: 14,
-                              ),
-                              const SizedBox(width: 2),
-                              Text(
-                                Formatters.formatPercentage(
-                                    ((priceData['variation'] as num).abs()).toDouble()),
-                                style: TextStyle(
-                                  color: (priceData['variation'] as num) > 0
-                                      ? AppTheme.errorColor
-                                      : AppTheme.successColor,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
-                          ),
-                        if ((priceData['expires_at'] as Timestamp?) != null &&
-                            DateTime.now().isAfter(
-                                (priceData['expires_at'] as Timestamp).toDate()))
-                          IconButton(
-                            icon: const Icon(Icons.warning,
-                                color: AppTheme.warningColor, size: 20),
-                            tooltip: 'Preço pode estar desatualizado',
-                            onPressed: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content:
-                                      Text('Este preço pode estar desatualizado'),
-                                ),
-                              );
-                            },
-                            padding: EdgeInsets.zero,
-                          ),
-                      ],
-                    ),
-                    IconButton(
-                      icon: Icon(
-                        isFav ? Icons.star : Icons.star_border,
-                        color: isFav ? Colors.amber : AppTheme.textSecondaryColor,
+              return Card(
+                child: InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => PriceDetailPage(price: doc),
                       ),
-                      onPressed: storeId == null
-                          ? null
-                          : () {
-                              ref
-                                  .read(storeFavoritesProvider.notifier)
-                                  .toggleFavorite(storeId);
-                            },
-                    ),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppTheme.paddingSmall),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (createdAt != null)
-                          Padding(
-                            padding: const EdgeInsets.only(right: 4),
-                            child: Text(
-                              Formatters.formatDate(createdAt),
-                              style: Theme.of(context).textTheme.bodySmall,
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Icon(
+                              Icons.store,
+                              color: AppTheme.primaryColor,
                             ),
-                          ),
-                        IconButton(
-                          icon: const Icon(Icons.add_shopping_cart),
-                          onPressed: () => _addPriceToList(doc),
+                            const SizedBox(width: AppTheme.paddingSmall),
+                            Expanded(child: Text(storeName)),
+                            IconButton(
+                              icon: Icon(
+                                isFav ? Icons.star : Icons.star_border,
+                                color: isFav
+                                    ? Colors.amber
+                                    : AppTheme.textSecondaryColor,
+                              ),
+                              onPressed: storeId == null
+                                  ? null
+                                  : () {
+                                      ref
+                                          .read(storeFavoritesProvider.notifier)
+                                          .toggleFavorite(storeId);
+                                    },
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  Formatters.formatPrice(
+                                      (priceData['price'] as num).toDouble()),
+                                  style: AppTheme.priceTextStyle,
+                                ),
+                                if (perUnit != null)
+                                  Text(
+                                    perUnit,
+                                    style:
+                                        Theme.of(context).textTheme.labelSmall,
+                                  ),
+                                if (priceData['variation'] != null)
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        (priceData['variation'] as num) > 0
+                                            ? Icons.arrow_upward
+                                            : Icons.arrow_downward,
+                                        color: (priceData['variation'] as num) > 0
+                                            ? AppTheme.errorColor
+                                            : AppTheme.successColor,
+                                        size: 14,
+                                      ),
+                                      const SizedBox(width: 2),
+                                      Text(
+                                        Formatters.formatPercentage(
+                                            ((priceData['variation'] as num)
+                                                    .abs())
+                                                .toDouble()),
+                                        style: TextStyle(
+                                          color:
+                                              (priceData['variation'] as num) > 0
+                                                  ? AppTheme.errorColor
+                                                  : AppTheme.successColor,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                if ((priceData['expires_at'] as Timestamp?) !=
+                                        null &&
+                                    DateTime.now().isAfter((priceData['expires_at']
+                                            as Timestamp)
+                                        .toDate()))
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.warning,
+                                      color: AppTheme.warningColor,
+                                      size: 20,
+                                    ),
+                                    tooltip:
+                                        'Preço pode estar desatualizado',
+                                    onPressed: () {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                              'Este preço pode estar desatualizado'),
+                                        ),
+                                      );
+                                    },
+                                    padding: EdgeInsets.zero,
+                                  ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: AppTheme.paddingSmall),
+                        Row(
+                          children: [
+                            if (createdAt != null)
+                              Text(
+                                Formatters.formatDate(createdAt),
+                                style:
+                                    Theme.of(context).textTheme.bodySmall,
+                              ),
+                            const Spacer(),
+                            IconButton(
+                              icon: const Icon(Icons.add_shopping_cart),
+                              onPressed: () => _addPriceToList(doc),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
+                  ),
                 ),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => PriceDetailPage(price: doc),
-                    ),
-                  );
-                },
               );
             },
           );
