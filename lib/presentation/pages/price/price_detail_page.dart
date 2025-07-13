@@ -5,14 +5,9 @@ import '../../../core/themes/app_theme.dart';
 import '../../../core/utils/formatters.dart';
 import 'add_price_page.dart';
 import 'package:share_plus/share_plus.dart';
-import 'dart:io';
-import 'dart:typed_data';
 import 'package:http/http.dart' as http;
-import 'package:flutter/services.dart' show rootBundle;
-import 'package:image/image.dart' as img;
 import 'package:precinho_app/presentation/widgets/app_cached_image.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:image/image.dart' as img;
 
 class PriceDetailPage extends StatelessWidget {
   final DocumentSnapshot price;
@@ -56,8 +51,7 @@ class PriceDetailPage extends StatelessWidget {
     if (imageUrl != null && imageUrl.isNotEmpty) {
       final resp = await http.get(Uri.parse(imageUrl));
       final bytes = resp.bodyBytes;
-      final processed = await _decorateImage(bytes, value, storeName);
-      file = XFile.fromData(processed, name: 'price.jpg', mimeType: 'image/jpeg');
+      file = XFile.fromData(bytes, name: 'price.jpg', mimeType: 'image/jpeg');
     }
 
     final text = '$productName no $storeName por $value\nVeja mais: $link';
@@ -69,68 +63,6 @@ class PriceDetailPage extends StatelessWidget {
   }
 
 
-	Future<Uint8List> _decorateImage(Uint8List bytes, String value, String store) async {
-	  final base = img.decodeImage(bytes);
-	  if (base == null) return bytes;
-
-	  final iconData = await rootBundle.load('assets/icons/app_icon.png');
-	  final icon = img.decodeImage(iconData.buffer.asUint8List());
-
-	  const padding = 8;
-	  const font = img.arial24;
-	  const textColor = 0xFFFFFFFF;
-	  const textBgColor = 0x88000000; // preto com transparência
-	  const fontHeight = 24;
-	  const totalTextHeight = fontHeight * 2 + 4;
-
-	  final isPortrait = base.height > base.width;
-
-	  // Se imagem for vertical, cria faixa extra no topo
-	  late img.Image composed;
-
-	  if (isPortrait) {
-		composed = img.Image(
-		  width: base.width,
-		  height: base.height + totalTextHeight + padding,
-		);
-
-		// Fundo branco
-		img.fill(composed, img.getColor(255, 255, 255));
-
-		// Copia imagem base para posição mais abaixo
-		img.compositeImage(composed, base, dstX: 0, dstY: totalTextHeight + padding);
-
-		// Escreve textos no topo (fora da imagem original)
-		img.drawString(composed, value, font: font, x: padding, y: padding, color: 0xFF000000);
-		img.drawString(composed, store, font: font, x: padding, y: padding + fontHeight + 2, color: 0xFF000000);
-	  } else {
-		composed = base;
-
-		// Desenha fundo escuro atrás do texto
-		img.fillRect(
-		  composed,
-		  padding,
-		  padding,
-		  composed.width - padding,
-		  padding + totalTextHeight,
-		  textBgColor,
-		);
-
-		// Escreve sobre a imagem
-		img.drawString(composed, value, font: font, x: padding, y: padding, color: textColor);
-		img.drawString(composed, store, font: font, x: padding, y: padding + fontHeight + 2, color: textColor);
-	  }
-
-	  // Adiciona ícone no canto inferior direito
-	  if (icon != null) {
-		final x = composed.width - icon.width - padding;
-		final y = composed.height - icon.height - padding;
-		img.compositeImage(composed, icon, dstX: x, dstY: y);
-	  }
-
-	  final jpg = img.encodeJpg(composed);
-	  return Uint8List.fromList(jpg);
-	}
 
 
 
