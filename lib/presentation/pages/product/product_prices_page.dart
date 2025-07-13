@@ -137,6 +137,15 @@ class _ProductPricesPageState extends ConsumerState<ProductPricesPage> {
                       '${Formatters.formatPrice((priceData['price'] as num).toDouble())}');
 
               final storeData = storeId != null ? _storeInfo[storeId] : null;
+              final volume = data['volume'] as num?;
+              final unit = data['unit'] as String?;
+              final perUnit = volume != null && unit != null
+                  ? Formatters.formatPricePerQuantity(
+                      price: (priceData['price'] as num).toDouble(),
+                      volume: volume.toDouble(),
+                      unit: unit,
+                    )
+                  : null;
 
               return ListTile(
                 leading: const Icon(
@@ -154,6 +163,11 @@ class _ProductPricesPageState extends ConsumerState<ProductPricesPage> {
                           Formatters.formatPrice((priceData['price'] as num).toDouble()),
                           style: AppTheme.priceTextStyle,
                         ),
+                        if (perUnit != null)
+                          Text(
+                            perUnit,
+                            style: Theme.of(context).textTheme.labelSmall,
+                          ),
                         if (priceData['variation'] != null)
                           Row(
                             mainAxisSize: MainAxisSize.min,

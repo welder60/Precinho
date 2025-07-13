@@ -21,6 +21,39 @@ class Formatters {
     return _currencyFormatter.format(price);
   }
 
+  // Formatação de preço por unidade de peso ou volume (kg ou L)
+  static String? formatPricePerQuantity({
+    required double price,
+    required double volume,
+    required String unit,
+  }) {
+    if (volume <= 0) return null;
+
+    final normalized = unit.toLowerCase();
+    double multiplier;
+    String suffix;
+    if (normalized == 'kg') {
+      multiplier = 1;
+      suffix = '/kg';
+    } else if (normalized == 'g') {
+      multiplier = 1 / 1000;
+      suffix = '/kg';
+    } else if (normalized == 'l' || normalized == 'lt' || normalized == 'lt.') {
+      multiplier = 1;
+      suffix = '/L';
+    } else if (normalized == 'ml') {
+      multiplier = 1 / 1000;
+      suffix = '/L';
+    } else {
+      return null;
+    }
+
+    final baseVolume = volume * multiplier;
+    if (baseVolume == 0) return null;
+    final perUnit = price / baseVolume;
+    return '${formatPrice(perUnit)}$suffix';
+  }
+
   // Formatação de preço sem símbolo
   static String formatPriceValue(double price) {
     return price.toStringAsFixed(2).replaceAll('.', ',');

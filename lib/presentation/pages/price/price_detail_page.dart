@@ -6,7 +6,10 @@ import '../../../core/utils/formatters.dart';
 import 'add_price_page.dart';
 import 'package:share_plus/share_plus.dart';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:http/http.dart' as http;
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:image/image.dart' as img;
 import 'package:precinho_app/presentation/widgets/app_cached_image.dart';
 
 class PriceDetailPage extends StatelessWidget {
@@ -50,7 +53,9 @@ class PriceDetailPage extends StatelessWidget {
     XFile? file;
     if (imageUrl != null && imageUrl.isNotEmpty) {
       final resp = await http.get(Uri.parse(imageUrl));
-      file = XFile.fromData(resp.bodyBytes, name: 'price.jpg', mimeType: 'image/jpeg');
+      final bytes = resp.bodyBytes;
+      final processed = await _decorateImage(bytes, value, storeName);
+      file = XFile.fromData(processed, name: 'price.jpg', mimeType: 'image/jpeg');
     }
 
     final text = '$productName no $storeName por $value\nVeja mais: $link';
@@ -59,6 +64,26 @@ class PriceDetailPage extends StatelessWidget {
     } else {
       await Share.share(text);
     }
+  }
+
+  Future<Uint8List> _decorateImage(Uint8List bytes, String value, String store) async {
+    final base = img.decodeImage(bytes);
+    if (base == null) return bytes;
+    final iconData = await rootBundle.load('assets/icons/app_icon.png');
+    final icon = img.decodeImage(iconData.buffer.asUint8List());
+    final priceText = value;
+    final storeText = store;
+
+    img.drawString(base, img.arial_24, 8, 8, priceText);
+    img.drawString(base, img.arial_24, 8, 40, storeText);
+
+    if (icon != null) {
+      final x = base.width - icon.width - 8;
+      final y = base.height - icon.height - 8;
+      img.copyInto(base, icon, dstX: x, dstY: y);
+    }
+    final jpg = img.encodeJpg(base);
+    return Uint8List.fromList(jpg);
   }
 
   Future<Map<String, DocumentSnapshot?>> _fetchExtraDetails() async {
@@ -106,10 +131,26 @@ class PriceDetailPage extends StatelessWidget {
           final productDoc = snapshot.data?['product'];
           final userDoc = snapshot.data?['user'];
 
-          final productImage = (productDoc?.data() as Map<String, dynamic>?)?['image_url'] as String?;
+          final productImage =
+              (productDoc?.data() as Map<String, dynamic>?)?['image_url'] as String?;
           final userData = userDoc?.data() as Map<String, dynamic>?;
           final userName = userData?['name'] as String? ?? 'Usu\u00e1rio';
           final userPhoto = userData?['photo_url'] as String?;
+          final volume =
+              (productDoc?.data() as Map<String, dynamic>?)?['volume'] as num?;
+          final unit =
+              (productDoc?.data() as Map<String, dynamic>?)?['unit'] as String?;
+          var productLabel = productName;
+          if (volume != null && unit != null && unit != 'un') {
+            productLabel = '$productLabel (${volume.toString()} $unit)';
+          }
+          final perUnit = volume != null && unit != null
+              ? Formatters.formatPricePerQuantity(
+                  price: (data['price'] as num).toDouble(),
+                  volume: volume.toDouble(),
+                  unit: unit,
+                )
+              : null;
           final createdAt = (data['created_at'] as Timestamp?)?.toDate();
 
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -128,7 +169,7 @@ class PriceDetailPage extends StatelessWidget {
                 ),
                 const SizedBox(height: AppTheme.paddingMedium),
                 Text(
-                  productName.isNotEmpty ? productName : 'Produto',
+                  productLabel.isNotEmpty ? productLabel : 'Produto',
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(height: AppTheme.paddingMedium),
@@ -140,6 +181,14 @@ class PriceDetailPage extends StatelessWidget {
                       Formatters.formatPrice((data['price'] as num).toDouble()),
                       style: AppTheme.priceTextStyle,
                     ),
+                    if (perUnit != null)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 4),
+                        child: Text(
+                          perUnit,
+                          style: Theme.of(context).textTheme.labelSmall,
+                        ),
+                      ),
                     const SizedBox(width: 4),
                     if ((data['expires_at'] as Timestamp?) != null &&
                         DateTime.now().isAfter(

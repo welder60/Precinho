@@ -296,6 +296,19 @@ class _FeedPageState extends ConsumerState<FeedPage> {
               final productImage = product?['image_url'] as String?;
               final userPhoto = user?['photo_url'] as String?;
               final userName = user?['name'] as String? ?? 'Usu\u00e1rio';
+              final volume = product?['volume'] as num?;
+              final unit = product?['unit'] as String?;
+              var productLabel = data['product_name'] ?? 'Produto';
+              if (volume != null && unit != null && unit != 'un') {
+                productLabel = '$productLabel (${volume.toString()} $unit)';
+              }
+              final perUnit = volume != null && unit != null
+                  ? Formatters.formatPricePerQuantity(
+                      price: (data['price'] as num).toDouble(),
+                      volume: volume.toDouble(),
+                      unit: unit,
+                    )
+                  : null;
 
               final storeId = data['store_id'] as String?;
               final store = storeId != null ? _storeInfo[storeId] : null;
@@ -346,7 +359,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(data['product_name'] ?? 'Produto'),
+                                  Text(productLabel),
                                   const SizedBox(height: 2),
                                   Row(
                                     children: [
@@ -378,6 +391,11 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                                   Formatters.formatPrice((data['price'] as num).toDouble()),
                                   style: AppTheme.priceTextStyle,
                                 ),
+                                if (perUnit != null)
+                                  Text(
+                                    perUnit,
+                                    style: Theme.of(context).textTheme.labelSmall,
+                                  ),
                                 if (data['variation'] != null)
                                   Row(
                                     mainAxisSize: MainAxisSize.min,

@@ -196,12 +196,20 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
                         productId != null ? _productInfo[productId] : null;
                     final String? imageUrl =
                         info != null ? info['image_url'] as String? : null;
-                    final volume = info != null ? info['volume'] : null;
-                    final unit = info != null ? info['unit'] : null;
+                    final volume = info != null ? info['volume'] as num? : null;
+                    final unit = info != null ? info['unit'] as String? : null;
                     var label = productName;
                     if (volume != null && unit != null && unit != 'un') {
                       label = '$productName (${volume.toString()} $unit)';
                     }
+
+                    final perUnit = volume != null && unit != null
+                        ? Formatters.formatPricePerQuantity(
+                            price: (priceData['price'] as num).toDouble(),
+                            volume: volume.toDouble(),
+                            unit: unit,
+                          )
+                        : null;
 
                     return ListTile(
                       leading: ClipRRect(
@@ -222,6 +230,11 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
                                 (priceData['price'] as num).toDouble()),
                             style: AppTheme.priceTextStyle,
                           ),
+                          if (perUnit != null)
+                            Text(
+                              perUnit,
+                              style: Theme.of(context).textTheme.labelSmall,
+                            ),
                           if (priceData['variation'] != null)
                             Row(
                               mainAxisSize: MainAxisSize.min,
