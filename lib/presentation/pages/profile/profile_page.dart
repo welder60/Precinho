@@ -128,35 +128,6 @@ class ProfilePage extends ConsumerWidget {
             ),
             const SizedBox(height: AppTheme.paddingMedium),
 
-            // Pontos
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppTheme.paddingMedium,
-                vertical: AppTheme.paddingSmall,
-              ),
-              decoration: BoxDecoration(
-                color: AppTheme.primaryColor.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.stars,
-                    color: AppTheme.primaryColor,
-                    size: 20,
-                  ),
-                  const SizedBox(width: AppTheme.paddingSmall),
-                  Text(
-                    Formatters.formatPoints(user.points),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.primaryColor,
-                    ),
-                  ),
-                ],
-              ),
-            ),
           ],
         ),
       ),
@@ -184,59 +155,50 @@ class ProfilePage extends ConsumerWidget {
                 ),
                 const SizedBox(height: AppTheme.paddingMedium),
 
-                Row(
+                GridView.count(
+                  crossAxisCount: 2,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
                   children: [
-                    Expanded(
-                      child: _buildStatItem(
-                        context,
-                        'Preços Registrados',
-                        priceCount != null ? '$priceCount' : '...',
-                        Icons.local_offer,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const UserPricesPage(),
-                            ),
-                          );
-                        },
-                      ),
+                    _buildStatItem(
+                      context,
+                      'Preços Registrados',
+                      priceCount != null ? '$priceCount' : '...',
+                      Icons.local_offer,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const UserPricesPage(),
+                          ),
+                        );
+                      },
                     ),
-                    Expanded(
-                      child: _buildStatItem(
-                        context,
-                        'Notas Fiscais Enviadas',
-                        invoiceCount != null ? '$invoiceCount' : '...',
-                        Icons.receipt,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const InvoicesPage(),
-                            ),
-                          );
-                        },
-                      ),
+                    _buildStatItem(
+                      context,
+                      'Notas Fiscais Enviadas',
+                      invoiceCount != null ? '$invoiceCount' : '...',
+                      Icons.receipt,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const InvoicesPage(),
+                          ),
+                        );
+                      },
                     ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildStatItem(
-                        context,
-                        'Comércio descobertos',
-                        storeCount != null ? '$storeCount' : '...',
-                        Icons.store,
-                      ),
+                    _buildStatItem(
+                      context,
+                      'Comércio descobertos',
+                      storeCount != null ? '$storeCount' : '...',
+                      Icons.store,
                     ),
-                    Expanded(
-                      child: _buildStatItem(
-                        context,
-                        'Produtos descobertos',
-                        storeProductCount != null ? '$storeProductCount' : '...',
-                        Icons.shopping_bag,
-                      ),
+                    _buildStatItem(
+                      context,
+                      'Produtos descobertos',
+                      storeProductCount != null ? '$storeProductCount' : '...',
+                      Icons.shopping_bag,
                     ),
                   ],
                 ),
