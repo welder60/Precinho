@@ -24,15 +24,22 @@ Future<Map<String, int>> _fetchUserStats(String userId) async {
       .where('user_id', isEqualTo: userId)
       .count()
       .get();
+  final storeProductAgg = await FirebaseFirestore.instance
+      .collection('store_products')
+      .where('user_id', isEqualTo: userId)
+      .count()
+      .get();
 
   final priceCount = priceAgg.count ?? 0;
   final invoiceCount = invoiceAgg.count ?? 0;
   final storeCount = storeAgg.count ?? 0;
+  final storeProductCount = storeProductAgg.count ?? 0;
 
   return {
     'prices': priceCount,
     'invoices': invoiceCount,
     'stores': storeCount,
+    'storeProducts': storeProductCount,
   };
 }
 
@@ -163,6 +170,7 @@ class ProfilePage extends ConsumerWidget {
         final priceCount = snapshot.data?['prices'];
         final invoiceCount = snapshot.data?['invoices'];
         final storeCount = snapshot.data?['stores'];
+        final storeProductCount = snapshot.data?['storeProducts'];
 
         return Card(
           child: Padding(
@@ -210,12 +218,24 @@ class ProfilePage extends ConsumerWidget {
                         },
                       ),
                     ),
+                  ],
+                ),
+                Row(
+                  children: [
                     Expanded(
                       child: _buildStatItem(
                         context,
                         'Comércio descobertos',
                         storeCount != null ? '$storeCount' : '...',
                         Icons.store,
+                      ),
+                    ),
+                    Expanded(
+                      child: _buildStatItem(
+                        context,
+                        'Produtos descobertos',
+                        storeProductCount != null ? '$storeProductCount' : '...',
+                        Icons.shopping_bag,
                       ),
                     ),
                   ],
