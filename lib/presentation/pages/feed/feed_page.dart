@@ -428,16 +428,16 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                         const SizedBox(height: AppTheme.paddingSmall),
                         Row(
                           children: [
+                            if (createdAt != null)
+                              Text(
+                                Formatters.formatDate(createdAt),
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            const Spacer(),
                             if (distance != null)
                               Text(
                                 Formatters.formatDistance(distance),
                                 style: AppTheme.distanceTextStyle,
-                              ),
-                            const Spacer(),
-                            if (createdAt != null)
-                              Text(
-                                Formatters.formatDateTime(createdAt),
-                                style: Theme.of(context).textTheme.bodySmall,
                               ),
                           ],
                         ),
