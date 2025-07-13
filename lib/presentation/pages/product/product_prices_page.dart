@@ -6,6 +6,7 @@ import '../../../core/themes/app_theme.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/constants/enums.dart';
 import '../../providers/store_favorites_provider.dart';
+import '../../providers/shopping_list_provider.dart';
 import '../price/add_price_page.dart';
 import '../price/price_detail_page.dart';
 import 'product_detail_page.dart';
@@ -35,6 +36,82 @@ class _ProductPricesPageState extends ConsumerState<ProductPricesPage> {
       }
     }
     if (mounted) setState(() {});
+  }
+
+  Future<void> _addPriceToList(DocumentSnapshot price) async {
+    final lists = ref.read(shoppingListProvider);
+    String? selectedId = lists.isNotEmpty ? lists.first.id : null;
+    final quantityController = TextEditingController(text: '1');
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Adicionar à lista'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (lists.isNotEmpty)
+              DropdownButtonFormField<String>(
+                value: selectedId,
+                items: [
+                  for (final l in lists)
+                    DropdownMenuItem(value: l.id, child: Text(l.name)),
+                ],
+                onChanged: (v) => selectedId = v,
+                decoration: const InputDecoration(labelText: 'Lista'),
+              ),
+            if (lists.isEmpty)
+              TextField(
+                decoration: const InputDecoration(labelText: 'Nome da lista'),
+                onChanged: (v) => selectedId = v,
+              ),
+            TextField(
+              controller: quantityController,
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              decoration: const InputDecoration(labelText: 'Quantidade'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Adicionar'),
+          ),
+        ],
+      ),
+    );
+
+    if (result != true || selectedId == null) return;
+
+    String listId = selectedId!;
+    if (lists.isEmpty) {
+      listId =
+          ref.read(shoppingListProvider.notifier).createList(selectedId!);
+    }
+
+    final quantity = double.tryParse(quantityController.text) ?? 1;
+    quantityController.dispose();
+
+    final data = price.data() as Map<String, dynamic>;
+    ref.read(shoppingListProvider.notifier).addProductToList(
+      listId: listId,
+      productId: data['product_id'] ?? widget.product.id,
+      productName: data['product_name'] ?? 'Produto',
+      quantity: quantity,
+      price: (data['price'] as num?)?.toDouble(),
+      storeId: data['store_id'],
+      storeName: data['store_name'],
+    );
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Adicionado à lista')),
+      );
+    }
   }
 
   @override
@@ -130,13 +207,13 @@ class _ProductPricesPageState extends ConsumerState<ProductPricesPage> {
               final doc = prices[index];
               final priceData = doc.data() as Map<String, dynamic>;
               final storeId = priceData['store_id'] as String?;
-              final storeName = priceData['store_name'] as String? ?? 'Comércio desconhecido';
+              final storeData = storeId != null ? _storeInfo[storeId] : null;
+              final storeName = priceData['store_name'] as String? ??
+                  (storeData?['name'] as String?) ?? 'Comércio desconhecido';
               final isFav = storeId != null && favorites.contains(storeId);
 
-                  print('[DEBUG] Exibindo preço de ${storeName} -> '
-                      '${Formatters.formatPrice((priceData['price'] as num).toDouble())}');
-
-              final storeData = storeId != null ? _storeInfo[storeId] : null;
+              print('[DEBUG] Exibindo preço de $storeName -> '
+                  '${Formatters.formatPrice((priceData['price'] as num).toDouble())}');
               final volume = data['volume'] as num?;
               final unit = data['unit'] as String?;
               final perUnit = volume != null && unit != null
@@ -226,6 +303,10 @@ class _ProductPricesPageState extends ConsumerState<ProductPricesPage> {
                                   .read(storeFavoritesProvider.notifier)
                                   .toggleFavorite(storeId);
                             },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.add_shopping_cart),
+                      onPressed: () => _addPriceToList(doc),
                     ),
                   ],
                 ),
