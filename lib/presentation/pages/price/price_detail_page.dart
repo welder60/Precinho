@@ -11,6 +11,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:image/image.dart' as img;
 import 'package:precinho_app/presentation/widgets/app_cached_image.dart';
+import 'package:geolocator/geolocator.dart';
 
 class PriceDetailPage extends StatelessWidget {
   final DocumentSnapshot price;
@@ -106,6 +107,40 @@ class PriceDetailPage extends StatelessWidget {
         : null;
 
     return {'product': productDoc, 'user': userDoc};
+  }
+
+  Future<List<Map<String, dynamic>>> _fetchNearbyPrices() async {
+    final data = price.data() as Map<String, dynamic>;
+    final productId = data['product_id'] as String?;
+    final baseLat = (data['latitude'] as num?)?.toDouble();
+    final baseLng = (data['longitude'] as num?)?.toDouble();
+    if (productId == null || baseLat == null || baseLng == null) return [];
+
+    final snap = await FirebaseFirestore.instance
+        .collection('prices')
+        .where('product_id', isEqualTo: productId)
+        .orderBy('created_at', descending: true)
+        .limit(50)
+        .get();
+
+    const radiusInMeters = 1000.0;
+    final nearby = <Map<String, dynamic>>[];
+    for (final doc in snap.docs) {
+      if (doc.id == price.id) continue;
+      final pData = doc.data() as Map<String, dynamic>;
+      final lat = (pData['latitude'] as num?)?.toDouble();
+      final lng = (pData['longitude'] as num?)?.toDouble();
+      if (lat == null || lng == null) continue;
+      final dist = Geolocator.distanceBetween(baseLat, baseLng, lat, lng);
+      if (dist <= radiusInMeters) {
+        nearby.add({'doc': doc, 'distance': dist / 1000.0});
+      }
+    }
+
+    nearby.sort((a, b) => (a['distance'] as double)
+        .compareTo(b['distance'] as double));
+
+    return nearby;
   }
 
 
@@ -296,11 +331,67 @@ class PriceDetailPage extends StatelessWidget {
                           ],
                         );
                       },
-                    );
-                  },
-                ),
-                const SizedBox(height: AppTheme.paddingLarge),
-                const Text('Mais detalhes ser\u00e3o implementados futuramente.'),
+                  );
+                },
+              ),
+              const SizedBox(height: AppTheme.paddingLarge),
+              Text(
+                'Preços próximos (1km)',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: AppTheme.paddingSmall),
+              FutureBuilder<List<Map<String, dynamic>>>(
+                future: _fetchNearbyPrices(),
+                builder: (context, nearbySnapshot) {
+                  if (nearbySnapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  final items = nearbySnapshot.data ?? [];
+                  if (items.isEmpty) {
+                    return const Text('Nenhum preço encontrado nas proximidades');
+                  }
+                  return ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: items.length,
+                    separatorBuilder: (_, __) => const Divider(),
+                    itemBuilder: (context, index) {
+                      final item = items[index];
+                      final doc = item['doc'] as DocumentSnapshot;
+                      final pData = doc.data() as Map<String, dynamic>;
+                      final distance = item['distance'] as double?;
+                      return ListTile(
+                        title: Text(pData['store_name'] as String? ?? 'Comércio'),
+                        trailing: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              Formatters.formatPrice((pData['price'] as num).toDouble()),
+                              style: AppTheme.priceTextStyle,
+                            ),
+                            if (distance != null)
+                              Text(
+                                Formatters.formatDistance(distance),
+                                style: AppTheme.distanceTextStyle,
+                              ),
+                          ],
+                        ),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => PriceDetailPage(price: doc),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  );
+                },
+              ),
+              const SizedBox(height: AppTheme.paddingLarge),
+              const Text('Mais detalhes ser\u00e3o implementados futuramente.'),
               ],
             ),
           );
