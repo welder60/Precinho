@@ -68,26 +68,26 @@ class PriceDetailPage extends StatelessWidget {
   }
 
   Future<Uint8List> _decorateImage(Uint8List bytes, String value, String store) async {
-    final base = img.decodeImage(bytes);
-    if (base == null) return bytes;
-    final iconData = await rootBundle.load('assets/icons/app_icon.png');
-    final icon = img.decodeImage(iconData.buffer.asUint8List());
-    final priceText = value;
-    final storeText = store;
+	  final base = img.decodeImage(bytes);
+	  if (base == null) return bytes;
 
-    img.drawString(base, priceText,
-        font: img.arial24, x: 8, y: 8);
-    img.drawString(base, storeText,
-        font: img.arial24, x: 8, y: 40);
+	  final iconData = await rootBundle.load('assets/icons/app_icon.png');
+	  final icon = img.decodeImage(iconData.buffer.asUint8List());
 
-    if (icon != null) {
-      final x = base.width - icon.width - 8;
-      final y = base.height - icon.height - 8;
-      img.copyInto(base, icon, dstX: x, dstY: y);
-    }
-    final jpg = img.encodeJpg(base);
-    return Uint8List.fromList(jpg);
-  }
+	  // Adiciona texto
+	  img.drawString(base, img.arial24, 8, 8, value);
+	  img.drawString(base, img.arial24, 8, 40, store);
+
+	  if (icon != null) {
+		final x = base.width - icon.width - 8;
+		final y = base.height - icon.height - 8;
+		img.compositeImage(base, icon, dstX: x, dstY: y);
+	  }
+
+	  final jpg = img.encodeJpg(base);
+	  return Uint8List.fromList(jpg);
+	}
+
 
   Future<Map<String, DocumentSnapshot?>> _fetchExtraDetails() async {
     final data = price.data() as Map<String, dynamic>;

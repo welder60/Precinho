@@ -13,7 +13,9 @@ class PlacesService {
   PlacesService({http.Client? client}) : _client = client ?? http.Client();
 
   String buildPhotoUrl(String photoReference, {int maxWidth = 600}) {
-    final url = 'https://maps.googleapis.com/maps/api/place/photo?maxwidth=$maxWidth&photo_reference=$photoReference&key=${AppConstants.googleMapsApiKey}';
+    //final url = 'https://maps.googleapis.com/maps/api/place/photo?maxwidth=$maxWidth&photo_reference=$photoReference&key=${AppConstants.googleMapsApiKey}';
+	final url = 'https://maps.googleapis.com/maps/api/place/photo?maxwidth=$maxWidth&photo_reference=$photoReference&key=AIzaSyC2Q0duKwqkHEyGlIH6nGe-_ae6qXgb43Y';
+
     MapsLogger.log('buildPhotoUrl', {'url': url});
     return url;
   }
