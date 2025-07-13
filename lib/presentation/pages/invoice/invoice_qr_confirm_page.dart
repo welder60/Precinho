@@ -7,8 +7,6 @@ import '../../../core/logging/firebase_logger.dart';
 import '../../../core/themes/app_theme.dart';
 import '../../providers/auth_provider.dart';
 import '../../../data/datasources/invoice_service.dart';
-import '../store/place_search_page.dart';
-import '../../../data/models/place_result.dart';
 import 'package:flutter/services.dart';
 import 'invoice_qr_page.dart';
 import '../home/home_page.dart';
@@ -29,7 +27,6 @@ class _InvoiceQrConfirmPageState extends ConsumerState<InvoiceQrConfirmPage> {
   bool _loading = true;
   String? _message;
   DocumentSnapshot? _store;
-  PlaceResult? _place;
   String? _cnpj;
 
   @override
@@ -107,31 +104,10 @@ class _InvoiceQrConfirmPageState extends ConsumerState<InvoiceQrConfirmPage> {
     _cnpj = cnpj;
     final series = key.substring(22, 25);
     final number = key.substring(25, 34);
-    if (_store == null && _place == null) {
-      setState(() => _loading = false);
-      await _choosePlace();
-      return;
-    }
     try {
       DocumentReference<Map<String, dynamic>>? storeRef;
       if (_store != null) {
         storeRef = _store!.reference as DocumentReference<Map<String, dynamic>>;
-      } else if (_place != null) {
-        final data = {
-          'name': _place!.name,
-          'address': _place!.address,
-          'cnpj': cnpj,
-          'latitude': _place!.latitude,
-          'longitude': _place!.longitude,
-          'place_id': _place!.id,
-          'created_at': Timestamp.now(),
-          'user_id': user.id,
-          'status': 'active',
-          'rating': 0,
-        };
-        storeRef = await FirebaseFirestore.instance
-            .collection('stores')
-            .add(data);
       }
 
       await InvoiceService().submitInvoice(
@@ -164,17 +140,7 @@ class _InvoiceQrConfirmPageState extends ConsumerState<InvoiceQrConfirmPage> {
     }
   }
 
-  Future<void> _choosePlace() async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const PlaceSearchPage()),
-    );
-    if (result is PlaceResult) {
-      setState(() {
-        _place = result;
-      });
-    }
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -208,28 +174,6 @@ class _InvoiceQrConfirmPageState extends ConsumerState<InvoiceQrConfirmPage> {
                     Text(
                       (_store!.data() as Map<String, dynamic>)['address'] ?? '',
                       textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: AppTheme.paddingLarge),
-                  ] else if (_isValid && _place != null) ...[
-                    Text('Local selecionado:'),
-                    Text(
-                      _place!.name,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      _place!.address,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: AppTheme.paddingSmall),
-                    TextButton(
-                      onPressed: _choosePlace,
-                      child: const Text('Alterar Local'),
-                    ),
-                    const SizedBox(height: AppTheme.paddingLarge),
-                  ] else if (_isValid) ...[
-                    ElevatedButton(
-                      onPressed: _choosePlace,
-                      child: const Text('Selecionar Local'),
                     ),
                     const SizedBox(height: AppTheme.paddingLarge),
                   ],

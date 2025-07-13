@@ -171,7 +171,6 @@ class InvoiceHtmlParser {
     final service = InvoiceImportService();
 
     DocumentReference<Map<String, dynamic>> invoiceRef;
-    DocumentReference<Map<String, dynamic>> storeRef;
 
     invoiceRef = await service.getOrCreateInvoice(
       qrLink: qrLink,
@@ -183,8 +182,13 @@ class InvoiceHtmlParser {
     );
 
     final invoiceSnap = await invoiceRef.get();
-    final existingStoreId = invoiceSnap.data()?['store_id'] as String?;
+    final currentStatus = invoiceSnap.data()?['status'] as String?;
+    if (currentStatus == ModerationStatus.approved.value) {
+      throw Exception('Invoice j\u00e1 aprovada');
+    }
 
+    final existingStoreId = invoiceSnap.data()?['store_id'] as String?;
+    DocumentReference<Map<String, dynamic>> storeRef;
     if (existingStoreId != null) {
       storeRef = FirebaseFirestore.instance.collection('stores').doc(existingStoreId);
     } else {
@@ -195,9 +199,10 @@ class InvoiceHtmlParser {
       );
       await invoiceRef.update({'store_id': storeRef.id});
     }
-    final currentStatus = invoiceSnap.data()?['status'] as String?;
-    if (currentStatus == ModerationStatus.approved.value) {
-      throw Exception('Invoice j\u00e1 aprovada');
+
+    final storeSnap = await storeRef.get();
+    if (storeSnap.data()?['latitude'] == null || storeSnap.data()?['longitude'] == null) {
+      throw Exception('Store sem localiza\u00e7\u00e3o');
     }
 
     final eans = produtos['Código EAN Comercial'] ?? [];
