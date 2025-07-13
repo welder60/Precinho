@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/constants/enums.dart';
 import '../../../core/themes/app_theme.dart';
@@ -22,6 +23,14 @@ class InvoiceDetailPage extends StatelessWidget {
         .where('invoice_id', isEqualTo: invoiceId)
         .orderBy('created_at')
         .snapshots();
+  }
+
+  Future<void> _openLink(String? urlStr) async {
+    if (urlStr == null || urlStr.isEmpty) return;
+    final url = Uri.parse(urlStr);
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    }
   }
 
   @override
@@ -60,7 +69,22 @@ class InvoiceDetailPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Link: ${data['qr_link'] ?? ''}'),
+                    Builder(builder: (context) {
+                      final link = data['qr_link'] as String?;
+                      if (link == null || link.isEmpty) {
+                        return const Text('Link: -');
+                      }
+                      return InkWell(
+                        onTap: () => _openLink(link),
+                        child: Text(
+                          'Link: $link',
+                          style: const TextStyle(
+                            color: Colors.blue,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      );
+                    }),
                     const SizedBox(height: AppTheme.paddingMedium),
                     Text('CNPJ: ${data['cnpj']}'),
                     Text('S\u00e9rie: ${data['series']}'),
