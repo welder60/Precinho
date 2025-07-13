@@ -48,6 +48,9 @@ class UserPricesPage extends ConsumerWidget {
                 orElse: () => ModerationStatus.pending,
               );
               final imageUrl = data['image_url'] as String?;
+              final expiresAt =
+                  (data['expires_at'] as Timestamp?)?.toDate();
+              final expired = expiresAt != null && DateTime.now().isAfter(expiresAt);
               return ListTile(
                 leading: AppCachedImage(
                   imageUrl: imageUrl,
@@ -57,11 +60,29 @@ class UserPricesPage extends ConsumerWidget {
                 title: Text(data['product_name'] ?? 'Produto'),
                 subtitle: Text('${data['store_name'] ?? 'Comércio'}\n${status.displayName}'),
                 isThreeLine: true,
-                trailing: Text(
-                  data['price'] != null
-                      ? Formatters.formatPrice((data['price'] as num).toDouble())
-                      : '-',
-                  style: AppTheme.priceTextStyle,
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      data['price'] != null
+                          ? Formatters.formatPrice((data['price'] as num).toDouble())
+                          : '-',
+                      style: AppTheme.priceTextStyle,
+                    ),
+                    if (expired)
+                      IconButton(
+                        icon: const Icon(Icons.warning,
+                            color: AppTheme.warningColor, size: 20),
+                        tooltip: 'Preço pode estar desatualizado',
+                        onPressed: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('Este preço pode estar desatualizado')),
+                          );
+                        },
+                        padding: EdgeInsets.zero,
+                      ),
+                  ],
                 ),
                 onTap: () {
                   Navigator.push(

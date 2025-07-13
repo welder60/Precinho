@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter/services.dart';
+import '../../../core/constants/app_constants.dart';
 import '../../../core/themes/app_theme.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/utils/price_input_formatter.dart';
@@ -192,6 +193,11 @@ class _AddPricePageState extends State<AddPricePage> {
           'price': priceValue,
           'image_url': null,
           'created_at': Timestamp.now(),
+          'expires_at': Timestamp.fromDate(
+            DateTime.now().add(
+              const Duration(days: AppConstants.defaultPriceValidityDays),
+            ),
+          ),
           if (variation != null) 'variation': variation,
           if (storeData['latitude'] != null && storeData['longitude'] != null)
             ...{

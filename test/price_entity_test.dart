@@ -26,4 +26,24 @@ void main() {
     expect(price.formattedValue, 'R\$ 10,00');
     expect(price.ageInDays >= 2, isTrue);
   });
+
+  test('isExpired should reflect expiresAt', () {
+    final now = DateTime.now();
+    final price = Price(
+      id: '1',
+      productId: 'p1',
+      storeId: 's1',
+      userId: 'u1',
+      value: 10,
+      productName: 'Banana',
+      storeName: 'Comércio',
+      createdAt: now.subtract(const Duration(days: 10)),
+      expiresAt: now.subtract(const Duration(days: 1)),
+      status: ModerationStatus.approved,
+      updatedAt: now,
+      isPromotional: false,
+    );
+
+    expect(price.isExpired, isTrue);
+  });
 }

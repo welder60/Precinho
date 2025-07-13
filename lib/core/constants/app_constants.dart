@@ -86,6 +86,9 @@ class AppConstants {
   static const double maxSearchRadius = 50.0; // 50km
   static const double minSearchRadius = 1.0; // 1km
 
+  // Configurações de preços
+  static const int defaultPriceValidityDays = 7; // validade padrão de preços
+
   // Configurações de cache
   static const int imageCacheDuration = 7; // 7 dias
   static const int dataCacheDuration = 1; // 1 dia
