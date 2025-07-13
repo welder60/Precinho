@@ -41,6 +41,7 @@ class InvoiceImportService {
     DocumentReference<Map<String, dynamic>>? storeRef,
     String? storeCode,
     String? storeDescription,
+    String? userId,
   }) async {
     // Primeiro tenta encontrar pelo c\u00f3digo vinculado ao com\u00e9rcio
     if (storeRef != null && storeCode != null && storeCode.isNotEmpty) {
@@ -93,6 +94,7 @@ class InvoiceImportService {
           'product_id': productRef.id,
           'code': storeCode,
           'description': storeDescription ?? name,
+          if (userId != null) 'user_id': userId,
           if (ncm != null) 'ncm_code': ncm,
           if (ean != null) 'ean_code': ean,
           'created_at': Timestamp.now(),

@@ -229,6 +229,7 @@ class InvoiceHtmlParser {
         storeRef: storeRef,
         storeCode: codigo,
         storeDescription: descricao,
+        userId: userId,
       );
 
       await service.createPrice(
