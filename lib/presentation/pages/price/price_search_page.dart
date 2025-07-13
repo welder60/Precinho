@@ -83,31 +83,47 @@ class _PriceSearchPageState extends State<PriceSearchPage> {
                               style: AppTheme.priceTextStyle,
                             ),
                             if (data['variation'] != null)
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    (data['variation'] as num) > 0
-                                        ? Icons.arrow_upward
-                                        : Icons.arrow_downward,
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  (data['variation'] as num) > 0
+                                      ? Icons.arrow_upward
+                                      : Icons.arrow_downward,
+                                  color: (data['variation'] as num) > 0
+                                      ? AppTheme.errorColor
+                                      : AppTheme.successColor,
+                                  size: 14,
+                                ),
+                                const SizedBox(width: 2),
+                                Text(
+                                  Formatters.formatPercentage(
+                                      ((data['variation'] as num).abs()).toDouble()),
+                                  style: TextStyle(
                                     color: (data['variation'] as num) > 0
                                         ? AppTheme.errorColor
                                         : AppTheme.successColor,
-                                    size: 14,
+                                    fontSize: 12,
                                   ),
-                                  const SizedBox(width: 2),
-                                  Text(
-                                    Formatters.formatPercentage(
-                                        ((data['variation'] as num).abs()).toDouble()),
-                                    style: TextStyle(
-                                      color: (data['variation'] as num) > 0
-                                          ? AppTheme.errorColor
-                                          : AppTheme.successColor,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                ),
+                              ],
+                            ),
+                          if ((data['expires_at'] as Timestamp?) != null &&
+                              DateTime.now().isAfter(
+                                  (data['expires_at'] as Timestamp).toDate()))
+                            IconButton(
+                              icon: const Icon(Icons.warning,
+                                  color: AppTheme.warningColor, size: 20),
+                              tooltip: 'Preço pode estar desatualizado',
+                              onPressed: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content:
+                                          Text('Este preço pode estar desatualizado')),
+                                );
+                              },
+                              padding: EdgeInsets.zero,
+                            ),
                           ],
                         ),
                         onTap: () {

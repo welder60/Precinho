@@ -180,6 +180,23 @@ class _ProductPricesPageState extends ConsumerState<ProductPricesPage> {
                               ),
                             ],
                           ),
+                        if ((priceData['expires_at'] as Timestamp?) != null &&
+                            DateTime.now().isAfter(
+                                (priceData['expires_at'] as Timestamp).toDate()))
+                          IconButton(
+                            icon: const Icon(Icons.warning,
+                                color: AppTheme.warningColor, size: 20),
+                            tooltip: 'Preço pode estar desatualizado',
+                            onPressed: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content:
+                                      Text('Este preço pode estar desatualizado'),
+                                ),
+                              );
+                            },
+                            padding: EdgeInsets.zero,
+                          ),
                       ],
                     ),
                     IconButton(

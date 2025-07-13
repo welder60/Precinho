@@ -134,9 +134,30 @@ class PriceDetailPage extends StatelessWidget {
                 const SizedBox(height: AppTheme.paddingMedium),
                 Text('Com\u00e9rcio: $storeName'),
                 const SizedBox(height: AppTheme.paddingMedium),
-                Text(
-                  Formatters.formatPrice((data['price'] as num).toDouble()),
-                  style: AppTheme.priceTextStyle,
+                Row(
+                  children: [
+                    Text(
+                      Formatters.formatPrice((data['price'] as num).toDouble()),
+                      style: AppTheme.priceTextStyle,
+                    ),
+                    const SizedBox(width: 4),
+                    if ((data['expires_at'] as Timestamp?) != null &&
+                        DateTime.now().isAfter(
+                            (data['expires_at'] as Timestamp).toDate()))
+                      IconButton(
+                        icon: const Icon(Icons.warning,
+                            color: AppTheme.warningColor, size: 20),
+                        tooltip: 'Preço pode estar desatualizado',
+                        onPressed: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content:
+                                    Text('Este preço pode estar desatualizado')),
+                          );
+                        },
+                        padding: EdgeInsets.zero,
+                      ),
+                  ],
                 ),
                 if (data['variation'] != null)
                   Row(
