@@ -23,9 +23,6 @@ class _FeedPageState extends ConsumerState<FeedPage> {
   final Map<String, Map<String, dynamic>> _productInfo = {};
   final Map<String, Map<String, dynamic>> _userInfo = {};
   final Map<String, Map<String, dynamic>> _storeInfo = {};
-  final Map<String, int> _likesCount = {};
-  final Set<String> _liked = {};
-  final Set<String> _likeLoading = {};
   final List<DocumentSnapshot> _docs = [];
   final ScrollController _controller = ScrollController();
   DocumentSnapshot? _lastDoc;
@@ -163,70 +160,6 @@ class _FeedPageState extends ConsumerState<FeedPage> {
     await _fetchMore();
   }
 
-  Future<void> _ensureLikeInfo(DocumentSnapshot doc) async {
-    final id = doc.id;
-    if (_likesCount.containsKey(id) && _liked.contains(id)) return;
-    final data = doc.data() as Map<String, dynamic>;
-    _likesCount[id] = (data['likes_count'] as int?) ?? 0;
-    final user = ref.read(currentUserProvider);
-    if (user != null) {
-      try {
-        final likeSnap = await doc.reference.collection('likes').doc(user.id).get();
-        if (likeSnap.exists) {
-          _liked.add(id);
-        }
-      } catch (_) {}
-    }
-    if (mounted) setState(() {});
-  }
-
-  Future<void> _toggleLike(DocumentSnapshot doc) async {
-    final user = ref.read(currentUserProvider);
-    if (user == null) {
-      if (mounted) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const LoginPage()),
-        );
-      }
-      return;
-    }
-
-    if (_likeLoading.contains(doc.id)) return;
-
-    setState(() => _likeLoading.add(doc.id));
-
-    final liked = _liked.contains(doc.id);
-    try {
-      final likeRef = doc.reference.collection('likes').doc(user.id);
-      if (liked) {
-        await likeRef.delete();
-        await doc.reference.update({'likes_count': FieldValue.increment(-1)});
-        _liked.remove(doc.id);
-        _likesCount[doc.id] = (_likesCount[doc.id] ?? 1) - 1;
-      } else {
-        await likeRef.set({'created_at': Timestamp.now()});
-        await doc.reference.update({'likes_count': FieldValue.increment(1)});
-        _liked.add(doc.id);
-        _likesCount[doc.id] = (_likesCount[doc.id] ?? 0) + 1;
-      }
-    } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(liked ? 'Erro ao remover like' : 'Erro ao curtir'),
-            backgroundColor: AppTheme.errorColor,
-          ),
-        );
-      }
-    }
-
-    if (mounted) {
-      setState(() => _likeLoading.remove(doc.id));
-    } else {
-      _likeLoading.remove(doc.id);
-    }
-  }
 
   Future<void> _addToList(DocumentSnapshot doc) async {
     final user = ref.read(currentUserProvider);
@@ -380,9 +313,6 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                     1000.0;
               }
               final createdAt = (data['created_at'] as Timestamp?)?.toDate();
-              Future.microtask(() => _ensureLikeInfo(doc));
-              final likes = _likesCount[doc.id] ?? 0;
-              final isLiked = _liked.contains(doc.id);
 
               return Card(
                 child: InkWell(
@@ -497,20 +427,6 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            IconButton(
-                              icon: _likeLoading.contains(doc.id)
-                                  ? const SizedBox(
-                                      width: 16,
-                                      height: 16,
-                                      child: CircularProgressIndicator(strokeWidth: 2),
-                                    )
-                                  : Icon(
-                                      isLiked ? Icons.favorite : Icons.favorite_border,
-                                      color: Colors.red,
-                                    ),
-                              onPressed: () => _toggleLike(doc),
-                            ),
-                            Text('$likes'),
                             IconButton(
                               icon: const Icon(Icons.add),
                               onPressed: () => _addToList(doc),
