@@ -223,6 +223,8 @@ class _ProductPricesPageState extends ConsumerState<ProductPricesPage> {
                       unit: unit,
                     )
                   : null;
+              final createdAt =
+                  (priceData['created_at'] as Timestamp?)?.toDate();
 
               return ListTile(
                 leading: const Icon(
@@ -293,8 +295,7 @@ class _ProductPricesPageState extends ConsumerState<ProductPricesPage> {
                     IconButton(
                       icon: Icon(
                         isFav ? Icons.star : Icons.star_border,
-                        color:
-                            isFav ? Colors.amber : AppTheme.textSecondaryColor,
+                        color: isFav ? Colors.amber : AppTheme.textSecondaryColor,
                       ),
                       onPressed: storeId == null
                           ? null
@@ -304,9 +305,22 @@ class _ProductPricesPageState extends ConsumerState<ProductPricesPage> {
                                   .toggleFavorite(storeId);
                             },
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.add_shopping_cart),
-                      onPressed: () => _addPriceToList(doc),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (createdAt != null)
+                          Padding(
+                            padding: const EdgeInsets.only(right: 4),
+                            child: Text(
+                              Formatters.formatDate(createdAt),
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ),
+                        IconButton(
+                          icon: const Icon(Icons.add_shopping_cart),
+                          onPressed: () => _addPriceToList(doc),
+                        ),
+                      ],
                     ),
                   ],
                 ),

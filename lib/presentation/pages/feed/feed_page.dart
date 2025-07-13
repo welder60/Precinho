@@ -457,11 +457,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                                 Formatters.formatDistance(distance),
                                 style: AppTheme.distanceTextStyle,
                               ),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
+                            const SizedBox(width: 4),
                             IconButton(
                               icon: const Icon(Icons.add),
                               onPressed: () => _addToList(doc),
