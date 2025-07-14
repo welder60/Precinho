@@ -346,7 +346,7 @@ class _ProductPricesPageState extends ConsumerState<ProductPricesPage> {
                               ),
                             const Spacer(),
                             IconButton(
-                              icon: const Icon(Icons.add_shopping_cart),
+                              icon: const Icon(Icons.playlist_add),
                               onPressed: () => _addPriceToList(doc),
                             ),
                           ],
