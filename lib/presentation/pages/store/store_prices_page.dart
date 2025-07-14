@@ -6,6 +6,7 @@ import '../../../core/themes/app_theme.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/constants/enums.dart';
 import '../../providers/store_favorites_provider.dart';
+import '../../providers/shopping_list_provider.dart';
 import '../price/add_price_page.dart';
 import '../price/price_detail_page.dart';
 import 'store_detail_page.dart';
@@ -46,6 +47,81 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
       }
     }
     if (mounted) setState(() {});
+  }
+
+  Future<void> _addPriceToList(DocumentSnapshot price) async {
+    final lists = ref.read(shoppingListProvider);
+    String? selectedId = lists.isNotEmpty ? lists.first.id : null;
+    final quantityController = TextEditingController(text: '1');
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Adicionar à lista'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (lists.isNotEmpty)
+              DropdownButtonFormField<String>(
+                value: selectedId,
+                items: [
+                  for (final l in lists)
+                    DropdownMenuItem(value: l.id, child: Text(l.name)),
+                ],
+                onChanged: (v) => selectedId = v,
+                decoration: const InputDecoration(labelText: 'Lista'),
+              ),
+            if (lists.isEmpty)
+              TextField(
+                decoration: const InputDecoration(labelText: 'Nome da lista'),
+                onChanged: (v) => selectedId = v,
+              ),
+            TextField(
+              controller: quantityController,
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              decoration: const InputDecoration(labelText: 'Quantidade'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Adicionar'),
+          ),
+        ],
+      ),
+    );
+
+    if (result != true || selectedId == null) return;
+
+    String listId = selectedId!;
+    if (lists.isEmpty) {
+      listId = ref.read(shoppingListProvider.notifier).createList(selectedId!);
+    }
+
+    final quantity = double.tryParse(quantityController.text) ?? 1;
+    quantityController.dispose();
+
+    final data = price.data() as Map<String, dynamic>;
+    ref.read(shoppingListProvider.notifier).addProductToList(
+      listId: listId,
+      productId: data['product_id'],
+      productName: data['product_name'] ?? 'Produto',
+      quantity: quantity,
+      price: (data['price'] as num?)?.toDouble(),
+      storeId: data['store_id'] ?? widget.store.id,
+      storeName: data['store_name'] ?? (widget.store.data() as Map<String, dynamic>)['name'],
+    );
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Adicionado à lista')),
+      );
+    }
   }
 
   @override
@@ -278,6 +354,21 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
                               },
                               padding: EdgeInsets.zero,
                             ),
+                          Row(
+                            children: [
+                              if ((priceData['created_at'] as Timestamp?) != null)
+                                Text(
+                                  Formatters.formatDate(
+                                      (priceData['created_at'] as Timestamp).toDate()),
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                              const Spacer(),
+                              IconButton(
+                                icon: const Icon(Icons.playlist_add),
+                                onPressed: () => _addPriceToList(doc),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                       onTap: () {

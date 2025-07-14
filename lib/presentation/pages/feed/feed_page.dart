@@ -459,7 +459,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                               ),
                             const SizedBox(width: 4),
                             IconButton(
-                              icon: const Icon(Icons.add),
+                              icon: const Icon(Icons.playlist_add),
                               onPressed: () => _addToList(doc),
                             ),
                           ],
