@@ -34,11 +34,17 @@ class AppConfig {
       return;
     }
 
-    if (await File(fileName).exists()) {
-      await dotenv.load(fileName: fileName);
-    }
+    // Correção aqui ↓↓↓
+    await dotenv.load(fileName: fileName);
+
     _logLoadedApiKeys();
+
+    assert(
+    dotenv.isInitialized,
+    '.env not loaded. Call AppConfig.load() before using the Maps API.',
+    );
   }
+
 
   static void _logLoadedApiKeys() {
     if (!dotenv.isInitialized) return;
