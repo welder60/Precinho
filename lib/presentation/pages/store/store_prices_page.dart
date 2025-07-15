@@ -355,14 +355,17 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
                               padding: EdgeInsets.zero,
                             ),
                           Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               if ((priceData['created_at'] as Timestamp?) != null)
-                                Text(
-                                  Formatters.formatDate(
-                                      (priceData['created_at'] as Timestamp).toDate()),
-                                  style: Theme.of(context).textTheme.bodySmall,
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 8),
+                                  child: Text(
+                                    Formatters.formatDate(
+                                        (priceData['created_at'] as Timestamp).toDate()),
+                                    style: Theme.of(context).textTheme.bodySmall,
+                                  ),
                                 ),
-                              const Spacer(),
                               IconButton(
                                 icon: const Icon(Icons.playlist_add),
                                 onPressed: () => _addPriceToList(doc),
