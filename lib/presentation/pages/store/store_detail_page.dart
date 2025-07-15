@@ -72,25 +72,35 @@ class StoreDetailPage extends ConsumerWidget {
                   );
                 },
               ),
-              const SizedBox(width: AppTheme.paddingMedium),
-              ElevatedButton.icon(
-                icon: const Icon(Icons.directions_car),
-                label: const Text('Abrir no Waze'),
-                onPressed: () {
-                  _openWaze(
-                    context,
-                    data['latitude'],
-                    data['longitude'],
-                    data['address'],
-                    data['place_id'],
-                  );
-                },
-              ),
-            ],
+          const SizedBox(width: AppTheme.paddingMedium),
+          ElevatedButton.icon(
+            icon: const Icon(Icons.directions_car),
+            label: const Text('Abrir no Waze'),
+            onPressed: () {
+              _openWaze(
+                context,
+                data['latitude'],
+                data['longitude'],
+                data['address'],
+                data['place_id'],
+              );
+            },
           ),
+          if (data['cnpj'] != null && (data['cnpj'] as String).isNotEmpty) ...[
+            const SizedBox(width: AppTheme.paddingMedium),
+            ElevatedButton.icon(
+              icon: const Icon(Icons.search),
+              label: const Text('Pesquisar CNPJ'),
+              onPressed: () {
+                _searchCnpj(data['cnpj']);
+              },
+            ),
+          ],
         ],
       ),
-      // Sem ações nesta tela
+    ],
+  ),
+  // Sem ações nesta tela
     );
   }
 
@@ -137,6 +147,16 @@ class StoreDetailPage extends ConsumerWidget {
           'https://waze.com/ul?query=${Uri.encodeComponent(address)}&navigate=yes');
     }
     if (url != null && await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  Future<void> _searchCnpj(Object? cnpj) async {
+    if (cnpj is! String || cnpj.isEmpty) return;
+    final sanitized = cnpj.replaceAll(RegExp(r'\D'), '');
+    final url =
+        Uri.parse('https://www.google.com/search?q=${Uri.encodeComponent(sanitized)}');
+    if (await canLaunchUrl(url)) {
       await launchUrl(url, mode: LaunchMode.externalApplication);
     }
   }
