@@ -43,76 +43,76 @@ class DefaultFirebaseOptions {
 
   static FirebaseOptions get web => FirebaseOptions(
         apiKey: AppConfig.get('FIREBASE_WEB_API_KEY',
-            defaultValue: 'AIzaSyDR42GFH7gszEWMOfzmLWmOYatvBBYj-B0'),
+            defaultValue: 'YOUR_FIREBASE_WEB_API_KEY'),
         appId: AppConfig.get('FIREBASE_WEB_APP_ID',
-            defaultValue: '1:827176675042:web:c132fef088db2bd7e9a0bb'),
+            defaultValue: 'YOUR_FIREBASE_WEB_APP_ID'),
         messagingSenderId: AppConfig.get('FIREBASE_WEB_MESSAGING_SENDER_ID',
-            defaultValue: '827176675042'),
+            defaultValue: 'YOUR_FIREBASE_WEB_MESSAGING_SENDER_ID'),
         projectId:
-            AppConfig.get('FIREBASE_PROJECT_ID', defaultValue: 'precinho-dd1c9'),
+            AppConfig.get('FIREBASE_PROJECT_ID', defaultValue: 'YOUR_FIREBASE_PROJECT_ID'),
         authDomain: AppConfig.get('FIREBASE_WEB_AUTH_DOMAIN',
-            defaultValue: 'precinho-dd1c9.firebaseapp.com'),
+            defaultValue: 'YOUR_FIREBASE_WEB_AUTH_DOMAIN'),
         storageBucket: AppConfig.get('FIREBASE_STORAGE_BUCKET',
-            defaultValue: 'precinho-dd1c9.firebasestorage.app'),
+            defaultValue: 'YOUR_FIREBASE_STORAGE_BUCKET'),
         measurementId: AppConfig.get('FIREBASE_MEASUREMENT_ID',
-            defaultValue: 'G-LDPX19149Y'),
+            defaultValue: 'YOUR_MEASUREMENT_ID'),
       );
 
   static FirebaseOptions get android => FirebaseOptions(
         apiKey: AppConfig.get('FIREBASE_ANDROID_API_KEY',
-            defaultValue: 'AIzaSyC2aCiUIpAmvlEXk24HIj1JqiA4ksPpQXg'),
+            defaultValue: 'YOUR_FIREBASE_ANDROID_API_KEY'),
         appId: AppConfig.get('FIREBASE_ANDROID_APP_ID',
-            defaultValue: '1:827176675042:android:00781a4ec7162b73e9a0bb'),
+            defaultValue: 'YOUR_FIREBASE_ANDROID_APP_ID'),
         messagingSenderId: AppConfig.get('FIREBASE_ANDROID_MESSAGING_SENDER_ID',
-            defaultValue: '827176675042'),
+            defaultValue: 'YOUR_FIREBASE_ANDROID_MESSAGING_SENDER_ID'),
         projectId:
-            AppConfig.get('FIREBASE_PROJECT_ID', defaultValue: 'precinho-dd1c9'),
+            AppConfig.get('FIREBASE_PROJECT_ID', defaultValue: 'YOUR_FIREBASE_PROJECT_ID'),
         storageBucket: AppConfig.get('FIREBASE_STORAGE_BUCKET',
-            defaultValue: 'precinho-dd1c9.firebasestorage.app'),
+            defaultValue: 'YOUR_FIREBASE_STORAGE_BUCKET'),
       );
 
   static FirebaseOptions get ios => FirebaseOptions(
         apiKey: AppConfig.get('FIREBASE_IOS_API_KEY',
-            defaultValue: 'AIzaSyBlxQ7-LvkV8cNUIlE3chU7ziBclKc7XMs'),
+            defaultValue: 'YOUR_FIREBASE_IOS_API_KEY'),
         appId: AppConfig.get('FIREBASE_IOS_APP_ID',
-            defaultValue: '1:827176675042:ios:278a838c2e9fdff0e9a0bb'),
+            defaultValue: 'YOUR_FIREBASE_IOS_APP_ID'),
         messagingSenderId: AppConfig.get('FIREBASE_IOS_MESSAGING_SENDER_ID',
-            defaultValue: '827176675042'),
+            defaultValue: 'YOUR_FIREBASE_IOS_MESSAGING_SENDER_ID'),
         projectId:
-            AppConfig.get('FIREBASE_PROJECT_ID', defaultValue: 'precinho-dd1c9'),
+            AppConfig.get('FIREBASE_PROJECT_ID', defaultValue: 'YOUR_FIREBASE_PROJECT_ID'),
         storageBucket: AppConfig.get('FIREBASE_STORAGE_BUCKET',
-            defaultValue: 'precinho-dd1c9.firebasestorage.app'),
+            defaultValue: 'YOUR_FIREBASE_STORAGE_BUCKET'),
         iosBundleId: 'com.precinho.precinhoApp',
       );
 
   static FirebaseOptions get macos => FirebaseOptions(
         apiKey: AppConfig.get('FIREBASE_IOS_API_KEY',
-            defaultValue: 'AIzaSyBlxQ7-LvkV8cNUIlE3chU7ziBclKc7XMs'),
+            defaultValue: 'YOUR_FIREBASE_IOS_API_KEY'),
         appId: AppConfig.get('FIREBASE_IOS_APP_ID',
-            defaultValue: '1:827176675042:ios:278a838c2e9fdff0e9a0bb'),
+            defaultValue: 'YOUR_FIREBASE_IOS_APP_ID'),
         messagingSenderId: AppConfig.get('FIREBASE_IOS_MESSAGING_SENDER_ID',
-            defaultValue: '827176675042'),
+            defaultValue: 'YOUR_FIREBASE_IOS_MESSAGING_SENDER_ID'),
         projectId:
-            AppConfig.get('FIREBASE_PROJECT_ID', defaultValue: 'precinho-dd1c9'),
+            AppConfig.get('FIREBASE_PROJECT_ID', defaultValue: 'YOUR_FIREBASE_PROJECT_ID'),
         storageBucket: AppConfig.get('FIREBASE_STORAGE_BUCKET',
-            defaultValue: 'precinho-dd1c9.firebasestorage.app'),
+            defaultValue: 'YOUR_FIREBASE_STORAGE_BUCKET'),
         iosBundleId: 'com.precinho.precinhoApp',
       );
 
   static FirebaseOptions get windows => FirebaseOptions(
         apiKey: AppConfig.get('FIREBASE_WEB_API_KEY',
-            defaultValue: 'AIzaSyDR42GFH7gszEWMOfzmLWmOYatvBBYj-B0'),
+            defaultValue: 'YOUR_FIREBASE_WEB_API_KEY'),
         appId: AppConfig.get('FIREBASE_WEB_APP_ID',
-            defaultValue: '1:827176675042:web:8bc7d1410ddaa855e9a0bb'),
+            defaultValue: 'YOUR_FIREBASE_WEB_APP_ID'),
         messagingSenderId: AppConfig.get('FIREBASE_WEB_MESSAGING_SENDER_ID',
-            defaultValue: '827176675042'),
+            defaultValue: 'YOUR_FIREBASE_WEB_MESSAGING_SENDER_ID'),
         projectId:
-            AppConfig.get('FIREBASE_PROJECT_ID', defaultValue: 'precinho-dd1c9'),
+            AppConfig.get('FIREBASE_PROJECT_ID', defaultValue: 'YOUR_FIREBASE_PROJECT_ID'),
         authDomain: AppConfig.get('FIREBASE_WEB_AUTH_DOMAIN',
-            defaultValue: 'precinho-dd1c9.firebaseapp.com'),
+            defaultValue: 'YOUR_FIREBASE_WEB_AUTH_DOMAIN'),
         storageBucket: AppConfig.get('FIREBASE_STORAGE_BUCKET',
-            defaultValue: 'precinho-dd1c9.firebasestorage.app'),
+            defaultValue: 'YOUR_FIREBASE_STORAGE_BUCKET'),
         measurementId: AppConfig.get('FIREBASE_MEASUREMENT_ID',
-            defaultValue: 'G-93NLEPJF1D'),
+            defaultValue: 'YOUR_MEASUREMENT_ID'),
       );
 }
