@@ -157,9 +157,10 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
           ),
         ],
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
           Padding(
             padding: const EdgeInsets.all(AppTheme.paddingMedium),
             child: Text(data['address'] ?? ''),
@@ -258,9 +259,17 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
                     }).toList(),
                   ),
                 ),
+              final bottomPadding =
+                  MediaQuery.of(context).padding.bottom + kToolbarHeight;
+
               Expanded(
                 child: ListView.builder(
-                  padding: const EdgeInsets.all(AppTheme.paddingMedium),
+                  padding: EdgeInsets.fromLTRB(
+                    AppTheme.paddingMedium,
+                    AppTheme.paddingMedium,
+                    AppTheme.paddingMedium,
+                    bottomPadding,
+                  ),
                   itemCount: prices.length,
                   itemBuilder: (context, index) {
                     final doc = prices[index];
@@ -287,15 +296,18 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
                           )
                         : null;
 
-                    return ListTile(
-                      leading: ClipRRect(
-                        borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-                        child: AppCachedImage(
-                          imageUrl: imageUrl,
-                          width: 56,
-                          height: 56,
+                    return Card(
+                      margin:
+                          const EdgeInsets.only(bottom: AppTheme.paddingSmall),
+                      child: ListTile(
+                        leading: ClipRRect(
+                          borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                          child: AppCachedImage(
+                            imageUrl: imageUrl,
+                            width: 56,
+                            height: 56,
+                          ),
                         ),
-                      ),
                       title: Text(label),
                       trailing: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -382,7 +394,7 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
                           ),
                         );
                       },
-                    );
+                    ));
                   },
                 ),
               ),
@@ -391,7 +403,8 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
         },
       ),
           ),
-        ],
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         heroTag: 'store_prices_fab',
