@@ -232,6 +232,22 @@ class _AddPricePageState extends State<AddPricePage> {
           FirebaseLogger.log('Nearby average error', {'error': e.toString()});
         }
 
+        try {
+          final prev = await FirebaseFirestore.instance
+              .collection('prices')
+              .where('product_id', isEqualTo: _selectedProduct!.id)
+              .where('store_id', isEqualTo: _selectedStore!.id)
+              .where('is_active', isEqualTo: true)
+              .orderBy('created_at', descending: true)
+              .limit(1)
+              .get();
+          if (prev.docs.isNotEmpty) {
+            await prev.docs.first.reference.update({'is_active': false});
+          }
+        } catch (e) {
+          FirebaseLogger.log('Deactivate price error', {'error': e.toString()});
+        }
+
         final data = {
           'product_id': _selectedProduct!.id,
           'product_name': productData['name'],
@@ -240,6 +256,7 @@ class _AddPricePageState extends State<AddPricePage> {
           'user_id': FirebaseAuth.instance.currentUser?.uid,
           'price': priceValue,
           'image_url': null,
+          'is_active': true,
           'created_at': Timestamp.now(),
           'expires_at': Timestamp.fromDate(
             DateTime.now().add(

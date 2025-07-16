@@ -105,6 +105,7 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
               .where('store_id', isEqualTo: store.id)
               .where('status',
                   isEqualTo: ModerationStatus.approved.value)
+              .where('is_active', isEqualTo: true)
               .orderBy('created_at', descending: true)
               .limit(1)
               .get();
@@ -164,6 +165,7 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
             .where('store_id', isEqualTo: store.id)
             .where('status',
                 isEqualTo: ModerationStatus.approved.value)
+            .where('is_active', isEqualTo: true)
             .orderBy('created_at', descending: true)
             .limit(1)
             .get();

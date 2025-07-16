@@ -16,6 +16,7 @@ class Price extends Equatable {
   final DateTime? expiresAt;
   final ModerationStatus status;
   final DateTime updatedAt;
+  final bool isActive;
   final String? notes;
   final bool isPromotional;
   final DateTime? promotionalUntil;
@@ -44,6 +45,7 @@ class Price extends Equatable {
     this.expiresAt,
     required this.status,
     required this.updatedAt,
+    this.isActive = true,
     this.notes,
     required this.isPromotional,
     this.promotionalUntil,
@@ -73,6 +75,7 @@ class Price extends Equatable {
     DateTime? expiresAt,
     ModerationStatus? status,
     DateTime? updatedAt,
+    bool? isActive,
     String? notes,
     bool? isPromotional,
     DateTime? promotionalUntil,
@@ -101,6 +104,7 @@ class Price extends Equatable {
       expiresAt: expiresAt ?? this.expiresAt,
       status: status ?? this.status,
       updatedAt: updatedAt ?? this.updatedAt,
+      isActive: isActive ?? this.isActive,
       notes: notes ?? this.notes,
       isPromotional: isPromotional ?? this.isPromotional,
       promotionalUntil: promotionalUntil ?? this.promotionalUntil,
@@ -148,6 +152,7 @@ class Price extends Equatable {
         expiresAt,
         status,
         updatedAt,
+        isActive,
         notes,
         isPromotional,
         promotionalUntil,

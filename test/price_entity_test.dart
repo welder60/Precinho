@@ -21,6 +21,8 @@ void main() {
 
     final updated = price.copyWith(value: 12);
     expect(updated.value, 12);
+    expect(price.isActive, isTrue);
+    expect(price.copyWith(isActive: false).isActive, isFalse);
 
     expect(price.hasImage, isFalse);
     expect(price.formattedValue, 'R\$ 10,00');
