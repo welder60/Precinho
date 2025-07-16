@@ -21,7 +21,8 @@ class _ImportInvoicePageState extends State<ImportInvoicePage> {
   Future<void> _pickFile() async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['html', 'htm', 'xml'],
+      // Permit both lower and upper case extensions
+      allowedExtensions: ['html', 'HTML', 'htm', 'HTM', 'xml'],
       withData: true,
     );
     if (result != null) {
