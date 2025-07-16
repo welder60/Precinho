@@ -184,6 +184,54 @@ class _AddPricePageState extends State<AddPricePage> {
           FirebaseLogger.log('Variation calc error', {'error': e.toString()});
         }
 
+        double? nearbyAvg;
+        String? avgComparison;
+        try {
+          final baseLat = (storeData['latitude'] as num?)?.toDouble() ??
+              position?.latitude;
+          final baseLng = (storeData['longitude'] as num?)?.toDouble() ??
+              position?.longitude;
+          if (baseLat != null && baseLng != null) {
+            final snap = await FirebaseFirestore.instance
+                .collection('prices')
+                .where('product_id', isEqualTo: _selectedProduct!.id)
+                .orderBy('created_at', descending: true)
+                .limit(50)
+                .get();
+
+            const radiusInMeters = 1000.0;
+            var sum = 0.0;
+            var count = 0;
+            for (final doc in snap.docs) {
+              final pData = doc.data();
+              final lat = (pData['latitude'] as num?)?.toDouble();
+              final lng = (pData['longitude'] as num?)?.toDouble();
+              if (lat == null || lng == null) continue;
+              final dist = Geolocator.distanceBetween(baseLat, baseLng, lat, lng);
+              if (dist <= radiusInMeters) {
+                final p = (pData['price'] as num?)?.toDouble();
+                if (p != null) {
+                  sum += p;
+                  count++;
+                }
+              }
+            }
+            if (count > 0) {
+              nearbyAvg = sum / count;
+              if (priceValue != null) {
+                final diff = ((priceValue ?? 0.0) - nearbyAvg) / nearbyAvg;
+                if (diff >= 0.1) {
+                  avgComparison = 'above_10';
+                } else if (diff <= -0.1) {
+                  avgComparison = 'below_10';
+                }
+              }
+            }
+          }
+        } catch (e) {
+          FirebaseLogger.log('Nearby average error', {'error': e.toString()});
+        }
+
         final data = {
           'product_id': _selectedProduct!.id,
           'product_name': productData['name'],
@@ -199,6 +247,7 @@ class _AddPricePageState extends State<AddPricePage> {
             ),
           ),
           if (variation != null) 'variation': variation,
+          if (avgComparison != null) 'avg_comparison': avgComparison,
           if (storeData['latitude'] != null && storeData['longitude'] != null)
             ...{
               'latitude': (storeData['latitude'] as num).toDouble(),
