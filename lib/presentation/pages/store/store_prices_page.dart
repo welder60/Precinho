@@ -186,6 +186,7 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
                   .where('store_id', isEqualTo: widget.store.id)
                   .where('status',
                       isEqualTo: ModerationStatus.approved.value)
+                  .where('is_active', isEqualTo: true)
                   .orderBy('price')
                   .orderBy('created_at', descending: true)
                   .snapshots(),

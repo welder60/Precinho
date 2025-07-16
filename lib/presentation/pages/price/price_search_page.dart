@@ -149,6 +149,7 @@ class _PriceSearchPageState extends State<PriceSearchPage> {
   Query _buildQuery() {
     return FirebaseFirestore.instance
         .collection('prices')
+        .where('is_active', isEqualTo: true)
         .orderBy('created_at', descending: true);
   }
 }
