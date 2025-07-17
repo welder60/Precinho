@@ -221,8 +221,11 @@ class InvoiceHtmlParser {
       for (int i = 0; i < nItens; i++) {
         final rawEan = i < eans.length ? eans[i].trim() : null;
         String? cleanEan = rawEan;
-        if (cleanEan != null && RegExp(r'[A-Za-z]').hasMatch(cleanEan)) {
-          cleanEan = null;
+        if (cleanEan != null) {
+          cleanEan = cleanEan.replaceAll(RegExp(r'\D'), '');
+          if (cleanEan.isEmpty || cleanEan.length < 8 || cleanEan.length > 14) {
+            cleanEan = null;
+          }
         }
         final isFractional = cleanEan == null;
       final ncm = i < ncms.length ? ncms[i] : null;
