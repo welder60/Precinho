@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:http/http.dart' as http;
 import '../../../core/themes/app_theme.dart';
 import '../../../data/parsers/invoice_html_parser.dart';
 import '../../../data/parsers/invoice_xml_parser.dart';
@@ -17,6 +18,7 @@ class ImportInvoicePage extends StatefulWidget {
 class _ImportInvoicePageState extends State<ImportInvoicePage> {
   PlatformFile? _selectedFile;
   String? _message;
+  final TextEditingController _linkController = TextEditingController();
 
   Future<void> _pickFile() async {
     final result = await FilePicker.platform.pickFiles(
@@ -57,6 +59,36 @@ class _ImportInvoicePageState extends State<ImportInvoicePage> {
   }
 
   @override
+  void dispose() {
+    _linkController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _importFromLink() async {
+    final link = _linkController.text.trim();
+    if (link.isEmpty) return;
+    setState(() => _message = null);
+    try {
+      final response = await http.get(Uri.parse(link));
+      if (response.statusCode == 200) {
+        final msg = await InvoiceHtmlParser.importInvoice(
+          response.body,
+          userId: 'system',
+          qrLink: link,
+        );
+        if (mounted) setState(() => _message = msg);
+      } else {
+        if (mounted) {
+          setState(() =>
+              _message = 'Erro ao baixar HTML (${response.statusCode})');
+        }
+      }
+    } catch (e) {
+      if (mounted) setState(() => _message = 'Erro: $e');
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Importar Nota Fiscal')),
@@ -65,6 +97,18 @@ class _ImportInvoicePageState extends State<ImportInvoicePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            TextField(
+              controller: _linkController,
+              decoration: const InputDecoration(
+                labelText: 'Link da Nota Fiscal',
+              ),
+            ),
+            const SizedBox(height: AppTheme.paddingMedium),
+            ElevatedButton(
+              onPressed: _importFromLink,
+              child: const Text('Baixar e Importar'),
+            ),
+            const SizedBox(height: AppTheme.paddingLarge),
             ElevatedButton.icon(
               onPressed: _pickFile,
               icon: const Icon(Icons.upload_file),
