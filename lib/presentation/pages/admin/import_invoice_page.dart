@@ -20,6 +20,7 @@ class ImportInvoicePage extends StatefulWidget {
 class _ImportInvoicePageState extends State<ImportInvoicePage> {
   PlatformFile? _selectedFile;
   String? _message;
+  bool _loading = false;
   final TextEditingController _linkController = TextEditingController();
 
   Future<String?> _processImport(String html, {String qrLink = ''}) async {
@@ -32,6 +33,7 @@ class _ImportInvoicePageState extends State<ImportInvoicePage> {
         );
         return msg;
       } on MissingStoreLocationException catch (e) {
+        setState(() => _loading = false);
         final doc = await e.storeRef.get();
         await Navigator.push(
           context,
@@ -39,6 +41,7 @@ class _ImportInvoicePageState extends State<ImportInvoicePage> {
             builder: (_) => EditStorePage(document: doc),
           ),
         );
+        if (mounted) setState(() => _loading = true);
         // After the user edits the store, retry the import
       } catch (e) {
         return 'Erro: $e';
@@ -63,6 +66,7 @@ class _ImportInvoicePageState extends State<ImportInvoicePage> {
 
   Future<void> _import() async {
     if (_selectedFile == null) return;
+    setState(() => _loading = true);
     String content;
     final bytes = _selectedFile!.bytes;
     if (bytes != null) {
@@ -79,6 +83,7 @@ class _ImportInvoicePageState extends State<ImportInvoicePage> {
       final msg = await _processImport(content) ?? 'Importação cancelada';
       setState(() => _message = msg);
     }
+    if (mounted) setState(() => _loading = false);
   }
 
   @override
@@ -90,7 +95,10 @@ class _ImportInvoicePageState extends State<ImportInvoicePage> {
   Future<void> _importFromLink() async {
     final link = _linkController.text.trim();
     if (link.isEmpty) return;
-    setState(() => _message = null);
+    setState(() {
+      _message = null;
+      _loading = true;
+    });
     try {
       final response = await http.get(
         Uri.parse(link),
@@ -112,6 +120,8 @@ class _ImportInvoicePageState extends State<ImportInvoicePage> {
       }
     } catch (e) {
       if (mounted) setState(() => _message = 'Erro: $e');
+    } finally {
+      if (mounted) setState(() => _loading = false);
     }
   }
 
@@ -119,11 +129,13 @@ class _ImportInvoicePageState extends State<ImportInvoicePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Importar Nota Fiscal')),
-      body: Padding(
-        padding: const EdgeInsets.all(AppTheme.paddingLarge),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
+      body: _loading
+          ? const Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: const EdgeInsets.all(AppTheme.paddingLarge),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
             TextField(
               controller: _linkController,
               decoration: const InputDecoration(
