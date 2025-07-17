@@ -2,6 +2,7 @@ import 'package:html/parser.dart' as html_parser;
 import 'package:html/dom.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../datasources/invoice_import_service.dart';
+import '../exceptions/missing_store_location_exception.dart';
 import '../../core/constants/enums.dart';
 
 class InvoiceHtmlParser {
@@ -201,8 +202,9 @@ class InvoiceHtmlParser {
     }
 
     final storeSnap = await storeRef.get();
-    if (storeSnap.data()?['latitude'] == null || storeSnap.data()?['longitude'] == null) {
-      throw Exception('Store sem localiza\u00e7\u00e3o');
+    if (storeSnap.data()?['latitude'] == null ||
+        storeSnap.data()?['longitude'] == null) {
+      throw MissingStoreLocationException(storeRef);
     }
 
     final eans = produtos['Código EAN Comercial'] ?? [];
