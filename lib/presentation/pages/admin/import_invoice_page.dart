@@ -6,6 +6,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
 import '../../../core/themes/app_theme.dart';
 import '../../../data/parsers/invoice_html_parser.dart';
+import '../../../data/exceptions/missing_store_location_exception.dart';
+import '../store/edit_store_page.dart';
 import '../../../data/parsers/invoice_xml_parser.dart';
 
 class ImportInvoicePage extends StatefulWidget {
@@ -19,6 +21,30 @@ class _ImportInvoicePageState extends State<ImportInvoicePage> {
   PlatformFile? _selectedFile;
   String? _message;
   final TextEditingController _linkController = TextEditingController();
+
+  Future<String?> _processImport(String html, {String qrLink = ''}) async {
+    while (true) {
+      try {
+        final msg = await InvoiceHtmlParser.importInvoice(
+          html,
+          userId: 'system',
+          qrLink: qrLink,
+        );
+        return msg;
+      } on MissingStoreLocationException catch (e) {
+        final doc = await e.storeRef.get();
+        await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => EditStorePage(document: doc),
+          ),
+        );
+        // After the user edits the store, retry the import
+      } catch (e) {
+        return 'Erro: $e';
+      }
+    }
+  }
 
   Future<void> _pickFile() async {
     final result = await FilePicker.platform.pickFiles(
@@ -50,10 +76,7 @@ class _ImportInvoicePageState extends State<ImportInvoicePage> {
       final msg = InvoiceXmlParser.parse(content);
       setState(() => _message = msg);
     } else {
-      final msg = await InvoiceHtmlParser.importInvoice(
-        content,
-        userId: 'system',
-      );
+      final msg = await _processImport(content) ?? 'Importação cancelada';
       setState(() => _message = msg);
     }
   }
@@ -78,11 +101,8 @@ class _ImportInvoicePageState extends State<ImportInvoicePage> {
         },
       );
       if (response.statusCode == 200) {
-        final msg = await InvoiceHtmlParser.importInvoice(
-          response.body,
-          userId: 'system',
-          qrLink: link,
-        );
+        final msg =
+            await _processImport(response.body, qrLink: link) ?? 'Importação cancelada';
         if (mounted) setState(() => _message = msg);
       } else {
         if (mounted) {
