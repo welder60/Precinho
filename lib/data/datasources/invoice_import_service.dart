@@ -130,13 +130,34 @@ class InvoiceImportService {
     final storeSnap = await storeRef.get();
     final storeData = storeSnap.data() ?? <String, dynamic>{};
 
+    // Calcula o preço por quilo ou litro considerando o volume do produto
+    double? unitPrice;
+    final volume = productData['volume'];
+    final unit = productData['unit'];
+    if (volume is num && unit is String) {
+      final normalized = unit.toLowerCase();
+      double multiplier;
+      if (normalized == 'kg' || normalized == 'l' || normalized == 'lt' || normalized == 'lt.') {
+        multiplier = 1;
+      } else if (normalized == 'g' || normalized == 'ml') {
+        multiplier = 1 / 1000;
+      } else {
+        multiplier = 1;
+      }
+      final baseVolume = volume.toDouble() * multiplier;
+      if (baseVolume > 0) {
+        unitPrice = value / baseVolume;
+      }
+    }
+    unitPrice ??= unitValue;
+
     final data = {
       'product_id': productRef.id,
       'store_id': storeRef.id,
       'invoice_id': invoiceRef.id,
       'price': value,
       'invoice_value': invoiceValue,
-      if (unitValue != null) 'unit_price': unitValue,
+      if (unitPrice != null) 'unit_price': unitPrice,
       'discount': discount,
       'description': description,
       'product_name': productData['name'],
