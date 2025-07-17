@@ -9,6 +9,7 @@ import '../../../core/constants/enums.dart';
 import '../../providers/shopping_list_provider.dart';
 import '../../providers/store_favorites_provider.dart';
 import '../product/product_search_page.dart';
+import '../../../domain/entities/shopping_list.dart';
 
 class ShoppingListDetailPage extends ConsumerStatefulWidget {
   final String listId;
@@ -24,11 +25,19 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
   String? _selectedStoreId;
   String? _selectedStoreName;
   final Map<String, double?> _storeTotals = {};
+  final TextEditingController _searchController = TextEditingController();
+  String _orderByField = 'name';
 
   @override
   void initState() {
     super.initState();
     _loadStores();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadStores() async {
@@ -219,6 +228,24 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
   Widget build(BuildContext context) {
     final list = ref.watch(shoppingListProvider).firstWhere((e) => e.id == widget.listId);
 
+    var items = List<ShoppingListItem>.from(list.items);
+    final text = _searchController.text.trim().toLowerCase();
+    if (text.isNotEmpty) {
+      items = items.where((i) => i.productName.toLowerCase().contains(text)).toList();
+    }
+    if (_orderByField == 'unit_price') {
+      items.sort((a, b) {
+        final ap = a.price;
+        final bp = b.price;
+        if (ap == null && bp == null) return 0;
+        if (ap == null) return 1;
+        if (bp == null) return -1;
+        return ap.compareTo(bp);
+      });
+    } else {
+      items.sort((a, b) => a.productName.compareTo(b.productName));
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text(list.name),
@@ -226,6 +253,39 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
       body: ListView(
         padding: const EdgeInsets.all(AppTheme.paddingMedium),
         children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: AppTheme.paddingSmall),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Buscar produto...',
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.clear),
+                  onPressed: () {
+                    _searchController.clear();
+                    setState(() {});
+                  },
+                ),
+              ),
+              onChanged: (_) => setState(() {}),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: AppTheme.paddingSmall),
+            child: DropdownButtonFormField<String>(
+              value: _orderByField,
+              decoration: const InputDecoration(labelText: 'Ordenar por'),
+              items: const [
+                DropdownMenuItem(value: 'name', child: Text('Nome')),
+                DropdownMenuItem(value: 'unit_price', child: Text('Preço unitário')),
+              ],
+              onChanged: (v) {
+                if (v == null) return;
+                setState(() => _orderByField = v);
+              },
+            ),
+          ),
           if (_selectedStoreName != null)
             Padding(
               padding: const EdgeInsets.only(bottom: AppTheme.paddingSmall),
@@ -260,7 +320,7 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
                 ),
               ),
             ),
-          ...list.items.map(
+          ...items.map(
             (item) {
               return Container(
                 decoration: BoxDecoration(
@@ -388,17 +448,29 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
     if (product == null) return;
 
     final data = product.data() as Map<String, dynamic>;
-    final controller = TextEditingController(text: '1');
+    final quantityController = TextEditingController(text: '1');
+    final priceController = TextEditingController();
 
-    final quantity = await showDialog<double>(
+    final result = await showDialog<Map<String, double?>>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Adicionar produto'),
-        content: TextField(
-          controller: controller,
-          keyboardType:
-              const TextInputType.numberWithOptions(decimal: true),
-          decoration: const InputDecoration(labelText: 'Quantidade'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: quantityController,
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              decoration: const InputDecoration(labelText: 'Quantidade'),
+            ),
+            TextField(
+              controller: priceController,
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              decoration: const InputDecoration(labelText: 'Preço (opcional)'),
+            ),
+          ],
         ),
         actions: [
           TextButton(
@@ -407,8 +479,9 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
           ),
           ElevatedButton(
             onPressed: () {
-              final q = double.tryParse(controller.text) ?? 1;
-              Navigator.pop(context, q);
+              final q = double.tryParse(quantityController.text) ?? 1;
+              final p = Formatters.parsePrice(priceController.text);
+              Navigator.pop(context, {'quantity': q, 'price': p});
             },
             child: const Text('Adicionar'),
           ),
@@ -416,15 +489,19 @@ class _ShoppingListDetailPageState extends ConsumerState<ShoppingListDetailPage>
       ),
     );
 
-    controller.dispose();
+    quantityController.dispose();
+    priceController.dispose();
 
-    if (quantity == null) return;
+    if (result == null) return;
+    final quantity = result['quantity'] ?? 1;
+    final price = result['price'];
 
     ref.read(shoppingListProvider.notifier).addProductToList(
-          listId: widget.listId,
-          productId: product.id,
-          productName: data['name'] ?? 'Produto',
-          quantity: quantity,
-        );
+      listId: widget.listId,
+      productId: product.id,
+      productName: data['name'] ?? 'Produto',
+      quantity: quantity,
+      price: price,
+    );
   }
 }
