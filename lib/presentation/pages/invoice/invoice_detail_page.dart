@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/services.dart';
 
 import '../../../core/constants/enums.dart';
 import '../../../core/themes/app_theme.dart';
@@ -74,15 +75,30 @@ class InvoiceDetailPage extends StatelessWidget {
                       if (link == null || link.isEmpty) {
                         return const Text('Link: -');
                       }
-                      return InkWell(
-                        onTap: () => _openLink(link),
-                        child: Text(
-                          'Link: $link',
-                          style: const TextStyle(
-                            color: Colors.blue,
-                            decoration: TextDecoration.underline,
+                      return Row(
+                        children: [
+                          Expanded(
+                            child: InkWell(
+                              onTap: () => _openLink(link),
+                              child: Text(
+                                'Link: $link',
+                                style: const TextStyle(
+                                  color: Colors.blue,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
+                          IconButton(
+                            icon: const Icon(Icons.copy),
+                            onPressed: () {
+                              Clipboard.setData(ClipboardData(text: link));
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Link copiado')),
+                              );
+                            },
+                          ),
+                        ],
                       );
                     }),
                     const SizedBox(height: AppTheme.paddingMedium),
