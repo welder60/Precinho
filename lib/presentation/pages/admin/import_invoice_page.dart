@@ -69,7 +69,14 @@ class _ImportInvoicePageState extends State<ImportInvoicePage> {
     if (link.isEmpty) return;
     setState(() => _message = null);
     try {
-      final response = await http.get(Uri.parse(link));
+      final response = await http.get(
+        Uri.parse(link),
+        headers: const {
+          'User-Agent':
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        },
+      );
       if (response.statusCode == 200) {
         final msg = await InvoiceHtmlParser.importInvoice(
           response.body,
