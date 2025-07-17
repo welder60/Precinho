@@ -7,6 +7,7 @@ class Price extends Equatable {
   final String storeId;
   final String userId;
   final double value;
+  final double? invoiceValue;
   final String? imageUrl;
   final String productName;
   final String storeName;
@@ -35,6 +36,7 @@ class Price extends Equatable {
     required this.storeId,
     required this.userId,
     required this.value,
+    this.invoiceValue,
     this.imageUrl,
     required this.productName,
     required this.storeName,
@@ -64,6 +66,7 @@ class Price extends Equatable {
     String? storeId,
     String? userId,
     double? value,
+    double? invoiceValue,
     String? imageUrl,
     String? productName,
     String? storeName,
@@ -92,6 +95,7 @@ class Price extends Equatable {
       storeId: storeId ?? this.storeId,
       userId: userId ?? this.userId,
       value: value ?? this.value,
+      invoiceValue: invoiceValue ?? this.invoiceValue,
       imageUrl: imageUrl ?? this.imageUrl,
       productName: productName ?? this.productName,
       storeName: storeName ?? this.storeName,
@@ -139,6 +143,7 @@ class Price extends Equatable {
         storeId,
         userId,
         value,
+        invoiceValue,
         imageUrl,
         productName,
         storeName,
@@ -164,7 +169,7 @@ class Price extends Equatable {
 
   @override
   String toString() {
-    return 'Price(id: $id, productId: $productId, storeId: $storeId, value: $value, variation: $variation)';
+    return 'Price(id: $id, productId: $productId, storeId: $storeId, value: $value, invoiceValue: $invoiceValue, variation: $variation)';
   }
 }
 

@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:precinho_app/domain/entities/price.dart';
-import 'package:precinho_app/core/constants/enums.dart';
 
 void main() {
   test('copyWith and computed getters', () {
@@ -11,10 +10,10 @@ void main() {
       storeId: 's1',
       userId: 'u1',
       value: 10,
+      invoiceValue: 10,
       productName: 'Banana',
       storeName: 'Comércio',
       createdAt: now.subtract(const Duration(days: 2)),
-      status: ModerationStatus.approved,
       updatedAt: now,
       isPromotional: true,
     );
@@ -37,11 +36,11 @@ void main() {
       storeId: 's1',
       userId: 'u1',
       value: 10,
+      invoiceValue: 10,
       productName: 'Banana',
       storeName: 'Comércio',
       createdAt: now.subtract(const Duration(days: 10)),
       expiresAt: now.subtract(const Duration(days: 1)),
-      status: ModerationStatus.approved,
       updatedAt: now,
       isPromotional: false,
     );

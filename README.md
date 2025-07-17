@@ -272,6 +272,7 @@ class Price {
   final String storeName;
   final String userId;
   final double value;
+  final double? invoiceValue;
   final String? imageUrl;
   final double? latitude; // localização do comércio
   final double? longitude; // localização do comércio
