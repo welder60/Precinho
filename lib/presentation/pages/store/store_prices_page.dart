@@ -230,6 +230,8 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
 
           final categories =
               _productCategories.values.expand((e) => e).toSet().toList();
+          final bottomPadding =
+              MediaQuery.of(context).padding.bottom + kToolbarHeight;
 
           return Column(
             children: [
@@ -260,8 +262,6 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
                     }).toList(),
                   ),
                 ),
-              final bottomPadding =
-                  MediaQuery.of(context).padding.bottom + kToolbarHeight;
 
               Expanded(
                 child: ListView.builder(
