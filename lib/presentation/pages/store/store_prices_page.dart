@@ -26,6 +26,7 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
   final Map<String, List<String>> _productCategories = {};
   final Map<String, Map<String, dynamic>> _productInfo = {};
   final Set<String> _selectedCategories = {};
+  String _orderByField = 'price';
 
   @override
   void dispose() {
@@ -181,13 +182,32 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
               onChanged: (_) => setState(() {}),
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+                horizontal: AppTheme.paddingMedium),
+            child: DropdownButtonFormField<String>(
+              value: _orderByField,
+              decoration: const InputDecoration(labelText: 'Ordenar por'),
+              items: const [
+                DropdownMenuItem(value: 'price', child: Text('Pre\u00e7o')),
+                DropdownMenuItem(
+                    value: 'unit_price', child: Text('Pre\u00e7o unit\u00e1rio')),
+              ],
+              onChanged: (v) {
+                if (v == null) return;
+                setState(() {
+                  _orderByField = v;
+                });
+              },
+            ),
+          ),
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
                   .collection('prices')
                   .where('store_id', isEqualTo: widget.store.id)
                   .where('is_active', isEqualTo: true)
-                  .orderBy('price')
+                  .orderBy(_orderByField)
                   .snapshots(),
               builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
