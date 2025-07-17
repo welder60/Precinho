@@ -1,12 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/constants/enums.dart';
 import '../../../core/themes/app_theme.dart';
 import '../../../core/utils/formatters.dart';
+import '../../providers/auth_provider.dart';
 
-class InvoiceDetailPage extends StatelessWidget {
+class InvoiceDetailPage extends ConsumerWidget {
   final String invoiceId;
   const InvoiceDetailPage({required this.invoiceId, super.key});
 
@@ -33,10 +35,94 @@ class InvoiceDetailPage extends StatelessWidget {
     }
   }
 
+  Future<void> _revertInvoice(BuildContext context) async {
+    final firestore = FirebaseFirestore.instance;
+    final batch = firestore.batch();
+    try {
+      final prices = await firestore
+          .collection('prices')
+          .where('invoice_id', isEqualTo: invoiceId)
+          .get();
+
+      for (final doc in prices.docs) {
+        final data = doc.data();
+        final productId = data['product_id'] as String?;
+        final storeId = data['store_id'] as String?;
+        if (productId != null && storeId != null) {
+          final prevSnap = await firestore
+              .collection('prices')
+              .where('product_id', isEqualTo: productId)
+              .where('store_id', isEqualTo: storeId)
+              .orderBy('created_at', descending: true)
+              .limit(2)
+              .get();
+          for (final prev in prevSnap.docs) {
+            if (prev.id != doc.id) {
+              batch.update(prev.reference, {'is_active': true});
+              break;
+            }
+          }
+        }
+        batch.delete(doc.reference);
+      }
+
+      batch.update(
+        firestore.collection('invoices').doc(invoiceId),
+        {'status': ModerationStatus.underReview.value},
+      );
+      await batch.commit();
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Nota fiscal revertida')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao reverter nota fiscal: $e'),
+            backgroundColor: AppTheme.errorColor,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _confirmRevert(BuildContext context) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Reverter Nota Fiscal'),
+        content: const Text(
+            'Excluir os pre\u00e7os importados e reativar os anteriores?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Reverter'),
+          ),
+        ],
+      ),
+    );
+    if (confirm == true) {
+      await _revertInvoice(context);
+    }
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(title: const Text('Nota Fiscal')),
+      floatingActionButton: ref.watch(isAdminProvider)
+          ? FloatingActionButton(
+              heroTag: 'invoice_revert_fab',
+              onPressed: () => _confirmRevert(context),
+              child: const Icon(Icons.undo),
+            )
+          : null,
       body: StreamBuilder<DocumentSnapshot>(
         stream: _invoiceStream(),
         builder: (context, snapshot) {
