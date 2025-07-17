@@ -153,7 +153,6 @@ class _ProductPricesPageState extends ConsumerState<ProductPricesPage> {
                   .where('product_id', isEqualTo: widget.product.id)
                   .where('is_active', isEqualTo: true)
                   .orderBy('price')
-                  .orderBy('created_at', descending: true)
                   .snapshots(),
               builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
