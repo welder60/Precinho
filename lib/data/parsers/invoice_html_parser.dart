@@ -255,6 +255,7 @@ class InvoiceHtmlParser {
         ean: cleanEan,
         customCode: codigo,
         value: valor,
+        invoiceValue: valor,
         unitValue: unitario,
         discount: desconto,
         description: descricao,
