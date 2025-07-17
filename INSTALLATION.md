@@ -222,8 +222,7 @@ service cloud.firestore {
     
     // Preços aprovados são públicos para leitura
     match /prices/{priceId} {
-      allow read: if resource.data.status == 'approved';
-      allow write: if request.auth != null;
+      allow read, write: if request.auth != null;
     }
     
     // Comércios aprovados são públicos para leitura

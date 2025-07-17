@@ -113,7 +113,6 @@ class _FeedPageState extends ConsumerState<FeedPage> {
 
     Query query = FirebaseFirestore.instance
         .collection('prices')
-        .where('status', isEqualTo: ModerationStatus.approved.value)
         .where('is_active', isEqualTo: true)
         .orderBy('created_at', descending: true)
         .limit(20);

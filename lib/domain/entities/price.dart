@@ -14,7 +14,6 @@ class Price extends Equatable {
   final double? longitude;
   final DateTime createdAt;
   final DateTime? expiresAt;
-  final ModerationStatus status;
   final DateTime updatedAt;
   final bool isActive;
   final String? notes;
@@ -43,7 +42,6 @@ class Price extends Equatable {
     this.longitude,
     required this.createdAt,
     this.expiresAt,
-    required this.status,
     required this.updatedAt,
     this.isActive = true,
     this.notes,
@@ -73,7 +71,6 @@ class Price extends Equatable {
     double? longitude,
     DateTime? createdAt,
     DateTime? expiresAt,
-    ModerationStatus? status,
     DateTime? updatedAt,
     bool? isActive,
     String? notes,
@@ -102,7 +99,6 @@ class Price extends Equatable {
       longitude: longitude ?? this.longitude,
       createdAt: createdAt ?? this.createdAt,
       expiresAt: expiresAt ?? this.expiresAt,
-      status: status ?? this.status,
       updatedAt: updatedAt ?? this.updatedAt,
       isActive: isActive ?? this.isActive,
       notes: notes ?? this.notes,
@@ -150,7 +146,6 @@ class Price extends Equatable {
         longitude,
         createdAt,
         expiresAt,
-        status,
         updatedAt,
         isActive,
         notes,

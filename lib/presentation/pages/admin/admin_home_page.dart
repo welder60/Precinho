@@ -3,7 +3,6 @@ import '../../../core/themes/app_theme.dart';
 import 'add_product_page.dart';
 import 'manage_products_page.dart';
 import 'manage_users_page.dart';
-import 'validate_prices_page.dart';
 import 'manage_invoices_page.dart';
 import 'manage_stores_page.dart';
 import 'import_invoice_page.dart';
@@ -86,19 +85,6 @@ class AdminHomePage extends StatelessWidget {
               },
               icon: const Icon(Icons.people),
               label: const Text('Gerenciar Usuários'),
-            ),
-            const SizedBox(height: AppTheme.paddingMedium),
-            ElevatedButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const ValidatePricesPage(),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.check),
-              label: const Text('Validar Preços'),
             ),
             const SizedBox(height: AppTheme.paddingMedium),
             ElevatedButton.icon(
