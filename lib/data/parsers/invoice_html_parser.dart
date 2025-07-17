@@ -238,7 +238,10 @@ class InvoiceHtmlParser {
       final valor = _toDouble(valorStr);
       final unitario = _toDouble(unitarioStr);
       final quantidade = _toDouble(quantidadeStr);
-      final unidadePreco = quantidade > 0 ? unitario / quantidade : unitario;
+      double? unidadePreco;
+      if (quantidade > 0) {
+        unidadePreco = unitario / quantidade;
+      }
       final desconto = _toDouble(descontoStr);
 
       final productRef = await service.getOrCreateProduct(
