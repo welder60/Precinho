@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../../core/themes/app_theme.dart';
 import '../../../core/utils/formatters.dart';
 import 'price_detail_page.dart';
+import 'package:precinho_app/presentation/widgets/avg_comparison_icon.dart';
 
 class PriceSearchPage extends StatefulWidget {
   const PriceSearchPage({super.key});
@@ -108,6 +109,8 @@ class _PriceSearchPageState extends State<PriceSearchPage> {
                                 ),
                               ],
                             ),
+                          AvgComparisonIcon(
+                              comparison: data['avg_comparison'] as String?),
                           if ((data['expires_at'] as Timestamp?) != null &&
                               DateTime.now().isAfter(
                                   (data['expires_at'] as Timestamp).toDate()))

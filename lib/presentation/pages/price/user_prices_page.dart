@@ -8,6 +8,7 @@ import '../../../core/utils/formatters.dart';
 import '../../providers/auth_provider.dart';
 import 'price_detail_page.dart';
 import 'package:precinho_app/presentation/widgets/app_cached_image.dart';
+import 'package:precinho_app/presentation/widgets/avg_comparison_icon.dart';
 
 class UserPricesPage extends ConsumerWidget {
   const UserPricesPage({super.key});
@@ -47,6 +48,7 @@ class UserPricesPage extends ConsumerWidget {
               final expiresAt =
                   (data['expires_at'] as Timestamp?)?.toDate();
               final expired = expiresAt != null && DateTime.now().isAfter(expiresAt);
+              final isActive = data['is_active'] as bool? ?? true;
               return ListTile(
                 leading: AppCachedImage(
                   imageUrl: imageUrl,
@@ -62,8 +64,15 @@ class UserPricesPage extends ConsumerWidget {
                       data['price'] != null
                           ? Formatters.formatPrice((data['price'] as num).toDouble())
                           : '-',
-                      style: AppTheme.priceTextStyle,
+                      style: AppTheme.priceTextStyle.copyWith(
+                        decoration: isActive ? null : TextDecoration.lineThrough,
+                        color:
+                            isActive ? AppTheme.primaryColor : AppTheme.textDisabledColor,
+                      ),
                     ),
+                    const SizedBox(width: 4),
+                    AvgComparisonIcon(
+                        comparison: data['avg_comparison'] as String?),
                     if (expired)
                       IconButton(
                         icon: const Icon(Icons.warning,
