@@ -218,7 +218,15 @@ class InvoiceHtmlParser {
     final nItens = descricoes.length;
 
     for (int i = 0; i < nItens; i++) {
-      final ean = i < eans.length ? eans[i] : null;
+      final rawEan = i < eans.length ? eans[i].trim() : null;
+      String? cleanEan;
+      if (rawEan != null) {
+        final digits = rawEan.replaceAll(RegExp(r'[^\\d]'), '');
+        if (digits.isNotEmpty && RegExp(r'^\\d+\$').hasMatch(digits)) {
+          cleanEan = digits;
+        }
+      }
+      final isFractional = cleanEan == null;
       final ncm = i < ncms.length ? ncms[i] : null;
       final codigo = i < codigos.length ? codigos[i] : null;
       final descricao = descricoes[i];
@@ -230,18 +238,21 @@ class InvoiceHtmlParser {
       final desconto = _toDouble(descontoStr);
 
       final productRef = await service.getOrCreateProduct(
-        ean: ean?.isNotEmpty == true ? ean : null,
+        ean: cleanEan,
         ncm: ncm?.isNotEmpty == true ? ncm : null,
         name: descricao,
         storeRef: storeRef,
         storeCode: codigo,
         storeDescription: descricao,
         userId: userId,
+        isFractional: isFractional,
+        volume: isFractional ? 1.0 : null,
+        unit: isFractional ? 'kg' : null,
       );
 
       await service.createPrice(
         ncm: ncm?.isNotEmpty == true ? ncm : null,
-        ean: ean?.isNotEmpty == true ? ean : null,
+        ean: cleanEan,
         customCode: codigo,
         value: valor,
         unitValue: unitario,

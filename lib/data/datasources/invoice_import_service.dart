@@ -42,6 +42,9 @@ class InvoiceImportService {
     String? storeCode,
     String? storeDescription,
     String? userId,
+    bool isFractional = false,
+    double? volume,
+    String? unit,
   }) async {
     // Primeiro tenta encontrar pelo c\u00f3digo vinculado ao com\u00e9rcio
     if (storeRef != null && storeCode != null && storeCode.isNotEmpty) {
@@ -76,6 +79,9 @@ class InvoiceImportService {
         if (ean != null && ean.isNotEmpty)
           'image_url': 'https://cdn-cosmos.bluesoft.com.br/products/$ean',
         'created_at': Timestamp.now(),
+        if (isFractional) 'is_fractional': true,
+        if (volume != null) 'volume': volume,
+        if (unit != null) 'unit': unit,
       };
       productRef = await _firestore.collection('products').add(data);
     }
