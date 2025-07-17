@@ -11,6 +11,7 @@ import '../price/add_price_page.dart';
 import '../price/price_detail_page.dart';
 import 'product_detail_page.dart';
 import 'package:precinho_app/presentation/widgets/app_cached_image.dart';
+import 'package:precinho_app/presentation/widgets/avg_comparison_icon.dart';
 
 class ProductPricesPage extends ConsumerStatefulWidget {
   final DocumentSnapshot product;
@@ -305,8 +306,11 @@ class _ProductPricesPageState extends ConsumerState<ProductPricesPage> {
                                           fontSize: 12,
                                         ),
                                       ),
-                                    ],
-                                  ),
+                                  ],
+                                ),
+                                AvgComparisonIcon(
+                                    comparison:
+                                        priceData['avg_comparison'] as String?),
                                 if ((priceData['expires_at'] as Timestamp?) !=
                                         null &&
                                     DateTime.now().isAfter((priceData['expires_at']

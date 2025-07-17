@@ -7,6 +7,7 @@ import 'add_price_page.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:http/http.dart' as http;
 import 'package:precinho_app/presentation/widgets/app_cached_image.dart';
+import 'package:precinho_app/presentation/widgets/avg_comparison_icon.dart';
 import 'package:geolocator/geolocator.dart';
 
 class PriceDetailPage extends StatelessWidget {
@@ -251,6 +252,8 @@ class PriceDetailPage extends StatelessWidget {
                       ),
                     ],
                   ),
+                AvgComparisonIcon(
+                    comparison: data['avg_comparison'] as String?),
                 const SizedBox(height: AppTheme.paddingLarge),
                 Row(
                   children: [

@@ -8,6 +8,7 @@ import '../../../core/constants/enums.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/shopping_list_provider.dart';
 import 'package:precinho_app/presentation/widgets/app_cached_image.dart';
+import 'package:precinho_app/presentation/widgets/avg_comparison_icon.dart';
 import '../price/price_detail_page.dart';
 import '../invoice/invoice_qr_page.dart';
 import '../auth/login_page.dart';
@@ -422,6 +423,9 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                                       ),
                                     ],
                                   ),
+                                AvgComparisonIcon(
+                                    comparison:
+                                        data['avg_comparison'] as String?),
                                 if ((data['expires_at'] as Timestamp?) != null &&
                                     DateTime.now().isAfter(
                                         (data['expires_at'] as Timestamp).toDate()))
