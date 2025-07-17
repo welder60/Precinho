@@ -23,6 +23,7 @@ class UserPricesPage extends ConsumerWidget {
     final stream = FirebaseFirestore.instance
         .collection('prices')
         .where('user_id', isEqualTo: user.id)
+        .where('is_active', isEqualTo: true)
         .orderBy('created_at', descending: true)
         .snapshots();
 

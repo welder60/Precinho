@@ -104,6 +104,7 @@ class PriceDetailPage extends StatelessWidget {
     final snap = await FirebaseFirestore.instance
         .collection('prices')
         .where('product_id', isEqualTo: productId)
+        .where('is_active', isEqualTo: true)
         .orderBy('created_at', descending: true)
         .limit(50)
         .get();
@@ -276,10 +277,11 @@ class PriceDetailPage extends StatelessWidget {
                 ),
                 const SizedBox(height: AppTheme.paddingSmall),
                 StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance
+              stream: FirebaseFirestore.instance
                       .collection('prices')
                       .where('product_id', isEqualTo: data['product_id'])
                       .where('store_id', isEqualTo: data['store_id'])
+                      .where('is_active', isEqualTo: true)
                       .orderBy('created_at', descending: true)
                       .limit(10)
                       .snapshots(),
