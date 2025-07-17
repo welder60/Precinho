@@ -150,8 +150,6 @@ class _ProductPricesPageState extends ConsumerState<ProductPricesPage> {
               stream: FirebaseFirestore.instance
                   .collection('prices')
                   .where('product_id', isEqualTo: widget.product.id)
-                  .where('status',
-                      isEqualTo: ModerationStatus.approved.value)
                   .where('is_active', isEqualTo: true)
                   .orderBy('price')
                   .orderBy('created_at', descending: true)

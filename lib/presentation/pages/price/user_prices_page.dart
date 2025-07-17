@@ -43,10 +43,6 @@ class UserPricesPage extends ConsumerWidget {
             itemBuilder: (context, index) {
               final doc = docs[index];
               final data = doc.data() as Map<String, dynamic>;
-              final status = ModerationStatus.values.firstWhere(
-                (e) => e.value == (data['status'] as String? ?? ''),
-                orElse: () => ModerationStatus.pending,
-              );
               final imageUrl = data['image_url'] as String?;
               final expiresAt =
                   (data['expires_at'] as Timestamp?)?.toDate();
@@ -58,8 +54,7 @@ class UserPricesPage extends ConsumerWidget {
                   height: 56,
                 ),
                 title: Text(data['product_name'] ?? 'Produto'),
-                subtitle: Text('${data['store_name'] ?? 'Comércio'}\n${status.displayName}'),
-                isThreeLine: true,
+                subtitle: Text(data['store_name'] ?? 'Comércio'),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [

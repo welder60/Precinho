@@ -133,7 +133,6 @@ class InvoiceImportService {
       'description': description,
       'product_name': productData['name'],
       'image_url': productData['image_url'],
-      'status': ModerationStatus.approved.value,
       'is_active': true,
       if (storeData['latitude'] != null)
         'latitude': (storeData['latitude'] as num).toDouble(),

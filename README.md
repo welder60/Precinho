@@ -277,7 +277,6 @@ class Price {
   final double? longitude; // localização do comércio
   final DateTime createdAt;
   final DateTime? expiresAt;
-  final ModerationStatus status;
 }
 ```
 
