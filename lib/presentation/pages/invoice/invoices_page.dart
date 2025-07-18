@@ -11,7 +11,8 @@ import 'invoice_detail_page.dart';
 class InvoicesPage extends ConsumerWidget {
   const InvoicesPage({super.key});
 
-  Future<Map<String, dynamic>> _fetchSummary(String invoiceId) async {
+  Future<Map<String, dynamic>> _fetchSummary(
+      String invoiceId, String? storeId) async {
     final snap = await FirebaseFirestore.instance
         .collection('prices')
         .where('invoice_id', isEqualTo: invoiceId)
@@ -23,7 +24,16 @@ class InvoicesPage extends ConsumerWidget {
       final discount = (data['discount'] as num?)?.toDouble() ?? 0.0;
       total += price - discount;
     }
-    return {'total': total, 'count': snap.docs.length};
+
+    String? storeName;
+    if (storeId != null && storeId.isNotEmpty) {
+      final storeSnap = await FirebaseFirestore.instance
+          .collection('stores')
+          .doc(storeId)
+          .get();
+      storeName = storeSnap.data()?['name'] as String?;
+    }
+    return {'total': total, 'count': snap.docs.length, 'storeName': storeName};
   }
 
   @override
@@ -61,7 +71,7 @@ class InvoicesPage extends ConsumerWidget {
               );
               return Card(
                 child: FutureBuilder<Map<String, dynamic>>(
-                  future: _fetchSummary(doc.id),
+                  future: _fetchSummary(doc.id, data['store_id'] as String?),
                   builder: (context, summarySnapshot) {
                     Widget trailing;
                     if (!summarySnapshot.hasData) {
@@ -86,12 +96,16 @@ class InvoicesPage extends ConsumerWidget {
                         ],
                       );
                     }
+                    final storeName =
+                        summarySnapshot.data?['storeName'] as String?;
                     return ListTile(
-                      title:
-                          Text('Série ${data['series']} - Nº ${data['number']}'),
+                      title: Text(
+                        storeName ?? 'Comércio não identificado',
+                      ),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          Text('Série ${data['series']} - Nº ${data['number']}'),
                           if (date != null)
                             Text(Formatters.formatDateTime(date)),
                           Text(status.displayName),
