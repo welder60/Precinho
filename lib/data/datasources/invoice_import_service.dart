@@ -124,6 +124,8 @@ class InvoiceImportService {
     required DocumentReference<Map<String, dynamic>> invoiceRef,
     required DocumentReference<Map<String, dynamic>> storeRef,
     required DocumentReference<Map<String, dynamic>> productRef,
+    /// Data de criação do preço. Se não informada, usa [DateTime.now()].
+    DateTime? createdAt,
   }) async {
     final productSnap = await productRef.get();
     final productData = productSnap.data() ?? <String, dynamic>{};
@@ -177,7 +179,7 @@ class InvoiceImportService {
       if (ncm != null) 'ncm_code': ncm,
       if (ean != null) 'ean_code': ean,
       if (customCode != null) 'custom_code': customCode,
-      'created_at': Timestamp.now(),
+      'created_at': Timestamp.fromDate(createdAt ?? DateTime.now()),
     };
     final doc = await _firestore.collection('prices').add(data);
     return doc;
