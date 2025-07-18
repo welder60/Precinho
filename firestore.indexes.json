@@ -15,6 +15,102 @@
         {"fieldPath": "store_id", "order": "ASCENDING"},
         {"fieldPath": "created_at", "order": "DESCENDING"}
       ]
+    },
+    {
+      "collectionGroup": "prices",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "is_active", "order": "ASCENDING"},
+        {"fieldPath": "created_at", "order": "DESCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "prices",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "user_id", "order": "ASCENDING"},
+        {"fieldPath": "is_active", "order": "ASCENDING"},
+        {"fieldPath": "created_at", "order": "DESCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "prices",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "store_id", "order": "ASCENDING"},
+        {"fieldPath": "is_active", "order": "ASCENDING"},
+        {"fieldPath": "price", "order": "ASCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "prices",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "store_id", "order": "ASCENDING"},
+        {"fieldPath": "is_active", "order": "ASCENDING"},
+        {"fieldPath": "unit_price", "order": "ASCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "prices",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "product_id", "order": "ASCENDING"},
+        {"fieldPath": "is_active", "order": "ASCENDING"},
+        {"fieldPath": "price", "order": "ASCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "prices",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "product_id", "order": "ASCENDING"},
+        {"fieldPath": "is_active", "order": "ASCENDING"},
+        {"fieldPath": "created_at", "order": "DESCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "prices",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "product_id", "order": "ASCENDING"},
+        {"fieldPath": "store_id", "order": "ASCENDING"},
+        {"fieldPath": "created_at", "order": "DESCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "prices",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "product_id", "order": "ASCENDING"},
+        {"fieldPath": "store_id", "order": "ASCENDING"},
+        {"fieldPath": "is_active", "order": "ASCENDING"},
+        {"fieldPath": "created_at", "order": "DESCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "prices",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "invoice_id", "order": "ASCENDING"},
+        {"fieldPath": "created_at", "order": "ASCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "invoices",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "user_id", "order": "ASCENDING"},
+        {"fieldPath": "created_at", "order": "DESCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "invoices",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "status", "order": "ASCENDING"},
+        {"fieldPath": "created_at", "order": "DESCENDING"}
+      ]
     }
   ],
   "fieldOverrides": []
