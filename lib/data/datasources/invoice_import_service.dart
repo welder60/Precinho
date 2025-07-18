@@ -131,16 +131,22 @@ class InvoiceImportService {
     final storeData = storeSnap.data() ?? <String, dynamic>{};
 
     // Calcula o preço por quilo ou litro considerando o volume do produto
+    // Quando a unidade for "unidade" ("un"), calcula o valor de uma unidade
     double? unitPrice;
     final volume = productData['volume'];
     final unit = productData['unit'];
     if (volume is num && unit is String) {
       final normalized = unit.toLowerCase();
       double multiplier;
-      if (normalized == 'kg' || normalized == 'l' || normalized == 'lt' || normalized == 'lt.') {
+      if (normalized == 'kg' ||
+          normalized == 'l' ||
+          normalized == 'lt' ||
+          normalized == 'lt.') {
         multiplier = 1;
       } else if (normalized == 'g' || normalized == 'ml') {
         multiplier = 1 / 1000;
+      } else if (normalized == 'un' || normalized == 'unidade') {
+        multiplier = 1;
       } else {
         multiplier = 1;
       }
