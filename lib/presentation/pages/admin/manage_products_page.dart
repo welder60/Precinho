@@ -4,6 +4,7 @@ import '../../../core/themes/app_theme.dart';
 import 'add_product_page.dart';
 import 'edit_product_page.dart';
 import '../../../core/logging/firebase_logger.dart';
+import '../../../core/utils/formatters.dart';
 import 'package:precinho_app/presentation/widgets/app_cached_image.dart';
 
 class ManageProductsPage extends StatelessWidget {
@@ -46,7 +47,7 @@ class ManageProductsPage extends StatelessWidget {
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('products')
-            .orderBy('name')
+            .orderBy('updated_at')
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -68,6 +69,8 @@ class ManageProductsPage extends StatelessWidget {
             itemBuilder: (context, index) {
               final doc = docs[index];
               final data = doc.data() as Map<String, dynamic>;
+              final updatedAt =
+                  (data['updated_at'] as Timestamp?)?.toDate();
               return ListTile(
                 leading: ClipOval(
                   child: AppCachedImage(
@@ -77,8 +80,17 @@ class ManageProductsPage extends StatelessWidget {
                   ),
                 ),
                 title: Text(data['name'] ?? ''),
-                subtitle: Text(
-                  "${data['brand'] ?? ''} - ${data['barcode'] ?? ''}\n${data['description'] ?? ''}",
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "${data['brand'] ?? ''} - ${data['barcode'] ?? ''}",
+                    ),
+                    Text(data['description'] ?? ''),
+                    if (updatedAt != null)
+                      Text('Atualizado em: '
+                          '${Formatters.formatDateTime(updatedAt)}'),
+                  ],
                 ),
                 isThreeLine: true,
                 onTap: () {
