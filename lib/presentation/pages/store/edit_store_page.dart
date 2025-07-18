@@ -23,6 +23,8 @@ class _EditStorePageState extends State<EditStorePage> {
   final _placesService = PlacesService();
   double? _latitude;
   double? _longitude;
+  double? _initialLatitude;
+  double? _initialLongitude;
   String? _placeId;
   
 
@@ -35,6 +37,8 @@ class _EditStorePageState extends State<EditStorePage> {
     _cnpjController.text = data['cnpj'] ?? '';
     _latitude = (data['latitude'] as num?)?.toDouble();
     _longitude = (data['longitude'] as num?)?.toDouble();
+    _initialLatitude = _latitude;
+    _initialLongitude = _longitude;
     _placeId = data['place_id'] as String?;
   }
 
@@ -63,6 +67,22 @@ class _EditStorePageState extends State<EditStorePage> {
 
         FirebaseLogger.log('Updating store', {'id': widget.document.id});
         await widget.document.reference.update(data);
+
+        if ((_latitude != null && _longitude != null) &&
+            (_latitude != _initialLatitude || _longitude != _initialLongitude)) {
+          final snap = await FirebaseFirestore.instance
+              .collection('prices')
+              .where('store_id', isEqualTo: widget.document.id)
+              .get();
+          final batch = FirebaseFirestore.instance.batch();
+          for (final doc in snap.docs) {
+            batch.update(doc.reference, {
+              'latitude': _latitude,
+              'longitude': _longitude,
+            });
+          }
+          await batch.commit();
+        }
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Com\u00e9rcio atualizado')),
