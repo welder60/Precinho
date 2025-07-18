@@ -371,7 +371,8 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
                               ],
                             ),
                           AvgComparisonIcon(
-                              comparison: priceData['avg_comparison'] as String?),
+                            comparison: priceData['avg_comparison'] as String?,
+                          ),
                           if ((priceData['expires_at'] as Timestamp?) != null &&
                               DateTime.now().isAfter(
                                   (priceData['expires_at'] as Timestamp).toDate()))
