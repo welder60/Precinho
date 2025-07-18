@@ -263,6 +263,15 @@ class _EditProductPageState extends State<EditProductPage> {
 
         FirebaseLogger.log('Updating product', {'id': widget.document.id});
         await widget.document.reference.update(data);
+        final oldData = widget.document.data() as Map<String, dynamic>;
+        final oldVolume = (oldData['volume'] as num?)?.toDouble();
+        final oldUnit = oldData['unit'] as String?;
+        final newVolume = double.tryParse(_volumeController.text.trim());
+        final newUnit = _unit;
+        final changed = oldVolume != newVolume || oldUnit != newUnit;
+        if (changed) {
+          await _recalculateUnitPrices(volume: newVolume, unit: newUnit);
+        }
         FirebaseLogger.log('Product updated', {'id': widget.document.id});
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -281,6 +290,37 @@ class _EditProductPageState extends State<EditProductPage> {
           );
         }
       }
+    }
+  }
+
+  Future<void> _recalculateUnitPrices({double? volume, String? unit}) async {
+    if (volume == null || unit == null) return;
+    final normalized = unit.toLowerCase();
+    double multiplier;
+    if (normalized == 'kg' ||
+        normalized == 'l' ||
+        normalized == 'lt' ||
+        normalized == 'lt.') {
+      multiplier = 1;
+    } else if (normalized == 'g' || normalized == 'ml') {
+      multiplier = 1 / 1000;
+    } else {
+      // Unidade desconhecida, nao recalcula
+      return;
+    }
+
+    final baseVolume = volume * multiplier;
+    if (baseVolume <= 0) return;
+
+    final snap = await FirebaseFirestore.instance
+        .collection('prices')
+        .where('product_id', isEqualTo: widget.document.id)
+        .get();
+    for (final doc in snap.docs) {
+      final price = (doc.data()['price'] as num?)?.toDouble();
+      if (price == null) continue;
+      final unitPrice = price / baseVolume;
+      await doc.reference.update({'unit_price': unitPrice});
     }
   }
 
