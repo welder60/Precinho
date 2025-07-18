@@ -25,6 +25,7 @@ class _EditStorePageState extends State<EditStorePage> {
   double? _longitude;
   double? _initialLatitude;
   double? _initialLongitude;
+  String? _initialName;
   String? _placeId;
   
 
@@ -33,6 +34,7 @@ class _EditStorePageState extends State<EditStorePage> {
     super.initState();
     final data = widget.document.data() as Map<String, dynamic>;
     _nameController.text = data['name'] ?? '';
+    _initialName = _nameController.text;
     _addressController.text = data['address'] ?? '';
     _cnpjController.text = data['cnpj'] ?? '';
     _latitude = (data['latitude'] as num?)?.toDouble();
@@ -79,6 +81,19 @@ class _EditStorePageState extends State<EditStorePage> {
             batch.update(doc.reference, {
               'latitude': _latitude,
               'longitude': _longitude,
+            });
+          }
+          await batch.commit();
+        }
+        if (_nameController.text.trim() != (_initialName ?? '')) {
+          final snap = await FirebaseFirestore.instance
+              .collection('prices')
+              .where('store_id', isEqualTo: widget.document.id)
+              .get();
+          final batch = FirebaseFirestore.instance.batch();
+          for (final doc in snap.docs) {
+            batch.update(doc.reference, {
+              'store_name': _nameController.text.trim(),
             });
           }
           await batch.commit();

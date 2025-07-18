@@ -167,6 +167,7 @@ class InvoiceImportService {
       'discount': discount,
       'description': description,
       'product_name': productData['name'],
+      'store_name': storeData['name'],
       'image_url': productData['image_url'],
       'is_active': true,
       if (storeData['latitude'] != null)
