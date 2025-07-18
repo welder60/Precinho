@@ -223,7 +223,7 @@ class InvoiceHtmlParser {
         String? cleanEan = rawEan;
         if (cleanEan != null) {
           cleanEan = cleanEan.replaceAll(RegExp(r'\D'), '');
-          if (cleanEan.isEmpty || cleanEan.length < 8 || cleanEan.length > 14) {
+          if (cleanEan.isEmpty) {
             cleanEan = null;
           }
         }
