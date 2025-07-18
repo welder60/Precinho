@@ -315,10 +315,12 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
                           )
                         : null;
 
-                    return Card(
-                      margin:
-                          const EdgeInsets.only(bottom: AppTheme.paddingSmall),
-                      child: ListTile(
+                    return SizedBox(
+                      height: AppTheme.productCardHeight,
+                      child: Card(
+                        margin: const EdgeInsets.only(
+                            bottom: AppTheme.paddingSmall),
+                        child: ListTile(
                         leading: ClipRRect(
                           borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
                           child: AppCachedImage(

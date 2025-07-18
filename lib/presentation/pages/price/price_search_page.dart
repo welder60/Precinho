@@ -71,8 +71,10 @@ class _PriceSearchPageState extends State<PriceSearchPage> {
                       return const SizedBox.shrink();
                     }
 
-                    return Card(
-                      child: ListTile(
+                    return SizedBox(
+                      height: AppTheme.productCardHeight,
+                      child: Card(
+                        child: ListTile(
                         title: Text(productName.isNotEmpty ? productName : 'Produto'),
                         subtitle: Text(storeName.isNotEmpty ? storeName : 'Comércio'),
                         trailing: Column(

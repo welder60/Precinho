@@ -225,8 +225,10 @@ class _ProductPricesPageState extends ConsumerState<ProductPricesPage> {
               final createdAt =
                   (priceData['created_at'] as Timestamp?)?.toDate();
 
-              return Card(
-                child: InkWell(
+              return SizedBox(
+                height: AppTheme.productCardHeight,
+                child: Card(
+                  child: InkWell(
                   onTap: () {
                     Navigator.push(
                       context,
