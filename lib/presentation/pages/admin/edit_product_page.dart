@@ -304,6 +304,8 @@ class _EditProductPageState extends State<EditProductPage> {
       multiplier = 1;
     } else if (normalized == 'g' || normalized == 'ml') {
       multiplier = 1 / 1000;
+    } else if (normalized == 'un' || normalized == 'unidade') {
+      multiplier = 1;
     } else {
       // Unidade desconhecida, nao recalcula
       return;
