@@ -426,8 +426,9 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                                     ],
                                   ),
                                 AvgComparisonIcon(
-                                    comparison:
-                                        data['avg_comparison'] as String?),
+                                  comparison:
+                                      data['avg_comparison'] as String?,
+                                ),
                                 if ((data['expires_at'] as Timestamp?) != null &&
                                     DateTime.now().isAfter(
                                         (data['expires_at'] as Timestamp).toDate()))
