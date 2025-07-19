@@ -12,6 +12,7 @@ import '../price/price_detail_page.dart';
 import 'product_detail_page.dart';
 import 'package:precinho_app/presentation/widgets/app_cached_image.dart';
 import 'package:precinho_app/presentation/widgets/avg_comparison_icon.dart';
+import '../../widgets/price/product_price_card.dart';
 
 class ProductPricesPage extends ConsumerStatefulWidget {
   final DocumentSnapshot product;
@@ -225,143 +226,28 @@ class _ProductPricesPageState extends ConsumerState<ProductPricesPage> {
               final createdAt =
                   (priceData['created_at'] as Timestamp?)?.toDate();
 
-              return Card(
-                child: InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => PriceDetailPage(price: doc),
-                      ),
-                    );
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(AppTheme.paddingSmall),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Icon(
-                              Icons.store,
-                              color: AppTheme.primaryColor,
-                            ),
-                            const SizedBox(width: AppTheme.paddingSmall),
-                            Expanded(child: Text(storeName)),
-                            IconButton(
-                              icon: Icon(
-                                isFav ? Icons.star : Icons.star_border,
-                                color: isFav
-                                    ? Colors.amber
-                                    : AppTheme.textSecondaryColor,
-                              ),
-                              onPressed: storeId == null
-                                  ? null
-                                  : () {
-                                      ref
-                                          .read(storeFavoritesProvider.notifier)
-                                          .toggleFavorite(storeId);
-                                    },
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text(
-                                  Formatters.formatPrice(
-                                      (priceData['price'] as num).toDouble()),
-                                  style: AppTheme.priceTextStyle,
-                                ),
-                                if (perUnit != null)
-                                  Text(
-                                    perUnit,
-                                    style:
-                                        Theme.of(context).textTheme.labelSmall,
-                                  ),
-                                if (priceData['variation'] != null)
-                                  Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        (priceData['variation'] as num) > 0
-                                            ? Icons.arrow_upward
-                                            : Icons.arrow_downward,
-                                        color: (priceData['variation'] as num) > 0
-                                            ? AppTheme.errorColor
-                                            : AppTheme.successColor,
-                                        size: 14,
-                                      ),
-                                      const SizedBox(width: 2),
-                                      Text(
-                                        Formatters.formatPercentage(
-                                            ((priceData['variation'] as num)
-                                                    .abs())
-                                                .toDouble()),
-                                        style: TextStyle(
-                                          color:
-                                              (priceData['variation'] as num) > 0
-                                                  ? AppTheme.errorColor
-                                                  : AppTheme.successColor,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                                AvgComparisonIcon(
-                                    comparison:
-                                        priceData['avg_comparison'] as String?),
-                                if ((priceData['expires_at'] as Timestamp?) !=
-                                        null &&
-                                    DateTime.now().isAfter((priceData['expires_at']
-                                            as Timestamp)
-                                        .toDate()))
-                                  IconButton(
-                                    icon: const Icon(
-                                      Icons.warning,
-                                      color: AppTheme.warningColor,
-                                      size: 20,
-                                    ),
-                                    tooltip:
-                                        'Preço pode estar desatualizado',
-                                    onPressed: () {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                              'Este preço pode estar desatualizado'),
-                                        ),
-                                      );
-                                    },
-                                    padding: EdgeInsets.zero,
-                                  ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: AppTheme.paddingSmall),
-                        Row(
-                          children: [
-                            if (createdAt != null)
-                              Text(
-                                Formatters.formatDate(createdAt),
-                                style:
-                                    Theme.of(context).textTheme.bodySmall,
-                              ),
-                            const Spacer(),
-                            IconButton(
-                              icon: const Icon(Icons.playlist_add),
-                              onPressed: () => _addPriceToList(doc),
-                            ),
-                          ],
-                        ),
-                      ],
+              return ProductPriceCard(
+                doc: doc,
+                storeName: storeName,
+                storeId: storeId,
+                isFavorite: isFav,
+                perUnit: perUnit,
+                createdAt: createdAt,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => PriceDetailPage(price: doc),
                     ),
-                  ),
-                ),
+                  );
+                },
+                onAdd: () => _addPriceToList(doc),
+                onToggleFavorite: () {
+                  if (storeId != null) {
+                    ref.read(storeFavoritesProvider.notifier).toggleFavorite(storeId);
+                  }
+                },
               );
-            },
-          );
-        },
-      ),
     ),
   ],
 ),
