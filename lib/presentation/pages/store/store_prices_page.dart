@@ -10,8 +10,7 @@ import '../../providers/shopping_list_provider.dart';
 import '../price/add_price_page.dart';
 import '../price/price_detail_page.dart';
 import 'store_detail_page.dart';
-import 'package:precinho_app/presentation/widgets/app_cached_image.dart';
-import 'package:precinho_app/presentation/widgets/avg_comparison_icon.dart';
+import 'package:precinho_app/presentation/widgets/price/store_price_card.dart';
 
 class StorePricesPage extends ConsumerStatefulWidget {
   final DocumentSnapshot store;
@@ -315,98 +314,13 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
                           )
                         : null;
 
-                    return Card(
-                      margin:
-                          const EdgeInsets.only(bottom: AppTheme.paddingSmall),
-                      child: ListTile(
-                        leading: ClipRRect(
-                          borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-                          child: AppCachedImage(
-                            imageUrl: imageUrl,
-                            width: 56,
-                            height: 56,
-                          ),
-                        ),
-                      title: Text(label),
-                      trailing: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            Formatters.formatPrice(
-                                (priceData['price'] as num).toDouble()),
-                            style: AppTheme.priceTextStyle,
-                          ),
-                          if (perUnit != null)
-                            Text(
-                              perUnit,
-                              style: Theme.of(context).textTheme.labelSmall,
-                            ),
-                          if (priceData['variation'] != null)
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  (priceData['variation'] as num) > 0
-                                      ? Icons.arrow_upward
-                                      : Icons.arrow_downward,
-                                  color: (priceData['variation'] as num) > 0
-                                      ? AppTheme.errorColor
-                                      : AppTheme.successColor,
-                                  size: 14,
-                                ),
-                                const SizedBox(width: 2),
-                                Text(
-                                  Formatters.formatPercentage(
-                                      ((priceData['variation'] as num).abs()).toDouble()),
-                                  style: TextStyle(
-                                    color: (priceData['variation'] as num) > 0
-                                        ? AppTheme.errorColor
-                                        : AppTheme.successColor,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          AvgComparisonIcon(
-                              comparison: priceData['avg_comparison'] as String?),
-                          if ((priceData['expires_at'] as Timestamp?) != null &&
-                              DateTime.now().isAfter(
-                                  (priceData['expires_at'] as Timestamp).toDate()))
-                            IconButton(
-                              icon: const Icon(Icons.warning,
-                                  color: AppTheme.warningColor, size: 20),
-                              tooltip: 'Preço pode estar desatualizado',
-                              onPressed: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content:
-                                        Text('Este preço pode estar desatualizado'),
-                                  ),
-                                );
-                              },
-                              padding: EdgeInsets.zero,
-                            ),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if ((priceData['created_at'] as Timestamp?) != null)
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 8),
-                                  child: Text(
-                                    Formatters.formatDate(
-                                        (priceData['created_at'] as Timestamp).toDate()),
-                                    style: Theme.of(context).textTheme.bodySmall,
-                                  ),
-                                ),
-                              IconButton(
-                                icon: const Icon(Icons.playlist_add),
-                                onPressed: () => _addPriceToList(doc),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                    return StorePriceCard(
+                      doc: doc,
+                      label: label,
+                      imageUrl: imageUrl,
+                      perUnit: perUnit,
+                      createdAt:
+                          (priceData['created_at'] as Timestamp?)?.toDate(),
                       onTap: () {
                         Navigator.push(
                           context,
@@ -415,7 +329,8 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
                           ),
                         );
                       },
-                    ));
+                      onAdd: () => _addPriceToList(doc),
+                    );
                   },
                 ),
               ),
