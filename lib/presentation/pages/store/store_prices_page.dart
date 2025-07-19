@@ -442,8 +442,7 @@ class _StorePricesPageState extends ConsumerState<StorePricesPage> {
         },
         child: const Icon(Icons.add),
       ),
-    ),
-  );
-}
+    );
+  }
 
 }

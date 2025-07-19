@@ -380,7 +380,6 @@ class _ProductPricesPageState extends ConsumerState<ProductPricesPage> {
         },
         child: const Icon(Icons.add),
       ),
-    ),
-  );
-}
+    );
+  }
 }
