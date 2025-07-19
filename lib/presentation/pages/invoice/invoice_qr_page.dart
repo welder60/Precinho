@@ -8,6 +8,7 @@ import 'package:audioplayers/audioplayers.dart';
 import '../../../core/themes/app_theme.dart';
 import '../home/home_page.dart';
 import 'invoice_qr_confirm_page.dart';
+import 'invoice_manual_key_page.dart';
 
 class InvoiceQrPage extends ConsumerStatefulWidget {
   const InvoiceQrPage({super.key});
@@ -118,6 +119,18 @@ class _InvoiceQrPageState extends ConsumerState<InvoiceQrPage> {
             ),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        heroTag: 'manual_key_fab',
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const InvoiceManualKeyPage(),
+            ),
+          );
+        },
+        child: const Icon(Icons.edit),
       ),
     );
   }
