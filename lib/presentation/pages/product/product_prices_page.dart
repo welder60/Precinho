@@ -248,9 +248,12 @@ class _ProductPricesPageState extends ConsumerState<ProductPricesPage> {
                   }
                 },
               );
-    ),
-  ],
-),
+            },
+          );
+        },
+      ),
+    ],
+  ),
       floatingActionButton: FloatingActionButton(
         heroTag: 'product_prices_fab',
         onPressed: () {
