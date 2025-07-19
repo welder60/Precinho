@@ -252,6 +252,7 @@ class _ProductPricesPageState extends ConsumerState<ProductPricesPage> {
           );
         },
       ),
+          ),
     ],
   ),
       floatingActionButton: FloatingActionButton(

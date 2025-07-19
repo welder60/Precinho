@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 
 import '../app_cached_image.dart';
 import '../avg_comparison_icon.dart';
-import '../../core/themes/app_theme.dart';
-import '../../core/utils/formatters.dart';
+import '../../../core/themes/app_theme.dart';
+import '../../../core/utils/formatters.dart';
 
 class ProductPriceCard extends StatelessWidget {
   final DocumentSnapshot doc;
