@@ -328,10 +328,8 @@ class _FeedPageState extends ConsumerState<FeedPage> {
               }
               final createdAt = (data['created_at'] as Timestamp?)?.toDate();
 
-              return SizedBox(
-                height: AppTheme.productCardHeight,
-                child: Card(
-                  child: InkWell(
+              return Card(
+                child: InkWell(
                   onTap: () {
                     Navigator.push(
                       context,

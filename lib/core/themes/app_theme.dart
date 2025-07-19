@@ -278,8 +278,5 @@ class AppTheme {
   static const double radiusMedium = 8.0;
   static const double radiusLarge = 12.0;
   static const double radiusXLarge = 16.0;
-
-  // Altura padrão para cards de preços de produto
-  static const double productCardHeight = 120.0;
 }
 
