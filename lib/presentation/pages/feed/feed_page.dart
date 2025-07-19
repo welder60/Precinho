@@ -3,14 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../../core/themes/app_theme.dart';
-import '../../../core/utils/formatters.dart';
 import '../../../core/constants/enums.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/shopping_list_provider.dart';
-import 'package:precinho_app/presentation/widgets/app_cached_image.dart';
-import 'package:precinho_app/presentation/widgets/avg_comparison_icon.dart';
-import '../../widgets/price/feed_price_card.dart';
-import '../price/price_detail_page.dart';
+import '../../widgets/feed/feed_price_list.dart';
 import '../invoice/invoice_qr_page.dart';
 import '../auth/login_page.dart';
 
@@ -276,79 +272,17 @@ class _FeedPageState extends ConsumerState<FeedPage> {
         icon: const Icon(Icons.qr_code),
         label: const Text('Ler nota'),
       ),
-      body: _docs.isEmpty && _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              controller: _controller,
-              itemCount: _docs.length + (_hasMore ? 1 : 0),
-              padding: const EdgeInsets.all(AppTheme.paddingMedium),
-              itemBuilder: (context, index) {
-                if (index >= _docs.length) {
-                  return const Padding(
-                    padding: EdgeInsets.all(AppTheme.paddingMedium),
-                    child: Center(child: CircularProgressIndicator()),
-                  );
-                }
-                final doc = _docs[index];
-              final data = doc.data() as Map<String, dynamic>;
-              final productId = data['product_id'] as String?;
-              final userId = data['user_id'] as String?;
-              final product = productId != null ? _productInfo[productId] : null;
-              final user = userId != null ? _userInfo[userId] : null;
-              final productImage = product?['image_url'] as String?;
-              final userPhoto = user?['photo_url'] as String?;
-              final userName = user?['name'] as String? ?? 'Usu\u00e1rio';
-              final volume = product?['volume'] as num?;
-              final unit = product?['unit'] as String?;
-              var productLabel = data['product_name'] ?? 'Produto';
-              if (volume != null && unit != null && unit != 'un') {
-                productLabel = '$productLabel (${volume.toString()} $unit)';
-              }
-              final perUnit = volume != null && unit != null
-                  ? Formatters.formatPricePerQuantity(
-                      price: (data['price'] as num).toDouble(),
-                      volume: volume.toDouble(),
-                      unit: unit,
-                    )
-                  : null;
-
-              final storeId = data['store_id'] as String?;
-              final store = storeId != null ? _storeInfo[storeId] : null;
-              final storeImage = store?['image_url'] as String?;
-              final lat = (data['latitude'] as num?)?.toDouble();
-              final lng = (data['longitude'] as num?)?.toDouble();
-              double? distance;
-              if (_position != null && lat != null && lng != null) {
-                distance = Geolocator.distanceBetween(
-                      _position!.latitude,
-                      _position!.longitude,
-                      lat,
-                      lng,
-                    ) /
-                    1000.0;
-              }
-              final createdAt = (data['created_at'] as Timestamp?)?.toDate();
-
-              return FeedPriceCard(
-                doc: doc,
-                productLabel: productLabel,
-                productImage: productImage,
-                storeImage: storeImage,
-                createdAt: createdAt,
-                distance: distance,
-                perUnit: perUnit,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => PriceDetailPage(price: doc),
-                    ),
-                  );
-                },
-                onAdd: () => _addToList(doc),
-              );
-            },
-          ),
+      body: FeedPriceList(
+        controller: _controller,
+        docs: _docs,
+        hasMore: _hasMore,
+        isLoading: _isLoading,
+        position: _position,
+        productInfo: _productInfo,
+        userInfo: _userInfo,
+        storeInfo: _storeInfo,
+        onAdd: _addToList,
+      ),
     );
   }
 }
