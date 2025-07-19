@@ -478,6 +478,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
               );
             },
           ),
-    );
+    ),
+  );
   }
 }
