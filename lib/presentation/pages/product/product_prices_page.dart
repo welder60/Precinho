@@ -200,160 +200,174 @@ class _ProductPricesPageState extends ConsumerState<ProductPricesPage> {
               return aFav.compareTo(bFav);
             });
 
-return ListView.builder(
-  itemCount: prices.length,
-  itemBuilder: (context, index) {
-    final doc = prices[index];
-    final priceData = doc.data() as Map<String, dynamic>;
-    final storeId = priceData['store_id'] as String?;
-    final storeData = storeId != null ? _storeInfo[storeId] : null;
-    final storeName = priceData['store_name'] as String? ??
-        (storeData?['name'] as String?) ?? 'Comércio desconhecido';
-    final isFav = storeId != null && favorites.contains(storeId);
+          return ListView.builder(
+            itemCount: prices.length,
+            itemBuilder: (context, index) {
+              final doc = prices[index];
+              final priceData = doc.data() as Map<String, dynamic>;
+              final storeId = priceData['store_id'] as String?;
+              final storeData = storeId != null ? _storeInfo[storeId] : null;
+              final storeName = priceData['store_name'] as String? ??
+                  (storeData?['name'] as String?) ?? 'Comércio desconhecido';
+              final isFav = storeId != null && favorites.contains(storeId);
 
-    final volume = data['volume'] as num?;
-    final unit = data['unit'] as String?;
-    final perUnit = volume != null && unit != null
-        ? Formatters.formatPricePerQuantity(
-            price: (priceData['price'] as num).toDouble(),
-            volume: volume.toDouble(),
-            unit: unit,
-          )
-        : null;
-    final createdAt = (priceData['created_at'] as Timestamp?)?.toDate();
+              print('[DEBUG] Exibindo preço de $storeName -> '
+                  '${Formatters.formatPrice((priceData['price'] as num).toDouble())}');
+              final volume = data['volume'] as num?;
+              final unit = data['unit'] as String?;
+              final perUnit = volume != null && unit != null
+                  ? Formatters.formatPricePerQuantity(
+                      price: (priceData['price'] as num).toDouble(),
+                      volume: volume.toDouble(),
+                      unit: unit,
+                    )
+                  : null;
+              final createdAt =
+                  (priceData['created_at'] as Timestamp?)?.toDate();
 
-    return SizedBox(
-      height: AppTheme.productCardHeight,
-      child: Card(
-        child: InkWell(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => PriceDetailPage(price: doc),
-              ),
-            );
-          },
-          child: Padding(
-            padding: const EdgeInsets.all(AppTheme.paddingSmall),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Icon(Icons.store, color: AppTheme.primaryColor),
-                    const SizedBox(width: AppTheme.paddingSmall),
-                    Expanded(child: Text(storeName)),
-                    IconButton(
-                      icon: Icon(
-                        isFav ? Icons.star : Icons.star_border,
-                        color: isFav
-                            ? Colors.amber
-                            : AppTheme.textSecondaryColor,
+              return SizedBox(
+                height: AppTheme.productCardHeight,
+                child: Card(
+                  child: InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => PriceDetailPage(price: doc),
                       ),
-                      onPressed: storeId == null
-                          ? null
-                          : () {
-                              ref
-                                  .read(storeFavoritesProvider.notifier)
-                                  .toggleFavorite(storeId);
-                            },
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppTheme.paddingSmall),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          Formatters.formatPrice(
-                              (priceData['price'] as num).toDouble()),
-                          style: AppTheme.priceTextStyle,
-                        ),
-                        if (perUnit != null)
-                          Text(
-                            perUnit,
-                            style:
-                                Theme.of(context).textTheme.labelSmall,
-                          ),
-                        if (priceData['variation'] != null)
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                (priceData['variation'] as num) > 0
-                                    ? Icons.arrow_upward
-                                    : Icons.arrow_downward,
-                                color:
-                                    (priceData['variation'] as num) > 0
-                                        ? AppTheme.errorColor
-                                        : AppTheme.successColor,
-                                size: 14,
-                              ),
-                              const SizedBox(width: 2),
-                              Text(
-                                Formatters.formatPercentage(
-                                    ((priceData['variation'] as num).abs())
-                                        .toDouble()),
-                                style: TextStyle(
-                                  color: (priceData['variation'] as num) > 0
-                                      ? AppTheme.errorColor
-                                      : AppTheme.successColor,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
-                          ),
-                        AvgComparisonIcon(
-                          comparison:
-                              priceData['avg_comparison'] as String?,
-                        ),
-                        if ((priceData['expires_at'] as Timestamp?) != null &&
-                            DateTime.now().isAfter(
-                                (priceData['expires_at'] as Timestamp)
-                                    .toDate()))
-                          IconButton(
-                            icon: const Icon(
-                              Icons.warning,
-                              color: AppTheme.warningColor,
-                              size: 20,
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Icon(
+                              Icons.store,
+                              color: AppTheme.primaryColor,
                             ),
-                            tooltip: 'Preço pode estar desatualizado',
-                            onPressed: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                      'Este preço pode estar desatualizado'),
+                            const SizedBox(width: AppTheme.paddingSmall),
+                            Expanded(child: Text(storeName)),
+                            IconButton(
+                              icon: Icon(
+                                isFav ? Icons.star : Icons.star_border,
+                                color: isFav
+                                    ? Colors.amber
+                                    : AppTheme.textSecondaryColor,
+                              ),
+                              onPressed: storeId == null
+                                  ? null
+                                  : () {
+                                      ref
+                                          .read(storeFavoritesProvider.notifier)
+                                          .toggleFavorite(storeId);
+                                    },
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  Formatters.formatPrice(
+                                      (priceData['price'] as num).toDouble()),
+                                  style: AppTheme.priceTextStyle,
                                 ),
-                              );
-                            },
-                            padding: EdgeInsets.zero,
-                          ),
+                                if (perUnit != null)
+                                  Text(
+                                    perUnit,
+                                    style:
+                                        Theme.of(context).textTheme.labelSmall,
+                                  ),
+                                if (priceData['variation'] != null)
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        (priceData['variation'] as num) > 0
+                                            ? Icons.arrow_upward
+                                            : Icons.arrow_downward,
+                                        color: (priceData['variation'] as num) > 0
+                                            ? AppTheme.errorColor
+                                            : AppTheme.successColor,
+                                        size: 14,
+                                      ),
+                                      const SizedBox(width: 2),
+                                      Text(
+                                        Formatters.formatPercentage(
+                                            ((priceData['variation'] as num)
+                                                    .abs())
+                                                .toDouble()),
+                                        style: TextStyle(
+                                          color:
+                                              (priceData['variation'] as num) > 0
+                                                  ? AppTheme.errorColor
+                                                  : AppTheme.successColor,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                                AvgComparisonIcon(
+                                  comparison:
+                                      priceData['avg_comparison'] as String?,
+                                ),
+                                if ((priceData['expires_at'] as Timestamp?) !=
+                                        null &&
+                                    DateTime.now().isAfter((priceData['expires_at']
+                                            as Timestamp)
+                                        .toDate()))
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.warning,
+                                      color: AppTheme.warningColor,
+                                      size: 20,
+                                    ),
+                                    tooltip:
+                                        'Preço pode estar desatualizado',
+                                    onPressed: () {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                              'Este preço pode estar desatualizado'),
+                                        ),
+                                      );
+                                    },
+                                    padding: EdgeInsets.zero,
+                                  ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: AppTheme.paddingSmall),
+                        Row(
+                          children: [
+                            if (createdAt != null)
+                              Text(
+                                Formatters.formatDate(createdAt),
+                                style:
+                                    Theme.of(context).textTheme.bodySmall,
+                              ),
+                            const Spacer(),
+                            IconButton(
+                              icon: const Icon(Icons.playlist_add),
+                              onPressed: () => _addPriceToList(doc),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
-                  ],
+                  ),
                 ),
-                const SizedBox(height: AppTheme.paddingSmall),
-                Row(
-                  children: [
-                    if (createdAt != null)
-                      Text(
-                        Formatters.formatDate(createdAt),
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    const Spacer(),
-                    IconButton(
-                      icon: const Icon(Icons.playlist_add),
-                      onPressed: () => _addPriceToList(doc),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
+              );
+            },
+          );
+        },
       ),
-    );
-  },
-);
+    ),
+  ],
+),
       floatingActionButton: FloatingActionButton(
         heroTag: 'product_prices_fab',
         onPressed: () {
