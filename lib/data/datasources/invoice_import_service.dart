@@ -33,7 +33,8 @@ class InvoiceImportService {
     return doc;
   }
 
-  /// Cria ou retorna um produto existente pelo EAN/NCM ou c\u00f3digo do com\u00e9rcio.
+  /// Cria ou retorna um produto existente pelo c\u00f3digo de barras (EAN) ou
+  /// c\u00f3digo do com\u00e9rcio.
   Future<DocumentReference<Map<String, dynamic>>> getOrCreateProduct({
     String? ean,
     String? ncm,
@@ -60,18 +61,19 @@ class InvoiceImportService {
       }
     }
 
-    // Depois busca pelos atributos do produto (EAN ou NCM)
-    Query<Map<String, dynamic>> query = _firestore.collection('products');
+    // Depois busca pelo EAN do produto, se informado.
+    DocumentReference<Map<String, dynamic>>? productRef;
     if (ean != null && ean.isNotEmpty) {
-      query = query.where('barcode', isEqualTo: ean);
-    } else if (ncm != null && ncm.isNotEmpty) {
-      query = query.where('ncm_code', isEqualTo: ncm);
+      final snap = await _firestore
+          .collection('products')
+          .where('barcode', isEqualTo: ean)
+          .limit(1)
+          .get();
+      if (snap.docs.isNotEmpty) {
+        productRef = snap.docs.first.reference;
+      }
     }
-    final snap = await query.limit(1).get();
-    DocumentReference<Map<String, dynamic>> productRef;
-    if (snap.docs.isNotEmpty) {
-      productRef = snap.docs.first.reference;
-    } else {
+    if (productRef == null) {
       final data = {
         'name': name,
         if (ean != null) 'barcode': ean,
