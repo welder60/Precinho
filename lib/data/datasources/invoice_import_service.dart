@@ -117,6 +117,7 @@ class InvoiceImportService {
 
   /// Cria um preço vinculado a um produto e comércio existentes.
   Future<DocumentReference<Map<String, dynamic>>> createPrice({
+    required String userId,
     String? ncm,
     String? ean,
     String? customCode,
@@ -168,6 +169,7 @@ class InvoiceImportService {
 
     final priceService = PriceService(firestore: _firestore);
     return await priceService.createPrice(
+      userId: userId,
       productId: productRef.id,
       productName: productData['name'],
       storeId: storeRef.id,

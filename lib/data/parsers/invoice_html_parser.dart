@@ -295,6 +295,7 @@ class InvoiceHtmlParser {
       );
 
       await service.createPrice(
+        userId: userId,
         ncm: ncm?.isNotEmpty == true ? ncm : null,
         ean: cleanEan,
         customCode: codigo,
