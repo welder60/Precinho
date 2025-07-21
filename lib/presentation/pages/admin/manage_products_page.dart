@@ -47,7 +47,6 @@ class ManageProductsPage extends StatelessWidget {
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('products')
-            .orderBy('updated_at')
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -61,6 +60,14 @@ class ManageProductsPage extends StatelessWidget {
             return const Center(child: Text('Erro ao carregar produtos'));
           }
           final docs = snapshot.data?.docs ?? [];
+          docs.sort((a, b) {
+            final aUpdated = (a['updated_at'] as Timestamp?)?.toDate();
+            final bUpdated = (b['updated_at'] as Timestamp?)?.toDate();
+            if (aUpdated == null && bUpdated == null) return 0;
+            if (aUpdated == null) return -1;
+            if (bUpdated == null) return 1;
+            return bUpdated.compareTo(aUpdated);
+          });
           if (docs.isEmpty) {
             return const Center(child: Text('Nenhum produto cadastrado'));
           }
