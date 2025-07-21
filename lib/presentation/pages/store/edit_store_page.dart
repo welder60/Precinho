@@ -148,7 +148,6 @@ class _EditStorePageState extends State<EditStorePage> {
             children: [
               TextFormField(
                 controller: _nameController,
-                readOnly: true,
                 decoration: const InputDecoration(
                   labelText: 'Nome do Local',
                   prefixIcon: Icon(Icons.store),
