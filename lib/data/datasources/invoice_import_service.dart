@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../core/constants/app_constants.dart';
 import '../../core/constants/enums.dart';
 
 /// Serviço auxiliar para criação de entidades ao importar notas fiscais.
@@ -128,6 +129,9 @@ class InvoiceImportService {
     required DocumentReference<Map<String, dynamic>> productRef,
     /// Data de criação do preço. Se não informada, usa [DateTime.now()].
     DateTime? createdAt,
+    /// Data de vencimento do preço. Se não informada, usa [createdAt] +
+    /// [AppConstants.defaultPriceValidityDays].
+    DateTime? expiresAt,
   }) async {
     final productSnap = await productRef.get();
     final productData = productSnap.data() ?? <String, dynamic>{};
@@ -161,6 +165,7 @@ class InvoiceImportService {
     }
     unitPrice ??= unitValue;
 
+    final baseDate = createdAt ?? DateTime.now();
     final data = {
       'product_id': productRef.id,
       'store_id': storeRef.id,
@@ -181,7 +186,13 @@ class InvoiceImportService {
       if (ncm != null) 'ncm_code': ncm,
       if (ean != null) 'ean_code': ean,
       if (customCode != null) 'custom_code': customCode,
-      'created_at': Timestamp.fromDate(createdAt ?? DateTime.now()),
+      'created_at': Timestamp.fromDate(baseDate),
+      'expires_at': Timestamp.fromDate(
+        expiresAt ??
+            baseDate.add(
+              const Duration(days: AppConstants.defaultPriceValidityDays),
+            ),
+      ),
     };
     final doc = await _firestore.collection('prices').add(data);
     return doc;
