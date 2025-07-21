@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../core/constants/app_constants.dart';
 import '../../core/constants/enums.dart';
+import '../services/price_service.dart';
 
 /// Serviço auxiliar para criação de entidades ao importar notas fiscais.
 class InvoiceImportService {
@@ -165,37 +166,33 @@ class InvoiceImportService {
     }
     unitPrice ??= unitValue;
 
-    final baseDate = createdAt ?? DateTime.now();
-    final data = {
-      'product_id': productRef.id,
-      'store_id': storeRef.id,
-      'invoice_id': invoiceRef.id,
-      'price': value,
-      'invoice_value': invoiceValue,
-      if (unitPrice != null) 'unit_price': unitPrice,
-      'discount': discount,
-      'description': description,
-      'product_name': productData['name'],
-      'store_name': storeData['name'],
-      'image_url': productData['image_url'],
-      'is_active': true,
-      if (storeData['latitude'] != null)
-        'latitude': (storeData['latitude'] as num).toDouble(),
-      if (storeData['longitude'] != null)
-        'longitude': (storeData['longitude'] as num).toDouble(),
-      if (ncm != null) 'ncm_code': ncm,
-      if (ean != null) 'ean_code': ean,
-      if (customCode != null) 'custom_code': customCode,
-      'created_at': Timestamp.fromDate(baseDate),
-      'expires_at': Timestamp.fromDate(
-        expiresAt ??
-            baseDate.add(
-              const Duration(days: AppConstants.defaultPriceValidityDays),
-            ),
-      ),
-    };
-    final doc = await _firestore.collection('prices').add(data);
-    return doc;
+    final priceService = PriceService(firestore: _firestore);
+    return await priceService.createPrice(
+      productId: productRef.id,
+      productName: productData['name'],
+      storeId: storeRef.id,
+      storeName: storeData['name'],
+      value: value,
+      invoiceValue: invoiceValue,
+      unitPrice: unitPrice,
+      discount: discount,
+      description: description,
+      latitude: storeData['latitude'] != null
+          ? (storeData['latitude'] as num).toDouble()
+          : null,
+      longitude: storeData['longitude'] != null
+          ? (storeData['longitude'] as num).toDouble()
+          : null,
+      createdAt: createdAt,
+      expiresAt: expiresAt,
+      extra: {
+        'invoice_id': invoiceRef.id,
+        'image_url': productData['image_url'],
+        if (ncm != null) 'ncm_code': ncm,
+        if (ean != null) 'ean_code': ean,
+        if (customCode != null) 'custom_code': customCode,
+      },
+    );
   }
 
   /// Cria ou retorna uma nota fiscal existente pela chave de acesso.
