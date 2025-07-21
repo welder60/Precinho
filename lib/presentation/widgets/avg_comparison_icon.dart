@@ -8,18 +8,19 @@ class AvgComparisonIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    IconData icon;
-    Color color;
     if (comparison == 'above_10') {
-      icon = Icons.trending_up;
-      color = AppTheme.errorColor;
+      return const Icon(
+        Icons.trending_up,
+        color: AppTheme.errorColor,
+        size: 16,
+      );
     } else if (comparison == 'below_10') {
-      icon = Icons.trending_down;
-      color = AppTheme.successColor;
-    } else {
-      icon = Icons.trending_flat;
-      color = AppTheme.infoColor;
+      return const Icon(
+        Icons.trending_down,
+        color: AppTheme.successColor,
+        size: 16,
+      );
     }
-    return Icon(icon, color: color, size: 16);
+    return const SizedBox.shrink();
   }
 }
