@@ -103,7 +103,6 @@ class _AddStorePageState extends State<AddStorePage> {
             children: [
               TextFormField(
                 controller: _nameController,
-                readOnly: true,
                 decoration: const InputDecoration(
                   labelText: 'Nome do Local',
                   prefixIcon: Icon(Icons.store),
