@@ -1,6 +1,7 @@
 import 'package:html/parser.dart' as html_parser;
 import 'package:html/dom.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../core/constants/app_constants.dart';
 import '../datasources/invoice_import_service.dart';
 import '../exceptions/missing_store_location_exception.dart';
 import '../../core/constants/enums.dart';
@@ -306,6 +307,9 @@ class InvoiceHtmlParser {
         storeRef: storeRef,
         productRef: productRef,
         createdAt: invoiceDate,
+        expiresAt: invoiceDate.add(
+          const Duration(days: AppConstants.defaultPriceValidityDays),
+        ),
       );
     }
 
