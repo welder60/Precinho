@@ -22,5 +22,18 @@ void main() {
       expect(Validators.validateCpf('111.444.777-35'), isNull);
       expect(Validators.validateCpf('123.456.789-00'), isNotNull);
     });
+
+    test('isValidInvoiceAccessKey', () {
+      const validKey = '12345678901234567890123456789012345678901235';
+      const invalidKey = '12345678901234567890123456789012345678901234';
+      expect(Validators.isValidInvoiceAccessKey(validKey), isTrue);
+      expect(Validators.isValidInvoiceAccessKey(invalidKey), isFalse);
+    });
+
+    test('validateInvoiceAccessKey', () {
+      const validKey = '12345678901234567890123456789012345678901235';
+      expect(Validators.validateInvoiceAccessKey(validKey), isNull);
+      expect(Validators.validateInvoiceAccessKey('123'), isNotNull);
+    });
   });
 }

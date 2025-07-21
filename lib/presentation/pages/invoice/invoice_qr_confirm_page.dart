@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../../core/logging/firebase_logger.dart';
 import '../../../core/themes/app_theme.dart';
+import '../../../core/utils/validators.dart';
 import '../../providers/auth_provider.dart';
 import '../../../data/datasources/invoice_service.dart';
 import 'package:flutter/services.dart';
@@ -39,22 +40,8 @@ class _InvoiceQrConfirmPageState extends ConsumerState<InvoiceQrConfirmPage> {
     final match = RegExp(r'(\d{44})').firstMatch(data);
     if (match == null) return null;
     final key = match.group(0)!;
-    if (_validateAccessKey(key)) return key;
+    if (Validators.isValidInvoiceAccessKey(key)) return key;
     return null;
-  }
-
-  bool _validateAccessKey(String key) {
-    if (key.length != 44) return false;
-    final digits = key.split('').map(int.parse).toList();
-    var weight = 2;
-    var sum = 0;
-    for (var i = digits.length - 2; i >= 0; i--) {
-      sum += digits[i] * weight;
-      weight = weight == 9 ? 2 : weight + 1;
-    }
-    final mod = sum % 11;
-    final dv = mod == 0 || mod == 1 ? 0 : 11 - mod;
-    return dv == digits.last;
   }
 
   Future<void> _validateQr() async {
