@@ -495,6 +495,21 @@ class _EditProductPageState extends State<EditProductPage> {
                 ),
                 validator: Validators.validateDescription,
               ),
+              const SizedBox(height: AppTheme.paddingMedium),
+              OutlinedButton(
+                onPressed: () async {
+                  final volume =
+                      double.tryParse(_volumeController.text.trim());
+                  await _recalculateUnitPrices(volume: volume, unit: _unit);
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text('Preços unitários recalculados')),
+                    );
+                  }
+                },
+                child: const Text('Recalcular Preços Unitários'),
+              ),
               const SizedBox(height: AppTheme.paddingLarge),
               SizedBox(
                 width: double.infinity,

@@ -60,7 +60,7 @@ class _AddPricePageState extends State<AddPricePage> {
       final snapshot =
           await FirebaseFirestore.instance.collection('stores').get();
 
-      const radiusInMeters = 1000.0; // 1km
+      const radiusInMeters = 10000.0; // 10km
       final nearby = <Map<String, dynamic>>[];
 
       for (final doc in snapshot.docs) {
@@ -200,7 +200,7 @@ class _AddPricePageState extends State<AddPricePage> {
                 .limit(50)
                 .get();
 
-            const radiusInMeters = 1000.0;
+            const radiusInMeters = 10000.0;
             var sum = 0.0;
             var count = 0;
             for (final doc in snap.docs) {
