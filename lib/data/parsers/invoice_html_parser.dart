@@ -16,29 +16,35 @@ class InvoiceHtmlParser {
   /// Converte a data de emissao no formato
   /// "dd/MM/yyyy HH:mm:ss-03:00" para [DateTime].
   static DateTime? _parseEmissionDate(String text) {
-    final regex = RegExp(r'^(\\d{2})\\/(\\d{2})\\/(\\d{4})\\s+(\\d{2}:\\d{2}:\\d{2})(.*)\$');
-    final match = regex.firstMatch(text.trim());
-    if (match != null) {
-      final day = match.group(1);
-      final month = match.group(2);
-      final year = match.group(3);
-      final time = match.group(4);
-      final tz = match.group(5);
-      final iso = '$year-$month-${day}T$time$tz';
-      return DateTime.parse(iso);
-    }
-    final regex2 = RegExp(r'^(\\d{2})\\/(\\d{2})\\/(\\d{4})\\s+(\\d{2}:\\d{2}:\\d{2})\$');
-    final match2 = regex2.firstMatch(text.trim());
-    if (match2 != null) {
-      final day = match2.group(1);
-      final month = match2.group(2);
-      final year = match2.group(3);
-      final time = match2.group(4);
-      final iso = '$year-$month-${day}T$time';
-      return DateTime.parse(iso);
-    }
-    return null;
-  }
+	  // 1. Com fuso horário (ex: 18/07/2025 18:20:49-03:00)
+	  final regex = RegExp(r'^(\d{2})/(\d{2})/(\d{4})\s+(\d{2}:\d{2}:\d{2})([-+]\d{2}:\d{2})$');
+	  final match = regex.firstMatch(text.trim());
+	  if (match != null) {
+		final day = match.group(1);
+		final month = match.group(2);
+		final year = match.group(3);
+		final time = match.group(4);
+		final tz = match.group(5);
+		final iso = '${year}-${month}-${day}T$time$tz';
+
+		return DateTime.parse(iso);
+	  }
+
+	  // 2. Sem fuso horário (ex: 18/07/2025 18:20:49)
+	  final regex2 = RegExp(r'^(\d{2})/(\d{2})/(\d{4})\s+(\d{2}:\d{2}:\d{2})$');
+	  final match2 = regex2.firstMatch(text.trim());
+	  if (match2 != null) {
+		final day = match2.group(1);
+		final month = match2.group(2);
+		final year = match2.group(3);
+		final time = match2.group(4);
+		final iso = '${year}-${month}-${day}T$time';
+
+		return DateTime.parse(iso);
+	  }
+
+	  return null;
+	}
 
   /// Extrai campos de um contêiner com múltiplos `div.col`
   static Map<String, List<String>> _extractFromCols(Element container) {
