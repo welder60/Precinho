@@ -3,6 +3,7 @@ import 'package:html/dom.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../core/constants/app_constants.dart';
 import '../datasources/invoice_import_service.dart';
+import '../datasources/geocoding_service.dart';
 import '../exceptions/missing_store_location_exception.dart';
 import '../../core/constants/enums.dart';
 
@@ -205,8 +206,10 @@ class InvoiceHtmlParser {
         campos['Nome']?.first ??
         'Desconhecido';
     final endereco = campos['Endereço']?.first;
+    final cep = campos['CEP']?.first;
 
     final service = InvoiceImportService();
+    final geocoding = GeocodingService();
 
     DocumentReference<Map<String, dynamic>> invoiceRef;
 
@@ -238,9 +241,21 @@ class InvoiceHtmlParser {
       await invoiceRef.update({'store_id': storeRef.id});
     }
 
-    final storeSnap = await storeRef.get();
-    if (storeSnap.data()?['latitude'] == null ||
-        storeSnap.data()?['longitude'] == null) {
+    var storeSnap = await storeRef.get();
+    var storeData = storeSnap.data();
+    if ((storeData?['latitude'] == null || storeData?['longitude'] == null) &&
+        cep != null && cep.isNotEmpty) {
+      final coords = await geocoding.geocodeCep(cep);
+      if (coords != null) {
+        await storeRef.update({
+          'latitude': coords['lat'],
+          'longitude': coords['lng'],
+        });
+        storeSnap = await storeRef.get();
+        storeData = storeSnap.data();
+      }
+    }
+    if (storeData?['latitude'] == null || storeData?['longitude'] == null) {
       throw MissingStoreLocationException(storeRef);
     }
 
