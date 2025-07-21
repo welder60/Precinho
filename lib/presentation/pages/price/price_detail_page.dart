@@ -109,7 +109,7 @@ class PriceDetailPage extends StatelessWidget {
         .limit(50)
         .get();
 
-    const radiusInMeters = 1000.0;
+    const radiusInMeters = 10000.0;
     final nearby = <Map<String, dynamic>>[];
     for (final doc in snap.docs) {
       if (doc.id == price.id) continue;
@@ -325,7 +325,7 @@ class PriceDetailPage extends StatelessWidget {
               ),
               const SizedBox(height: AppTheme.paddingLarge),
               Text(
-                'Preços próximos (1km)',
+                'Preços próximos (10km)',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: AppTheme.paddingSmall),
