@@ -70,11 +70,20 @@ class _ProductSearchPageState extends ConsumerState<ProductSearchPage> {
                   }
                 }
 
+                final textFilter = _controller.text.trim().toLowerCase();
                 final filtered = docs.where((doc) {
-                  if (_selectedCategories.isEmpty) return true;
                   final data = doc.data() as Map<String, dynamic>;
-                  final cats = (data['categories'] as List?)?.cast<String>() ?? [];
-                  return cats.any(_selectedCategories.contains);
+                  final name = (data['name'] as String? ?? '').toLowerCase();
+                  if (textFilter.isNotEmpty && !name.contains(textFilter)) {
+                    return false;
+                  }
+                  if (_selectedCategories.isNotEmpty) {
+                    final cats = (data['categories'] as List?)?.cast<String>() ?? [];
+                    if (!cats.any(_selectedCategories.contains)) {
+                      return false;
+                    }
+                  }
+                  return true;
                 }).toList();
 
                 return Column(
