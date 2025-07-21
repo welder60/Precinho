@@ -9,6 +9,7 @@ import '../../../core/utils/formatters.dart';
 import '../../../core/utils/price_input_formatter.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/logging/firebase_logger.dart';
+import '../../../data/services/price_service.dart';
 import '../product/product_search_page.dart';
 import '../store/store_search_page.dart';
 
@@ -232,54 +233,34 @@ class _AddPricePageState extends State<AddPricePage> {
           FirebaseLogger.log('Nearby average error', {'error': e.toString()});
         }
 
-        try {
-          final prev = await FirebaseFirestore.instance
-              .collection('prices')
-              .where('product_id', isEqualTo: _selectedProduct!.id)
-              .where('store_id', isEqualTo: _selectedStore!.id)
-              .where('is_active', isEqualTo: true)
-              .orderBy('created_at', descending: true)
-              .limit(1)
-              .get();
-          if (prev.docs.isNotEmpty) {
-            await prev.docs.first.reference.update({'is_active': false});
-          }
-        } catch (e) {
-          FirebaseLogger.log('Deactivate price error', {'error': e.toString()});
-        }
-
-        final data = {
-          'product_id': _selectedProduct!.id,
-          'product_name': productData['name'],
-          'store_id': _selectedStore!.id,
-          'store_name': storeData['name'],
-          'user_id': FirebaseAuth.instance.currentUser?.uid,
-          'price': priceValue,
-          'image_url': null,
-          'is_active': true,
-          'created_at': Timestamp.now(),
-          'expires_at': Timestamp.fromDate(
-            DateTime.now().add(
-              const Duration(days: AppConstants.defaultPriceValidityDays),
-            ),
+        final priceService = PriceService();
+        await priceService.createPrice(
+          productId: _selectedProduct!.id,
+          productName: productData['name'],
+          storeId: _selectedStore!.id,
+          storeName: storeData['name'],
+          userId: FirebaseAuth.instance.currentUser?.uid,
+          value: priceValue ?? 0.0,
+          imageUrl: null,
+          latitude: storeData['latitude'] != null
+              ? (storeData['latitude'] as num).toDouble()
+              : position?.latitude,
+          longitude: storeData['longitude'] != null
+              ? (storeData['longitude'] as num).toDouble()
+              : position?.longitude,
+          createdAt: DateTime.now(),
+          expiresAt: DateTime.now().add(
+            const Duration(days: AppConstants.defaultPriceValidityDays),
           ),
-          if (variation != null) 'variation': variation,
-          if (avgComparison != null) 'avg_comparison': avgComparison,
-          if (storeData['latitude'] != null && storeData['longitude'] != null)
-            ...{
-              'latitude': (storeData['latitude'] as num).toDouble(),
-              'longitude': (storeData['longitude'] as num).toDouble(),
-            }
-          else if (position != null)
-            ...{
-              'latitude': position.latitude,
-              'longitude': position.longitude,
-            },
-        };
-        FirebaseLogger.log('Adding price', data);
-        await FirebaseFirestore.instance.collection('prices').add(data);
+          extra: {
+            if (variation != null) 'variation': variation,
+            if (avgComparison != null) 'avg_comparison': avgComparison,
+          },
+        );
         SystemSound.play(SystemSoundType.alert);
-        FirebaseLogger.log('Price added', {'product_id': data['product_id']});
+        FirebaseLogger.log('Price added', {
+          'product_id': _selectedProduct!.id,
+        });
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Preço salvo')),
