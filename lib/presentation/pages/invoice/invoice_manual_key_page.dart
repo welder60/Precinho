@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/themes/app_theme.dart';
+import '../../../core/utils/validators.dart';
 import 'invoice_qr_confirm_page.dart';
 
 class InvoiceManualKeyPage extends ConsumerStatefulWidget {
@@ -22,10 +23,7 @@ class _InvoiceManualKeyPageState extends ConsumerState<InvoiceManualKeyPage> {
   }
 
   String? _validate(String? value) {
-    if (value == null) return 'Chave obrigatória';
-    final clean = value.replaceAll(RegExp(r'\D'), '');
-    if (clean.length != 44) return 'Chave deve ter 44 dígitos';
-    return null;
+    return Validators.validateInvoiceAccessKey(value);
   }
 
   Future<void> _submit() async {

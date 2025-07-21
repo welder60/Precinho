@@ -213,6 +213,37 @@ class Validators {
     return null;
   }
 
+  // Verifica se a chave de acesso da nota fiscal é válida
+  static bool isValidInvoiceAccessKey(String key) {
+    final clean = key.replaceAll(RegExp(r'\D'), '');
+    if (clean.length != 44) return false;
+    final digits = clean.split('').map(int.parse).toList();
+    var weight = 2;
+    var sum = 0;
+    for (var i = digits.length - 2; i >= 0; i--) {
+      sum += digits[i] * weight;
+      weight = weight == 9 ? 2 : weight + 1;
+    }
+    final mod = sum % 11;
+    final dv = mod == 0 || mod == 1 ? 0 : 11 - mod;
+    return dv == digits.last;
+  }
+
+  // Validação de chave de acesso de nota fiscal
+  static String? validateInvoiceAccessKey(String? key) {
+    if (key == null || key.isEmpty) {
+      return 'Chave obrigatória';
+    }
+    final clean = key.replaceAll(RegExp(r'\D'), '');
+    if (clean.length != 44) {
+      return 'Chave deve ter 44 dígitos';
+    }
+    if (!isValidInvoiceAccessKey(clean)) {
+      return 'Chave inválida';
+    }
+    return null;
+  }
+
   // Validação de CNPJ
   static String? validateCnpj(String? cnpj) {
     if (cnpj == null || cnpj.isEmpty) {
