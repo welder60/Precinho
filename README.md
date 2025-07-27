@@ -24,7 +24,7 @@ O aplicativo segue uma identidade visual inspirada em economia colaborativa e si
 
 ### 🗺️ Mapa de Preços
 - Visualização de preços em mapa interativo
-- Busca por raio geográfico
+- Busca por raio geográfico de até **10 km**
 - Filtros por categoria e comércio
 - Localização automática do usuário
 
@@ -32,13 +32,15 @@ O aplicativo segue uma identidade visual inspirada em economia colaborativa e si
 - Busca por nome do produto
 - Filtros por categoria
 - Ordenação por preço e distância
-- Comparação de preços entre comércios
+- Comparação de preços entre comércios em um raio de 10 km
 
 ### 📝 Cadastro de Preços
 - Localização utilizada para sugerir ou cadastrar o comércio
 - Inserção manual de dados
 - Leitura de QR Code da nota fiscal
 - Validação por moderação
+- Obtenção automática das coordenadas do comércio via geocoding
+- Possibilidade de editar manualmente o nome do comércio
 
 ### 🛒 Listas de Compras
 - Criação de múltiplas listas
@@ -299,6 +301,7 @@ alteradas posteriormente.
 - [x] Tema e design system
 - [x] Validações e formatadores
 - [x] Página de administração com gestão de produtos via Firestore
+- [x] Geocodificação de endereço ao importar notas fiscais
 - [x] Gerenciamento de usuários (incluindo contas Google)
 - [x] Tela de cadastro dedicada para a versão web
 - [x] Envio de preços para o Firestore com mensagens de sucesso ou erro
@@ -381,7 +384,13 @@ Para suporte e dúvidas:
 
 ## 🔄 Changelog
 
-### v1.0.0 (Em desenvolvimento)
+### v1.1.0 (Em desenvolvimento)
+- Geocodificação automática de comércios ao importar notas fiscais
+- Comparação de preços expandida para 10 km
+- Possibilidade de editar manualmente o nome do comércio
+- Recalculo de preços unitários de produtos
+
+### v1.0.0
 - Implementação inicial
 - Sistema de autenticação
 - Telas principais
